@@ -1,0 +1,46 @@
+'use server';
+
+import { generateLifePurposeReport, type LifePurposeReportInput } from '@/ai/flows/generate-life-purpose-report';
+import { synthesizePurposeProfile, type SynthesizePurposeProfileInput } from '@/ai/flows/synthesize-purpose-profile';
+import { createRealisticRoutePlan, type RoutePlanInput } from '@/ai/flows/create-realistic-route-plan';
+import { interactWithAiCoach, type InteractWithAiCoachInput } from '@/ai/flows/interact-with-ai-coach';
+
+export async function generateReportAction(input: LifePurposeReportInput) {
+  try {
+    const result = await generateLifePurposeReport(input);
+    return { success: true, data: result };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: 'Failed to generate report.' };
+  }
+}
+
+export async function synthesizeProfileAction(input: SynthesizePurposeProfileInput) {
+  try {
+    const result = await synthesizePurposeProfile(input);
+    return { success: true, data: result };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: 'Failed to synthesize profile.' };
+  }
+}
+
+export async function createRoutePlanAction(input: RoutePlanInput) {
+  try {
+    const result = await createRealisticRoutePlan(input);
+    return { success: true, data: result };
+  } catch (error) {
+    console.error(error);
+    return { success: false, error: 'Failed to create route plan.' };
+  }
+}
+
+export async function coachInteractionAction(input: InteractWithAiCoachInput) {
+    try {
+        const result = await interactWithAiCoach(input);
+        return { success: true, data: result };
+    } catch (error) {
+        console.error(error);
+        return { success: false, error: 'Failed to get response from coach.' };
+    }
+}

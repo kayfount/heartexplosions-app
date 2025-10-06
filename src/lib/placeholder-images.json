@@ -1,3 +1,46 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero",
+      "description": "A winding path through a sunlit forest.",
+      "imageUrl": "https://images.unsplash.com/photo-1692997391209-0d972955a687?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxwYXRoJTIwZm9yZXN0fGVufDB8fHx8MTc1OTc3NzIyMXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "path forest"
+    },
+    {
+      "id": "compass-on-map",
+      "description": "A brass compass resting on an old world map.",
+      "imageUrl": "https://images.unsplash.com/photo-1603623898182-2cd32c343d70?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxjb21wYXNzJTIwbWFwfGVufDB8fHx8MTc1OTY3MTA3MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "compass map"
+    },
+    {
+      "id": "mountain-path",
+      "description": "A narrow trail leading up a majestic mountain.",
+      "imageUrl": "https://images.unsplash.com/photo-1601662096609-6e7ea402b85c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxtb3VudGFpbiUyMHBhdGh8ZW58MHx8fHwxNzU5Nzc3MjIxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "mountain path"
+    },
+    {
+      "id": "starry-sky",
+      "description": "A clear night sky full of stars over a silhouette of trees.",
+      "imageUrl": "https://images.unsplash.com/photo-1515825838458-f2a94b20105a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxzdGFycyUyMG5pZ2h0fGVufDB8fHx8MTc1OTY4Nzg3MXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "stars night"
+    },
+    {
+      "id": "journal-and-pen",
+      "description": "An open journal with a pen, ready for writing.",
+      "imageUrl": "https://images.unsplash.com/photo-1622993361017-180360aea82c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxqb3VybmFsJTIwd3JpdGluZ3xlbnwwfHx8fDE3NTk2ODkzNjZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "journal writing"
+    },
+    {
+      "id": "forest-trail",
+      "description": "A peaceful trail disappearing into a green forest.",
+      "imageUrl": "https://images.unsplash.com/photo-1658801536922-102ddcf99878?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxmb3Jlc3QlMjB0cmFpbHxlbnwwfHx8fDE3NTk3NDE5MTl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "forest trail"
+    },
+    {
+      "id": "user-avatar",
+      "description": "A placeholder for a user's avatar.",
+      "imageUrl": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NTk3NDM1MjZ8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    }
+  ]
 }
