@@ -28,7 +28,7 @@
     --destructive: 6 95% 63%; /* Coral */
     --destructive-foreground: 0 0% 100%;
     
-    --border: 170 70% 11% / 0.2; /* Deep Teal at 20% opacity */
+    --border: 170 78% 11%; /* #072F29 */
     --input: 124 54% 91%;
     --ring: 154 72% 35%;
 
@@ -66,7 +66,7 @@
     --destructive: 6 95% 73%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 124 54% 91% / 0.2;
+    --border: 71 88% 97%; /* #FAFFEE */
     --input: 170 70% 15%;
     --ring: 154 72% 45%;
   }
