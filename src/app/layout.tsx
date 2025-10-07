@@ -3,7 +3,7 @@ import { Toaster } from "@/components/ui/toaster"
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Heart Compass',
+  title: 'Heart Explosions',
   description: 'Navigate Your Path to Purpose',
 };
 
