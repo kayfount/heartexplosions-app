@@ -57,7 +57,7 @@ const features = [
 export default function DashboardPage() {
   const userImage = "https://picsum.photos/seed/avatar1/100/100";
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6 bg-secondary">
+    <div className="flex-1 space-y-8 p-4 md:p-8 pt-6 bg-secondary">
       <div className="flex items-center justify-between space-y-2">
         <h1 className="text-3xl font-bold tracking-tight font-headline">
           Good afternoon, Trailblazer!
@@ -74,9 +74,31 @@ export default function DashboardPage() {
         </div>
       </div>
       <Separator className="bg-accent h-0.5" />
-      <p className="text-lg text-muted-foreground">
-        Your journey to a more purposeful life starts now. Where to next?
-      </p>
+      
+      <Card className="w-full max-w-2xl mx-auto bg-card text-center rounded-xl shadow-lg">
+        <CardHeader>
+          <div className="mx-auto bg-secondary p-3 rounded-full">
+            <Tent className="size-8 text-primary" />
+          </div>
+          <CardTitle className="text-3xl font-headline mt-4">Welcome to Basecamp</CardTitle>
+          <CardDescription className="text-lg">
+            This is your starting point, a place to ground yourself before the expedition.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-lg text-foreground/80">
+            <span className="font-bold">Your Focus:</span> First, we'll clarify your values, strengths, and current capacity. This is the foundation for a meaningful journey.
+          </p>
+        </CardContent>
+        <CardFooter className="flex-col gap-4">
+          <Button asChild size="lg" className="w-full max-w-xs bg-accent text-accent-foreground hover:bg-accent/90 font-bold shadow-md transition-transform hover:scale-105">
+            <Link href="/basecamp">
+              Get Started Here <ArrowRight className="ml-2" />
+            </Link>
+          </Button>
+        </CardFooter>
+      </Card>
+
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 mt-8">
         {features.map((feature) => (
