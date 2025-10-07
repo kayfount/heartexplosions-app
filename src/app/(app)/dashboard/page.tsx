@@ -11,7 +11,7 @@ import { Button } from '@/components/ui/button';
 import {
   ArrowRight,
   Route,
-  LifeBuoy,
+  Car,
   MapPin,
   Edit,
   Sparkles,
@@ -32,7 +32,7 @@ const features = [
   },
   {
     href: '/driver',
-    icon: <LifeBuoy />,
+    icon: <Car />,
     title: 'The Driver',
     description: "Uncover your core motivations with a personalized Life Purpose Report.",
     image: PlaceHolderImages.find(img => img.id === 'compass-on-map'),

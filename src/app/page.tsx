@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ArrowRight, Route, Sparkles, LifeBuoy, MapPin, Tent } from "lucide-react";
+import { ArrowRight, Route, Sparkles, Car, MapPin, Tent } from "lucide-react";
 
 const features = [
   {
@@ -10,7 +10,7 @@ const features = [
     description: "Clarify your values, strengths, and constraints to set your starting point.",
   },
   {
-    icon: <LifeBuoy className="size-8 text-primary" />,
+    icon: <Car className="size-8 text-primary" />,
     title: "The Driver",
     description: "Discover your core motivations and natural genius with our purpose report.",
   },

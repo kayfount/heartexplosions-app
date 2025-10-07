@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import {
   LogOut,
   Tent,
-  LifeBuoy,
+  Car,
   MapPin,
   Route,
   Sparkles,
@@ -19,7 +19,7 @@ import { useAuth, useUser } from '@/firebase';
 
 const navItems = [
   { href: '/basecamp', icon: <Tent />, label: 'Basecamp' },
-  { href: '/driver', icon: <LifeBuoy />, label: 'The Driver' },
+  { href: '/driver', icon: <Car />, label: 'The Driver' },
   { href: '/destination', icon: <MapPin />, label: 'The Destination' },
   { href: '/route', icon: <Route />, label: 'The Route' },
   { href: '/trail-angels', icon: <Sparkles />, label: 'Trail Angels' },

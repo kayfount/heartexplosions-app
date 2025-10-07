@@ -12,7 +12,7 @@ import {
   Download,
   ListMusic,
   CheckCircle2,
-  GitBranch,
+  Car,
   Target,
   Route as RouteIcon,
   BookOpen
@@ -30,7 +30,7 @@ const initialTasks = {
 };
 
 const expeditionStages = [
-  { id: 'driver', title: '01 The Driver', icon: <GitBranch />, completed: false, href: '/driver' },
+  { id: 'driver', title: '01 The Driver', icon: <Car />, completed: false, href: '/driver' },
   { id: 'destination', title: '02 The Destination', icon: <Target />, completed: false, href: '/destination' },
   { id: 'route', title: '03 The Route', icon: <RouteIcon />, completed: false, href: '/route' },
 ];
