@@ -1,9 +1,4 @@
-import { MainNav } from '@/components/main-nav';
-import {
-  SidebarProvider,
-  Sidebar,
-  SidebarInset,
-} from '@/components/ui/sidebar';
+import { Header } from '@/components/header';
 
 export default function AppLayout({
   children,
@@ -11,11 +6,9 @@ export default function AppLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SidebarProvider>
-      <Sidebar>
-        <MainNav />
-      </Sidebar>
-      <SidebarInset>{children}</SidebarInset>
-    </SidebarProvider>
+    <div className="flex flex-col min-h-screen">
+      <Header />
+      <main className="flex-1">{children}</main>
+    </div>
   );
 }

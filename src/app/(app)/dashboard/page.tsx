@@ -75,7 +75,7 @@ export default function DashboardPage() {
       </div>
       <Separator className="bg-accent h-0.5" />
       
-      <Card className="w-full max-w-2xl mx-auto bg-card text-center rounded-xl shadow-lg">
+      <Card className="w-full max-w-2xl mx-auto bg-card text-center rounded-xl shadow-lg border-border/30">
         <CardHeader>
           <div className="mx-auto bg-secondary p-3 rounded-full">
             <Tent className="size-8 text-primary" />

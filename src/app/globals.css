@@ -4,68 +4,71 @@
 
 @layer base {
   :root {
-    --background: 48 100% 97%; /* Very light yellow */
-    --foreground: 170 70% 11%;
-    --card: 118 56% 94%;
+    --background: 48 100% 97%; /* Very light yellow / cream */
+    --foreground: 170 70% 11%; /* Deep Teal */
+
+    --card: 48 100% 99%; /* Off-White for cards */
     --card-foreground: 170 70% 11%;
-    --popover: 118 56% 94%;
+
+    --popover: 48 100% 99%;
     --popover-foreground: 170 70% 11%;
-    --primary: 8 97% 58%; /* Red from logo */
+    
+    --primary: 154 72% 35%; /* Emerald */
     --primary-foreground: 0 0% 100%;
-    --secondary: 140 50% 91%;
+
+    --secondary: 124 54% 91%; /* Sage Tint */
     --secondary-foreground: 170 70% 11%;
-    --muted: 140 50% 91%;
+
+    --muted: 124 20% 70%; 
     --muted-foreground: 170 40% 30%;
-    --accent: 30 75% 55%; /* Brownish/orange from logo */
+
+    --accent: 60 76% 43%; /* Accent Gold */
     --accent-foreground: 170 70% 11%;
-    --destructive: 8 97% 58%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 170 70% 11%;
-    --input: 170 70% 88%;
-    --ring: 8 97% 58%;
-    --chart-1: 12 76% 61%;
-    --chart-2: 173 58% 39%;
-    --chart-3: 197 37% 24%;
-    --chart-4: 43 74% 66%;
-    --chart-5: 27 87% 67%;
+
+    --destructive: 6 95% 63%; /* Coral */
+    --destructive-foreground: 0 0% 100%;
+    
+    --border: 170 70% 11% / 0.2; /* Deep Teal at 20% opacity */
+    --input: 124 54% 91%;
+    --ring: 154 72% 35%;
+
+    --chart-1: 154 72% 35%;
+    --chart-2: 60 76% 43%;
+    --chart-3: 6 95% 63%;
+    --chart-4: 170 70% 11%;
+    --chart-5: 124 54% 91%;
+
     --radius: 0.75rem;
-    --sidebar-background: 118 56% 94%;
-    --sidebar-foreground: 170 70% 11%;
-    --sidebar-primary: 8 97% 58%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 140 50% 91%;
-    --sidebar-accent-foreground: 170 70% 11%;
-    --sidebar-border: 170 70% 80%;
-    --sidebar-ring: 8 97% 58%;
   }
+
   .dark {
-    --background: 170 20% 5%;
-    --foreground: 140 50% 91%;
-    --card: 170 20% 8%;
-    --card-foreground: 140 50% 91%;
-    --popover: 170 20% 8%;
-    --popover-foreground: 140 50% 91%;
-    --primary: 8 97% 68%;
+    --background: 170 70% 8%;
+    --foreground: 124 54% 91%;
+
+    --card: 170 70% 11%;
+    --card-foreground: 124 54% 91%;
+    
+    --popover: 170 70% 11%;
+    --popover-foreground: 124 54% 91%;
+
+    --primary: 154 72% 45%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 170 20% 12%;
-    --secondary-foreground: 140 50% 91%;
-    --muted: 170 20% 12%;
-    --muted-foreground: 140 50% 60%;
-    --accent: 30 75% 65%;
+
+    --secondary: 170 70% 15%;
+    --secondary-foreground: 124 54% 91%;
+
+    --muted: 170 70% 15%;
+    --muted-foreground: 124 54% 70%;
+    
+    --accent: 60 76% 53%;
     --accent-foreground: 170 70% 11%;
-    --destructive: 8 97% 68%;
-    --destructive-foreground: 0 0% 98%;
-    --border: 140 50% 91% / 0.2;
-    --input: 140 50% 91% / 0.2;
-    --ring: 8 97% 68%;
-    --sidebar-background: 170 20% 8%;
-    --sidebar-foreground: 140 50% 91%;
-    --sidebar-primary: 8 97% 68%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 170 20% 12%;
-    --sidebar-accent-foreground: 140 50% 91%;
-    --sidebar-border: 140 50% 91% / 0.2;
-    --sidebar-ring: 8 97% 68%;
+
+    --destructive: 6 95% 73%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 124 54% 91% / 0.2;
+    --input: 170 70% 15%;
+    --ring: 154 72% 45%;
   }
 }
 
@@ -80,10 +83,13 @@
 
 @layer utilities {
   .bg-primary-gradient {
-    @apply bg-gradient-to-r from-primary to-[hsl(148,74%,35%)];
+    background-image: linear-gradient(to right, hsl(var(--primary)), hsl(var(--accent)));
   }
   .text-gradient-logo {
-    @apply bg-gradient-to-r from-[hsl(8,97%,58%)] via-[hsl(30,75%,55%)] to-[hsl(148,74%,35%)] bg-clip-text text-transparent;
+    background-image: linear-gradient(to right, hsl(6 95% 63%), hsl(60 76% 43%), hsl(154 72% 35%));
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
   }
   .confetti-button {
     position: relative;
