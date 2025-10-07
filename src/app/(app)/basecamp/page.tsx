@@ -81,7 +81,7 @@ export default function BasecampDashboardPage() {
       <Separator className="bg-destructive h-0.5" />
 
       {/* Welcome Box */}
-      <Card className="w-full max-w-4xl mx-auto bg-card/80 border-primary/20 shadow-lg">
+      <Card className="w-full max-w-4xl mx-auto bg-card/80 border-border shadow-lg">
         <CardContent className="p-8 text-center">
             <Tent className="mx-auto size-12 text-accent mb-4"/>
             <h2 className="text-3xl font-bold font-headline mb-2">{isReturningUser ? "Welcome Back to Basecamp" : "Welcome to Basecamp!"}</h2>
@@ -227,5 +227,7 @@ function StatusCard({ isComplete, incompleteText, completeText, description, onC
         </Card>
     )
 }
+
+    
 
     
