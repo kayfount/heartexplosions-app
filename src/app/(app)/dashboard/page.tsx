@@ -57,7 +57,7 @@ const features = [
 export default function DashboardPage() {
   const userImage = "https://picsum.photos/seed/avatar1/100/100";
   return (
-    <div className="flex-1 space-y-8 p-4 md:p-8 pt-6 bg-secondary">
+    <div className="flex-1 space-y-8 p-4 md:p-8 pt-6 bg-background">
       <div className="flex items-center justify-between space-y-2">
         <h1 className="text-3xl font-bold tracking-tight font-headline">
           Good afternoon, Trailblazer!
