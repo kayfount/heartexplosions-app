@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -19,7 +20,7 @@ const navItems = [
   { href: '/driver', icon: <LifeBuoy />, label: 'The Driver' },
   { href: '/destination', icon: <MapPin />, label: 'The Destination' },
   { href: '/route', icon: <Route />, label: 'The Route' },
-  { href: '/trail-angels', icon: <Sparkles />, label: 'Insights' },
+  { href: '/trail-angels', icon: <Sparkles />, label: 'Trail Angels' },
 ];
 
 export function Header() {
@@ -30,7 +31,7 @@ export function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
-            <Link href="/basecamp">
+            <Link href="/dashboard">
               <Logo />
             </Link>
           </div>

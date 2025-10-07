@@ -31,7 +31,7 @@ export default function BasecampPage() {
         <CardFooter className="flex-col gap-4">
           <Button asChild size="lg" className="w-full max-w-xs bg-accent text-accent-foreground hover:bg-accent/90 font-bold shadow-md transition-transform hover:scale-105">
             <Link href="/basecamp/wizard">
-              Get Started Here <ArrowRight className="ml-2" />
+              Begin Your Expedition <ArrowRight className="ml-2" />
             </Link>
           </Button>
         </CardFooter>

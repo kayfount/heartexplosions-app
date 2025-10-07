@@ -10,6 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { ArrowLeft, ArrowRight, Flag, PartyPopper } from 'lucide-react';
+import Link from 'next/link';
 
 const totalSteps = 5;
 
@@ -131,6 +132,15 @@ export default function BasecampWizardPage() {
     }
   };
 
+  const isStepValid = () => {
+      switch (step) {
+          case 2: return formData.values.length > 0;
+          case 3: return formData.strengths.trim() !== '';
+          case 4: return formData.timeBudget.trim() !== '' && !isNaN(Number(formData.timeBudget));
+          default: return true;
+      }
+  }
+
   return (
     <Card>
         <div className="p-4">
@@ -145,9 +155,18 @@ export default function BasecampWizardPage() {
             <ArrowLeft className="mr-2 size-4" /> Previous
           </Button>
           <p className="text-sm text-muted-foreground">Step {step} of {totalSteps}</p>
-          <Button onClick={handleNext} disabled={step === totalSteps} className="bg-primary-gradient text-primary-foreground">
-            {step === totalSteps - 1 ? "Finish" : "Next"} <ArrowRight className="ml-2 size-4" />
-          </Button>
+          {step < totalSteps && (
+            <Button onClick={handleNext} disabled={!isStepValid()} className="bg-primary-gradient text-primary-foreground">
+                Next <ArrowRight className="ml-2 size-4" />
+            </Button>
+          )}
+          {step === totalSteps && (
+              <Button asChild className="bg-primary-gradient text-primary-foreground">
+                  <Link href="/driver">
+                    Go to The Driver <ArrowRight className="ml-2 size-4" />
+                  </Link>
+              </Button>
+          )}
         </div>
       </div>
     </Card>
