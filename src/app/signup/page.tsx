@@ -57,7 +57,7 @@ export default function SignupPage() {
 
   useEffect(() => {
     if (user && !isUserLoading) {
-      router.push('/');
+      router.push('/basecamp');
     }
   }, [user, isUserLoading, router]);
 

@@ -50,7 +50,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     if (user && !isUserLoading) {
-      router.push('/');
+      router.push('/basecamp');
     }
   }, [user, isUserLoading, router]);
 

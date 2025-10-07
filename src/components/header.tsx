@@ -18,7 +18,7 @@ import { initiateSignOut } from '@/firebase/non-blocking-login';
 import { useAuth, useUser } from '@/firebase';
 
 const navItems = [
-  { href: '/', icon: <Tent />, label: 'Basecamp' },
+  { href: '/basecamp', icon: <Tent />, label: 'Basecamp' },
   { href: '/driver', icon: <LifeBuoy />, label: 'The Driver' },
   { href: '/destination', icon: <MapPin />, label: 'The Destination' },
   { href: '/route', icon: <Route />, label: 'The Route' },
@@ -43,7 +43,7 @@ export function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
-            <Link href={showNav ? "/dashboard" : "/"}>
+            <Link href={showNav ? "/basecamp" : "/"}>
               <Logo />
             </Link>
           </div>
