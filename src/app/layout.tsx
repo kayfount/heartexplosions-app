@@ -4,7 +4,7 @@ import './globals.css';
 import { FirebaseClientProvider } from '@/firebase';
 
 export const metadata: Metadata = {
-  title: 'Heart Compass',
+  title: 'Heart Explosions',
   description: 'Navigate Your Path to Purpose',
 };
 
