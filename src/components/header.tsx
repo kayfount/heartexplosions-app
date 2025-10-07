@@ -14,6 +14,8 @@ import {
 import { Logo } from './logo';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
+import { initiateSignOut } from '@/firebase/non-blocking-login';
+import { useAuth } from '@/firebase';
 
 const navItems = [
   { href: '/', icon: <Tent />, label: 'Basecamp' },
@@ -25,13 +27,20 @@ const navItems = [
 
 export function Header() {
   const pathname = usePathname();
+  const auth = useAuth();
+
+  const handleLogout = () => {
+    if (auth) {
+      initiateSignOut(auth);
+    }
+  };
 
   return (
-    <header className="bg-background/80 backdrop-blur-sm sticky top-0 z-50 border-b border-header-border">
+    <header className="bg-[#FAFFEE] sticky top-0 z-50 border-b border-header-border">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
-            <Link href="/">
+            <Link href="/dashboard">
               <Logo />
             </Link>
           </div>
@@ -53,7 +62,7 @@ export function Header() {
             ))}
           </nav>
           <div className="flex items-center gap-2">
-             <Button variant="ghost" className="text-[#072F29] hoverbg-secondary/50">
+             <Button variant="ghost" onClick={handleLogout} className="text-[#072F29] hoverbg-secondary/50">
                 <LogOut className="mr-2 size-4" />
                 Log Out
             </Button>
