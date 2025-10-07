@@ -164,13 +164,13 @@ export default function BasecampDashboardPage() {
                     <Link href={stage.href} key={stage.id}>
                         <Card className="hover:border-primary/50 transition-colors flex items-center p-4">
                            <div className="flex items-center gap-4">
-                                <div className="p-2 bg-secondary rounded-md text-primary">
+                                <div className="p-2 bg-secondary rounded-md text-accent">
                                     {stage.icon}
                                 </div>
                                 <p className="font-bold text-lg">{stage.title}</p>
                            </div>
                            <div className="ml-auto">
-                            {stage.completed ? <CheckCircle2 className="text-primary"/> : <ArrowRight className="text-muted-foreground"/>}
+                            {stage.completed ? <CheckCircle2 className="text-accent"/> : <ArrowRight className="text-muted-foreground"/>}
                            </div>
                         </Card>
                     </Link>
@@ -186,11 +186,11 @@ export default function BasecampDashboardPage() {
             <CardContent className="p-6">
                 <div className="grid grid-cols-2 gap-8 text-center">
                     <div>
-                        <p className="text-4xl font-bold text-primary">78%</p>
+                        <p className="text-4xl font-bold text-accent">78%</p>
                         <p className="text-sm text-muted-foreground">Role Clarity Score</p>
                     </div>
                      <div>
-                        <p className="text-4xl font-bold text-primary">12</p>
+                        <p className="text-4xl font-bold text-accent">12</p>
                         <p className="text-sm text-muted-foreground">Days on Journey</p>
                     </div>
                 </div>
@@ -216,7 +216,7 @@ function StatusCard({ isComplete, incompleteText, completeText, description, onC
         <Card onClick={onClick} className={cn("cursor-pointer transition-colors hover:border-primary/50", isComplete && 'bg-secondary/50')}>
             <CardContent className="p-6 flex items-center gap-4">
                 <div>
-                  {isComplete ? <CheckCircle2 className="size-8 text-primary" /> : <div className="size-8 rounded-full border-2 border-dashed border-muted-foreground flex items-center justify-center"><ArrowRight className="size-4 text-muted-foreground" /></div>}
+                  {isComplete ? <CheckCircle2 className="size-8 text-accent" /> : <div className="size-8 rounded-full border-2 border-dashed border-muted-foreground flex items-center justify-center"><ArrowRight className="size-4 text-muted-foreground" /></div>}
                 </div>
                 <div>
                     <p className="font-bold">{isComplete ? completeText : incompleteText}</p>
