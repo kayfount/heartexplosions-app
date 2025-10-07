@@ -15,7 +15,7 @@ export function Logo({ className, iconOnly = false }: LogoProps) {
       </div>
       {!iconOnly && (
         <span className="text-xl font-bold tracking-tight font-headline text-gradient-logo">
-          Heart Explosions
+          Heart Compass
         </span>
       )}
     </div>

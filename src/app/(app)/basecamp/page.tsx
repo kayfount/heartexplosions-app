@@ -1,18 +1,136 @@
-import { BasecampWizard } from './basecamp-wizard';
-import { Tent } from 'lucide-react';
+import Link from 'next/link';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import {
+  ArrowRight,
+  Route,
+  LifeBuoy,
+  MapPin,
+  Tent,
+  Edit,
+} from 'lucide-react';
+import Image from 'next/image';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+
+const features = [
+  {
+    href: '/driver',
+    icon: <LifeBuoy />,
+    title: 'The Driver',
+    description: "Uncover your core motivations with a personalized Life Purpose Report.",
+    image: PlaceHolderImages.find(img => img.id === 'compass-on-map'),
+  },
+  {
+    href: '/destination',
+    icon: <MapPin />,
+    title: 'The Destination',
+    description: 'Define your focus and create an actionable Purpose Profile.',
+    image: PlaceHolderImages.find(img => img.id === 'starry-sky'),
+  },
+  {
+    href: '/route',
+    icon: <Route />,
+    title: 'The Route',
+    description: 'Build a sustainable roadmap tailored to your real-world capacity.',
+    image: PlaceHolderImages.find(img => img.id === 'mountain-path'),
+  },
+   {
+    href: '/trail-angels',
+    icon: <LifeBuoy />,
+    title: 'Trail Angels',
+    description: 'Get guidance from an AI coach and access a hub of helpful resources.',
+    image: PlaceHolderImages.find(img => img.id === 'journal-and-pen'),
+  },
+];
 
 export default function BasecampPage() {
+  const userImage = "https://picsum.photos/seed/avatar1/100/100";
   return (
-    <div className="container mx-auto max-w-4xl p-4 md:p-8">
-      <div className="flex items-center gap-4 mb-6">
-        <Tent className="size-10 text-primary" />
-        <h1 className="text-4xl font-bold font-headline">Basecamp: Set Your Starting Point</h1>
+    <div className="flex-1 space-y-8 p-4 md:p-8 pt-6 bg-background">
+      <div className="flex items-center justify-between space-y-2">
+        <h1 className="text-3xl font-bold tracking-tight font-headline">
+          Good afternoon, Trailblazer!
+        </h1>
+        <div className="flex items-center space-x-4">
+          <Avatar>
+            <AvatarImage src={userImage} data-ai-hint="person portrait" />
+            <AvatarFallback>U</AvatarFallback>
+          </Avatar>
+          <Button variant="outline">
+            <Edit className="mr-2 h-4 w-4" />
+            Edit Profile
+          </Button>
+        </div>
       </div>
-      <p className="text-lg text-foreground/80 mb-8">
-        Every great expedition begins with knowing where you stand. This guided onboarding will help you clarify your current season, values, strengths, and time budget. The result will be a personalized "Starting Point" summary to guide your journey.
-      </p>
+      <Separator className="bg-accent h-0.5" />
       
-      <BasecampWizard />
+      <Card className="w-full max-w-2xl mx-auto bg-card text-center rounded-xl shadow-lg border-border/30">
+        <CardHeader>
+          <div className="mx-auto bg-secondary p-3 rounded-full">
+            <Tent className="size-8 text-primary" />
+          </div>
+          <CardTitle className="text-3xl font-headline mt-4">Welcome to Basecamp</CardTitle>
+          <CardDescription className="text-lg">
+            This is your starting point, a place to ground yourself before the expedition.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <p className="text-lg text-foreground/80">
+            <span className="font-bold">Your Focus:</span> First, we'll clarify your values, strengths, and current capacity. This is the foundation for a meaningful journey.
+          </p>
+        </CardContent>
+        <CardFooter className="flex-col gap-4">
+          <Button asChild size="lg" className="w-full max-w-xs bg-accent text-accent-foreground hover:bg-accent/90 font-bold shadow-md transition-transform hover:scale-105">
+            <Link href="/basecamp/wizard">
+              Get Started Here <ArrowRight className="ml-2" />
+            </Link>
+          </Button>
+        </CardFooter>
+      </Card>
+
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 mt-8">
+        {features.map((feature) => (
+           <Card key={feature.title} className="flex flex-col overflow-hidden rounded-xl shadow-md border-border/20 hover:border-primary/50 transition-all duration-300 transform hover:-translate-y-1">
+            {feature.image && (
+                <div className="relative h-48 w-full">
+                    <Image
+                        src={feature.image.imageUrl}
+                        alt={feature.image.description}
+                        fill
+                        className="object-cover"
+                        data-ai-hint={feature.image.imageHint}
+                    />
+                </div>
+            )}
+            <CardHeader>
+              <div className="flex items-center gap-2 text-primary">
+                {feature.icon}
+                <CardTitle className="font-headline text-2xl text-foreground">{feature.title}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="flex-grow">
+              <CardDescription>{feature.description}</CardDescription>
+            </CardContent>
+            <CardFooter>
+              <Button asChild className="w-full bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
+                <Link href={feature.href}>
+                  Go to {feature.title} <ArrowRight className="ml-2 size-4" />
+                </Link>
+              </Button>
+            </CardFooter>
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

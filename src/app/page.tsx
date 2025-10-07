@@ -46,11 +46,11 @@ export default function Home() {
             Navigate Your Path to Purpose
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-foreground/80">
-            Heart Explosions is your expedition partner for a life of meaning, providing AI-powered tools and compassionate guidance to help you move forward while honoring your real-world capacity.
+            Heart Compass is your expedition partner for a life of meaning, providing AI-powered tools and compassionate guidance to help you move forward while honoring your real-world capacity.
           </p>
           <div className="mt-8 flex justify-center gap-4">
             <Button asChild size="lg" className="bg-primary-gradient text-primary-foreground font-bold shadow-lg transition-transform hover:scale-105">
-              <Link href="/dashboard">
+              <Link href="/basecamp">
                 Start Your Journey <ArrowRight className="ml-2" />
               </Link>
             </Button>
@@ -81,7 +81,7 @@ export default function Home() {
       </main>
 
       <footer className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-foreground/60">
-        <p>&copy; {new Date().getFullYear()} Heart Explosions. All Rights Reserved.</p>
+        <p>&copy; {new Date().getFullYear()} Heart Compass. All Rights Reserved.</p>
       </footer>
     </div>
   );

@@ -15,7 +15,7 @@ const totalSteps = 5;
 
 const values = ["Authenticity", "Growth", "Community", "Creativity", "Freedom", "Impact", "Security", "Adventure", "Wisdom", "Kindness", "Discipline", "Joy"];
 
-export function BasecampWizard() {
+export default function BasecampWizardPage() {
   const [step, setStep] = useState(1);
   const [formData, setFormData] = useState({
     season: '',
