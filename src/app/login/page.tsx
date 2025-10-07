@@ -55,6 +55,7 @@ export default function LoginPage() {
   }, [user, isUserLoading, router]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!auth) return;
     initiateEmailSignIn(auth, values.email, values.password);
   }
 

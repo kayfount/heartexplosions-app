@@ -62,6 +62,7 @@ export default function SignupPage() {
   }, [user, isUserLoading, router]);
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!auth) return;
     initiateEmailSignUp(auth, values.email, values.password);
   }
   
