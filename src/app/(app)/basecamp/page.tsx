@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -17,7 +17,7 @@ import {
   Route as RouteIcon,
   BookOpen
 } from 'lucide-react';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 
@@ -45,8 +45,13 @@ const quotes = [
 export default function BasecampDashboardPage() {
   const [tasks, setTasks] = useState(initialTasks);
   const [isReturningUser, setIsReturningUser] = useState(true);
+  const [quote, setQuote] = useState('');
+  
+  useEffect(() => {
+    setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+  }, []);
+
   const userImage = "https://picsum.photos/seed/avatar1/100/100";
-  const quote = quotes[Math.floor(Math.random() * quotes.length)];
   const allTasksCompleted = Object.values(tasks).every(Boolean);
 
   const getFocusText = () => {
@@ -64,14 +69,16 @@ export default function BasecampDashboardPage() {
   return (
     <div className="flex-1 space-y-8 p-4 md:p-8 pt-6 bg-background">
       <div className="flex items-center justify-between space-y-2">
-        <h1 className="text-3xl font-bold tracking-tight font-headline">
-          Good morning, Keke!
-        </h1>
-        <div className="flex items-center space-x-4">
-          <Avatar>
+        <div className="flex items-center gap-4">
+          <Avatar className="h-20 w-20">
             <AvatarImage src={userImage} data-ai-hint="person portrait" />
             <AvatarFallback>U</AvatarFallback>
           </Avatar>
+          <h1 className="text-3xl font-bold tracking-tight font-headline">
+            Good morning, Keke!
+          </h1>
+        </div>
+        <div className="flex items-center space-x-4">
           <Button variant="outline">
             <Edit className="mr-2 h-4 w-4" />
             Edit Profile
