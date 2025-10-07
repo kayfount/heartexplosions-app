@@ -4,17 +4,22 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LogOut,
+  Tent,
+  Car,
+  MapPin,
+  Route,
+  BookOpen,
 } from 'lucide-react';
 import { Logo } from './logo';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/basecamp', icon: '🏕️', label: 'Basecamp' },
-  { href: '/driver', icon: '⚙️', label: 'The Driver' },
-  { href: '/destination', icon: '📍', label: 'The Destination' },
-  { href: '/route', icon: '🗺️', label: 'The Route' },
-  { href: '/trail-angels', icon: '📖', label: 'Insights' },
+  { href: '/basecamp', icon: <Tent />, label: 'Basecamp' },
+  { href: '/driver', icon: <Car />, label: 'The Driver' },
+  { href: '/destination', icon: <MapPin />, label: 'The Destination' },
+  { href: '/route', icon: <Route />, label: 'The Route' },
+  { href: '/trail-angels', icon: <BookOpen />, label: 'Insights' },
 ];
 
 export function Header() {
@@ -27,25 +32,25 @@ export function Header() {
           <div className="flex-shrink-0">
             <Logo />
           </div>
-          <nav className="hidden md:flex md:items-center md:gap-8">
+          <nav className="hidden md:flex md:items-center md:gap-2">
             {navItems.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 className={cn(
-                  'flex items-center gap-2 text-sm font-medium transition-colors',
+                  'flex items-center gap-2 text-sm font-medium transition-colors px-4 py-2 rounded-lg',
                   pathname.startsWith(item.href)
-                    ? 'text-foreground'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-secondary text-foreground'
+                    : 'text-foreground hover:bg-secondary/50'
                 )}
               >
-                <span>{item.icon}</span>
+                {item.icon}
                 <span>{item.label}</span>
               </Link>
             ))}
           </nav>
           <div className="flex items-center gap-2">
-             <Button variant="ghost" className="text-muted-foreground hover:text-foreground">
+             <Button variant="ghost" className="text-foreground hover:bg-secondary/50">
                 <LogOut className="mr-2 size-4" />
                 Log Out
             </Button>

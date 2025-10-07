@@ -5,25 +5,25 @@
 @layer base {
   :root {
     --background: 48 100% 97%; /* Very light yellow / cream */
-    --foreground: 170 70% 11%; /* Deep Teal */
+    --foreground: 170 78% 11%; /* #072F29 */
 
     --card: 48 100% 99%; /* Off-White for cards */
-    --card-foreground: 170 70% 11%;
+    --card-foreground: 170 78% 11%;
 
     --popover: 48 100% 99%;
-    --popover-foreground: 170 70% 11%;
+    --popover-foreground: 170 78% 11%;
     
     --primary: 154 72% 35%; /* Emerald */
     --primary-foreground: 0 0% 100%;
 
     --secondary: 124 54% 91%; /* Sage Tint */
-    --secondary-foreground: 170 70% 11%;
+    --secondary-foreground: 170 78% 11%;
 
     --muted: 124 20% 70%; 
     --muted-foreground: 170 40% 30%;
 
     --accent: 60 76% 43%; /* Accent Gold */
-    --accent-foreground: 170 70% 11%;
+    --accent-foreground: 170 78% 11%;
 
     --destructive: 6 95% 63%; /* Coral */
     --destructive-foreground: 0 0% 100%;
