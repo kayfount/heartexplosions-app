@@ -16,7 +16,7 @@ export default function TrailAngelsPage() {
         <Sparkles className="size-10 text-primary" />
         <h1 className="text-4xl font-bold font-headline">Trail Angels: Your Insights Hub</h1>
       </div>
-      <p className="text-lg text-foreground/80 mb-8 max-w-4xl">
+      <p className="text-lg text-foreground/80 mb-8 max-w-5xl">
         You're not alone on this journey. Chat with your AI purpose coach for guidance, or browse our library of helpful resources to support your expedition.
       </p>
       

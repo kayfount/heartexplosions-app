@@ -68,7 +68,7 @@ export default function BasecampDashboardPage() {
   
   return (
     <div className="flex-1 space-y-8 p-4 md:p-8 pt-6">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between space-y-2">
           <div className="flex items-center gap-4">
             <Avatar className="h-20 w-20">
@@ -89,7 +89,7 @@ export default function BasecampDashboardPage() {
       </div>
       
       {/* Welcome Box */}
-      <Card className="w-full max-w-4xl mx-auto bg-card/80 border-border shadow-lg">
+      <Card className="w-full max-w-5xl mx-auto bg-card/80 border-border shadow-lg">
         <CardContent className="p-8 text-center">
             <Tent className="mx-auto size-12 text-accent mb-4"/>
             <h2 className="text-3xl font-bold font-headline mb-2">{isReturningUser ? "Welcome Back to Basecamp" : "Welcome to Basecamp!"}</h2>
@@ -106,7 +106,7 @@ export default function BasecampDashboardPage() {
         </CardContent>
       </Card>
 
-      <div className="max-w-6xl mx-auto space-y-8">
+      <div className="max-w-5xl mx-auto space-y-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <div className="lg:col-span-2 space-y-8">
               {/* Registration Section */}
