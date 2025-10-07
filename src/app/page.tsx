@@ -1,7 +1,6 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Logo } from "@/components/logo";
 import { ArrowRight, Route, Sparkles, LifeBuoy, MapPin, Tent } from "lucide-react";
 
 const features = [
@@ -36,10 +35,6 @@ const features = [
 export default function Home() {
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="container mx-auto px-4 sm:px-6 lg:px-8 py-4">
-        <Logo />
-      </header>
-
       <main className="flex-grow">
         <section className="container mx-auto px-4 sm:px-6 lg:px-8 text-center py-20 md:py-32">
           <h1 className="text-4xl md:text-6xl font-bold font-headline tracking-tighter text-gradient-logo">
