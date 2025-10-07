@@ -16,7 +16,7 @@ import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 
 const navItems = [
-  { href: '/basecamp', icon: <Tent />, label: 'Basecamp' },
+  { href: '/', icon: <Tent />, label: 'Basecamp' },
   { href: '/driver', icon: <LifeBuoy />, label: 'The Driver' },
   { href: '/destination', icon: <MapPin />, label: 'The Destination' },
   { href: '/route', icon: <Route />, label: 'The Route' },
@@ -31,7 +31,7 @@ export function Header() {
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
-            <Link href="/dashboard">
+            <Link href="/">
               <Logo />
             </Link>
           </div>
@@ -42,7 +42,7 @@ export function Header() {
                 href={item.href}
                 className={cn(
                   'flex items-center gap-2 text-sm font-bold transition-colors px-4 py-2 rounded-lg text-[#072F29]',
-                  pathname.startsWith(item.href)
+                  pathname === item.href
                     ? 'bg-secondary'
                     : 'hover:bg-secondary/50'
                 )}
