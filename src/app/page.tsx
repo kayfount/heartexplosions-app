@@ -50,7 +50,7 @@ export default function Home() {
           </p>
           <div className="mt-8 flex justify-center gap-4">
             <Button asChild size="lg" className="bg-primary-gradient text-primary-foreground font-bold shadow-lg transition-transform hover:scale-105">
-              <Link href="/basecamp">
+              <Link href="/login">
                 Start Your Journey <ArrowRight className="ml-2" />
               </Link>
             </Button>
@@ -65,7 +65,7 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {features.map((feature) => (
-                <Card key={feature.title} className="bg-background/80 shadow-lg rounded-xl border-border/20 hover:border-primary/50 transition-all duration-300 transform hover:-translate-y-1">
+                <Card key={feature.title} className="bg-background/80 transition-all duration-300 transform hover:-translate-y-1">
                   <CardHeader className="flex flex-row items-center gap-4">
                     {feature.icon}
                     <CardTitle className="font-headline text-2xl text-foreground">{feature.title}</CardTitle>

@@ -132,7 +132,7 @@ export default function BasecampWizardPage() {
   };
 
   return (
-    <Card className="rounded-xl shadow-lg border-border/30 overflow-hidden">
+    <Card>
         <div className="p-4">
             <Progress value={progress} className="h-2" />
         </div>

@@ -29,9 +29,9 @@ export default function TrailAngelsPage() {
             <h2 className="text-2xl font-bold font-headline mb-4 flex items-center gap-2"><BookOpen className="size-6 text-accent" /> Resource Library</h2>
             <div className="space-y-4">
                 {resources.map(resource => (
-                    <Card key={resource.title} className="bg-background/80 shadow-md border-border/20">
+                    <Card key={resource.title}>
                         <CardHeader>
-                            <CardTitle className="text-lg font-bold">{resource.title}</CardTitle>
+                            <CardTitle>{resource.title}</CardTitle>
                             <CardDescription>{resource.description}</CardDescription>
                         </CardHeader>
                         <CardContent>

@@ -73,7 +73,7 @@ export default function BasecampPage() {
       </div>
       <Separator className="bg-accent h-0.5" />
       
-      <Card className="w-full max-w-2xl mx-auto bg-card text-center rounded-xl shadow-lg border-border/30">
+      <Card className="w-full max-w-2xl mx-auto bg-card text-center">
         <CardHeader>
           <div className="mx-auto bg-secondary p-3 rounded-full">
             <Tent className="size-8 text-primary" />
@@ -100,7 +100,7 @@ export default function BasecampPage() {
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 mt-8">
         {features.map((feature) => (
-           <Card key={feature.title} className="flex flex-col overflow-hidden rounded-xl shadow-md border-border/20 hover:border-primary/50 transition-all duration-300 transform hover:-translate-y-1">
+           <Card key={feature.title} className="flex flex-col overflow-hidden transition-all duration-300 transform hover:-translate-y-1">
             {feature.image && (
                 <div className="relative h-48 w-full">
                     <Image

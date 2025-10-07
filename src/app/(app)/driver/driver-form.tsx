@@ -79,9 +79,9 @@ export function DriverForm() {
 
   return (
     <>
-      <Card className="rounded-xl shadow-lg border-border/30">
+      <Card>
         <CardHeader>
-          <CardTitle className="font-headline text-2xl">Enter Your Details</CardTitle>
+          <CardTitle>Enter Your Details</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -171,10 +171,10 @@ export function DriverForm() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
         >
-        <Card className="mt-8 rounded-xl shadow-lg border-primary/50">
+        <Card className="mt-8 border-primary/50">
           <CardHeader className="flex flex-row justify-between items-start">
             <div>
-              <CardTitle className="font-headline text-2xl text-gradient-logo">Your Life Purpose Report</CardTitle>
+              <CardTitle>Your Life Purpose Report</CardTitle>
             </div>
             <div className="flex gap-2">
                 <Button variant="outline" size="sm"><Download className="mr-2 h-4 w-4" /> PDF</Button>

@@ -15,12 +15,12 @@ import Link from "next/link"
 export default function LoginPage() {
   return (
     <div className="flex items-center justify-center min-h-screen">
-      <Card className="w-full max-w-sm rounded-2xl shadow-2xl">
+      <Card className="w-full max-w-sm">
         <CardHeader className="space-y-1 text-center">
             <div className="mx-auto">
                 <Logo />
             </div>
-          <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
+          <CardTitle>Welcome Back</CardTitle>
           <CardDescription>
             Enter your email below to log in to your account
           </CardDescription>

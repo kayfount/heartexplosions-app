@@ -95,9 +95,9 @@ export function RouteForm() {
 
   return (
     <>
-      <Card className="rounded-xl shadow-lg border-border/30">
+      <Card>
         <CardHeader>
-          <CardTitle className="font-headline text-2xl">Plan Your Route</CardTitle>
+          <CardTitle>Plan Your Route</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -163,9 +163,9 @@ export function RouteForm() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
         >
-        <Card className="mt-8 rounded-xl shadow-lg border-primary/50">
+        <Card className="mt-8 border-primary/50">
           <CardHeader>
-            <CardTitle className="font-headline text-2xl text-gradient-logo">Your Route Plan</CardTitle>
+            <CardTitle>Your Route Plan</CardTitle>
             <CardDescription>An interactive roadmap to keep you on track. Check off items as you complete them.</CardDescription>
           </CardHeader>
           <CardContent>

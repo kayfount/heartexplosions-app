@@ -60,8 +60,8 @@ export function DestinationClient() {
                 key={area.id}
                 onClick={() => !isLoading && handleSelectArea(area.id)}
                 className={cn(
-                    "rounded-xl shadow-lg border-border/30 text-center p-6 cursor-pointer transition-all duration-300 transform hover:-translate-y-1",
-                    selectedArea === area.id ? 'border-primary border-2 shadow-primary/20' : 'hover:border-primary/50'
+                    "text-center p-6 cursor-pointer transition-all duration-300 transform hover:-translate-y-1",
+                    selectedArea === area.id ? 'border-primary border-4 shadow-primary/20' : 'hover:border-primary/50'
                 )}
             >
                 <div className={cn("mx-auto flex items-center justify-center size-16 rounded-full bg-secondary mb-4", selectedArea === area.id && "bg-primary text-primary-foreground")}>
@@ -89,9 +89,9 @@ export function DestinationClient() {
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5 }}
         >
-          <Card className="mt-8 rounded-xl shadow-lg border-primary/50">
+          <Card className="mt-8 border-primary/50">
             <CardHeader>
-                <CardTitle className="font-headline text-2xl text-gradient-logo">Your Purpose Profile</CardTitle>
+                <CardTitle>Your Purpose Profile</CardTitle>
                 <CardDescription>Based on your selection of "{selectedArea}".</CardDescription>
             </CardHeader>
             <CardContent>

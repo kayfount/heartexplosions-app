@@ -75,7 +75,7 @@ export function CoachChat() {
   }
 
   return (
-    <Card className="rounded-xl shadow-lg flex flex-col h-[70vh] max-h-[700px]">
+    <Card className="flex flex-col h-[70vh] max-h-[700px]">
         <CardHeader>
             {/* Can be used for title if needed */}
         </CardHeader>
