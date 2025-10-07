@@ -1,64 +1,10 @@
 import Link from 'next/link';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
-  ArrowRight,
-  Route,
-  LifeBuoy,
-  MapPin,
   Edit,
-  Sparkles,
-  Tent,
 } from 'lucide-react';
-import Image from 'next/image';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-
-const features = [
-   {
-    href: '/basecamp/wizard',
-    icon: <Tent />,
-    title: 'Basecamp',
-    description: "Clarify your values, strengths, and constraints to set your starting point.",
-    image: PlaceHolderImages.find(img => img.id === 'forest-trail'),
-  },
-  {
-    href: '/driver',
-    icon: <LifeBuoy />,
-    title: 'The Driver',
-    description: "Uncover your core motivations with a personalized Life Purpose Report.",
-    image: PlaceHolderImages.find(img => img.id === 'compass-on-map'),
-  },
-  {
-    href: '/destination',
-    icon: <MapPin />,
-    title: 'The Destination',
-    description: 'Define your focus and create an actionable Purpose Profile.',
-    image: PlaceHolderImages.find(img => img.id === 'starry-sky'),
-  },
-  {
-    href: '/route',
-    icon: <Route />,
-    title: 'The Route',
-    description: 'Build a sustainable roadmap tailored to your real-world capacity.',
-    image: PlaceHolderImages.find(img => img.id === 'mountain-path'),
-  },
-   {
-    href: '/trail-angels',
-    icon: <Sparkles />,
-    title: 'Trail Angels',
-    description: 'Get guidance from an AI coach and access a hub of helpful resources.',
-    image: PlaceHolderImages.find(img => img.id === 'journal-and-pen'),
-  },
-];
 
 export default function BasecampDashboardPage() {
   const userImage = "https://picsum.photos/seed/avatar1/100/100";
@@ -81,39 +27,7 @@ export default function BasecampDashboardPage() {
       </div>
       <Separator className="bg-accent h-0.5" />
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {features.map((feature) => (
-           <Card key={feature.title} className="flex flex-col overflow-hidden transition-all duration-300 transform hover:-translate-y-1">
-            {feature.image && (
-                <div className="relative h-48 w-full">
-                    <Image
-                        src={feature.image.imageUrl}
-                        alt={feature.image.description}
-                        fill
-                        className="object-cover"
-                        data-ai-hint={feature.image.imageHint}
-                    />
-                </div>
-            )}
-            <CardHeader>
-              <div className="flex items-center gap-2 text-primary">
-                {feature.icon}
-                <CardTitle className="font-headline text-2xl text-foreground">{feature.title}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="flex-grow">
-              <CardDescription>{feature.description}</CardDescription>
-            </CardContent>
-            <CardFooter>
-              <Button asChild className="w-full bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
-                <Link href={feature.href}>
-                  Begin <ArrowRight className="ml-2 size-4" />
-                </Link>
-              </Button>
-            </CardFooter>
-          </Card>
-        ))}
-      </div>
+      {/* Content removed to start from scratch */}
     </div>
   );
 }
