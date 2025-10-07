@@ -16,9 +16,12 @@ import {
   LifeBuoy,
   MapPin,
   Tent,
+  Edit,
 } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
 
 const features = [
   {
@@ -52,13 +55,25 @@ const features = [
 ];
 
 export default function DashboardPage() {
+  const userImage = "https://picsum.photos/seed/avatar1/100/100";
   return (
-    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6">
+    <div className="flex-1 space-y-4 p-4 md:p-8 pt-6 bg-secondary">
       <div className="flex items-center justify-between space-y-2">
         <h1 className="text-3xl font-bold tracking-tight font-headline">
-          Welcome, Explorer!
+          Good afternoon, Trailblazer!
         </h1>
+        <div className="flex items-center space-x-4">
+          <Avatar>
+            <AvatarImage src={userImage} data-ai-hint="person portrait" />
+            <AvatarFallback>U</AvatarFallback>
+          </Avatar>
+          <Button variant="outline">
+            <Edit className="mr-2 h-4 w-4" />
+            Edit Profile
+          </Button>
+        </div>
       </div>
+      <Separator className="bg-accent h-0.5" />
       <p className="text-lg text-muted-foreground">
         Your journey to a more purposeful life starts now. Where to next?
       </p>
