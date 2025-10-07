@@ -27,7 +27,7 @@ export function Header() {
   const pathname = usePathname();
 
   return (
-    <header className="bg-background/80 backdrop-blur-sm sticky top-0 z-50 border-b-4">
+    <header className="bg-background/80 backdrop-blur-sm sticky top-0 z-50 border-b border-header-border">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
@@ -53,7 +53,7 @@ export function Header() {
             ))}
           </nav>
           <div className="flex items-center gap-2">
-             <Button variant="ghost" className="text-[#072F29] hover:bg-secondary/50">
+             <Button variant="ghost" className="text-[#072F29] hoverbg-secondary/50">
                 <LogOut className="mr-2 size-4" />
                 Log Out
             </Button>
