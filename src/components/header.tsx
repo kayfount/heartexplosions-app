@@ -4,11 +4,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
   LogOut,
-  Route,
-  BookOpen,
-  LifeBuoy,
-  MapPin,
-  Tent,
 } from 'lucide-react';
 import { Logo } from './logo';
 import { Button } from './ui/button';

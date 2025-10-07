@@ -86,7 +86,7 @@
     background-image: linear-gradient(to right, hsl(var(--primary)), hsl(var(--accent)));
   }
   .text-gradient-logo {
-    background-image: linear-gradient(to right, hsl(6 95% 63%), hsl(60 76% 43%), hsl(154 72% 35%));
+    background-image: linear-gradient(to right, hsl(6 95% 63%), hsl(154 72% 35%));
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
