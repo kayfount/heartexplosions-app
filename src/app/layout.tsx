@@ -17,7 +17,7 @@ export default function RootLayout({
     <html lang="en" className="light">
       <head>
       </head>
-      <body className="font-sans antialiased bg-background">
+      <body className="font-sans antialiased bg-gradient-to-br from-[#faffee] to-[#D3F0DB]">
         <FirebaseClientProvider>
           {children}
         </FirebaseClientProvider>
