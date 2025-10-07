@@ -154,16 +154,10 @@ export default function BasecampDashboardPage() {
 
           {/* Wisdom Widget */}
           <div className="lg:row-span-2">
-              <Card className="bg-card/80 h-full">
-                  <CardHeader>
-                      <CardTitle className="flex items-center gap-2 font-headline">
-                          <BookOpen className="text-accent" /> Wisdom From The Wilderness
-                      </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                      <p className="text-lg italic text-muted-foreground">"{quote}"</p>
-                  </CardContent>
-              </Card>
+              <h3 className="text-2xl font-bold font-headline mb-4 flex items-center gap-2">
+                  <BookOpen className="text-accent" /> Wisdom From The Wilderness
+              </h3>
+              <p className="text-lg italic text-muted-foreground">"{quote}"</p>
           </div>
 
           {/* Expedition Prep Section */}
