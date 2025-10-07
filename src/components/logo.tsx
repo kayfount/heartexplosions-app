@@ -12,11 +12,11 @@ export function Logo({ className, iconOnly = false }: LogoProps) {
       <div className="relative">
         <Heart className="size-8 text-destructive" fill="transparent" strokeWidth={1.5} />
         <span 
-          className="absolute -top-1 -right-1.5 text-lg" 
+          className="absolute -top-1 -right-1.5 text-lg animate-star-float"
           style={{
             fontFamily: 'sans-serif',
-            color: 'hsl(var(--accent))',
-            textShadow: '-1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000',
+            color: 'transparent',
+            textShadow: '0 0 2px hsl(var(--accent)), -1px -1px 0 hsl(var(--accent)), 1px -1px 0 hsl(var(--accent)), -1px 1px 0 hsl(var(--accent)), 1px 1px 0 hsl(var(--accent))',
           }}
         >
           ✨
