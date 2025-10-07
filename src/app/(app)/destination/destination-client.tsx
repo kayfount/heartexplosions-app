@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2, Sparkles, Briefcase, HeartHand, Star } from 'lucide-react';
+import { Loader2, Sparkles, Briefcase, HeartHandshake, Star } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { synthesizeProfileAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -16,7 +16,7 @@ type FocusArea = 'career' | 'contribution' | 'calling';
 
 const focusAreas = [
     { id: 'career' as FocusArea, icon: <Briefcase className="size-8" />, title: "Career", description: "Focus on your professional path and work life." },
-    { id: 'contribution' as FocusArea, icon: <HeartHand className="size-8" />, title: "Contribution", description: "Focus on how you give back to the world." },
+    { id: 'contribution' as FocusArea, icon: <HeartHandshake className="size-8" />, title: "Contribution", description: "Focus on how you give back to the world." },
     { id: 'calling' as FocusArea, icon: <Star className="size-8" />, title: "Calling", description: "Focus on your deepest life's purpose and mission." },
 ];
 
