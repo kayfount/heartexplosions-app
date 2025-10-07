@@ -1,0 +1,140 @@
+/**
+ * @file Firestore Security Rules for Heart Compass Application
+ * @description This ruleset enforces a strict user-ownership model, ensuring that only authenticated users can access their own data.
+ *
+ * Data Structure:
+ * All user-related data is nested under the `/users/{userId}` path, where `{userId}` corresponds to the Firebase Auth UID.
+ * This includes profile information, Basecamp data, Life Purpose Reports, Purpose Profiles, Route Plans, AI Coach conversations, and Reflection Prompt Responses.
+ *
+ * Key Security Decisions:
+ * - User listing is disabled to prevent unauthorized enumeration of user accounts.
+ * - All data is private and accessible only to the owning user.
+ *
+ * Authorization Strategy:
+ * The rules leverage path-based authorization using the `isOwner(userId)` function.
+ * All write operations are restricted to the authenticated user matching the `{userId}` in the path.
+ * All read operations are similarly restricted to the authenticated user.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if the user is signed in and owns the document.
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isExistingOwner(userId) {
+      return isOwner(userId) && exists(resource);
+    }
+
+    /**
+     * @description Protects the /users/{userId} collection, ensuring only the owner can read and write their own profile.
+     * @path /users/{userId}
+     */
+    match /users/{userId} {
+      // Read permissions:
+      allow get: if isOwner(userId);
+      allow list: if false;
+
+      // Write permissions:
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Protects the /users/{userId}/basecamp collection, ensuring only the owner can read and write their own Basecamp data.
+     * @path /users/{userId}/basecamp
+     */
+    match /users/{userId}/basecamp {
+      // Read permissions:
+      allow get: if isOwner(userId);
+      allow list: if false;
+
+      // Write permissions:
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Protects the /users/{userId}/lifePurposeReports/{lifePurposeReportId} collection, ensuring only the owner can read and write their own Life Purpose Reports.
+     * @path /users/{userId}/lifePurposeReports/{lifePurposeReportId}
+     */
+    match /users/{userId}/lifePurposeReports/{lifePurposeReportId} {
+      // Read permissions:
+      allow get: if isOwner(userId);
+      allow list: if false;
+
+      // Write permissions:
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Protects the /users/{userId}/purposeProfiles/{purposeProfileId} collection, ensuring only the owner can read and write their own Purpose Profiles.
+     * @path /users/{userId}/purposeProfiles/{purposeProfileId}
+     */
+    match /users/{userId}/purposeProfiles/{purposeProfileId} {
+      // Read permissions:
+      allow get: if isOwner(userId);
+      allow list: if false;
+
+      // Write permissions:
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Protects the /users/{userId}/routePlans/{routePlanId} collection, ensuring only the owner can read and write their own Route Plans.
+     * @path /users/{userId}/routePlans/{routePlanId}
+     */
+    match /users/{userId}/routePlans/{routePlanId} {
+      // Read permissions:
+      allow get: if isOwner(userId);
+      allow list: if false;
+
+      // Write permissions:
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Protects the /users/{userId}/aiCoachConversations/{aiCoachConversationId} collection, ensuring only the owner can read and write their own AI Coach conversations.
+     * @path /users/{userId}/aiCoachConversations/{aiCoachConversationId}
+     */
+    match /users/{userId}/aiCoachConversations/{aiCoachConversationId} {
+      // Read permissions:
+      allow get: if isOwner(userId);
+      allow list: if false;
+
+      // Write permissions:
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Protects the /users/{userId}/reflectionPromptResponses/{reflectionPromptResponseId} collection, ensuring only the owner can read and write their own Reflection Prompt Responses.
+     * @path /users/{userId}/reflectionPromptResponses/{reflectionPromptResponseId}
+     */
+    match /users/{userId}/reflectionPromptResponses/{reflectionPromptResponseId} {
+      // Read permissions:
+      allow get: if isOwner(userId);
+      allow list: if false;
+
+      // Write permissions:
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+  }
+}
