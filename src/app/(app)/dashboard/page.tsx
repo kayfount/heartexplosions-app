@@ -14,6 +14,8 @@ import {
   LifeBuoy,
   MapPin,
   Edit,
+  Sparkles,
+  Tent,
 } from 'lucide-react';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
@@ -21,6 +23,13 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 
 const features = [
+   {
+    href: '/basecamp',
+    icon: <Tent />,
+    title: 'Basecamp',
+    description: "Clarify your values, strengths, and constraints to set your starting point.",
+    image: PlaceHolderImages.find(img => img.id === 'forest-trail'),
+  },
   {
     href: '/driver',
     icon: <LifeBuoy />,
@@ -44,7 +53,7 @@ const features = [
   },
    {
     href: '/trail-angels',
-    icon: <LifeBuoy />,
+    icon: <Sparkles />,
     title: 'Trail Angels',
     description: 'Get guidance from an AI coach and access a hub of helpful resources.',
     image: PlaceHolderImages.find(img => img.id === 'journal-and-pen'),
@@ -72,7 +81,7 @@ export default function DashboardPage() {
       </div>
       <Separator className="bg-accent h-0.5" />
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 mt-8">
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {features.map((feature) => (
            <Card key={feature.title} className="flex flex-col overflow-hidden transition-all duration-300 transform hover:-translate-y-1">
             {feature.image && (
@@ -98,7 +107,7 @@ export default function DashboardPage() {
             <CardFooter>
               <Button asChild className="w-full bg-secondary text-secondary-foreground hover:bg-primary hover:text-primary-foreground transition-colors">
                 <Link href={feature.href}>
-                  Go to {feature.title} <ArrowRight className="ml-2 size-4" />
+                  Begin <ArrowRight className="ml-2 size-4" />
                 </Link>
               </Button>
             </CardFooter>
