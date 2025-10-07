@@ -78,8 +78,7 @@ export default function BasecampDashboardPage() {
           </Button>
         </div>
       </div>
-      <Separator className="bg-destructive h-0.5" />
-
+      
       {/* Welcome Box */}
       <Card className="w-full max-w-4xl mx-auto bg-card/80 border-border shadow-lg">
         <CardContent className="p-8 text-center">
@@ -227,7 +226,3 @@ function StatusCard({ isComplete, incompleteText, completeText, description, onC
         </Card>
     )
 }
-
-    
-
-    
