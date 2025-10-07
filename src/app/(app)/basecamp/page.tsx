@@ -30,9 +30,9 @@ const initialTasks = {
 };
 
 const expeditionStages = [
-  { id: 'driver', title: '01 The Driver', icon: <Car />, completed: false, href: '/driver' },
-  { id: 'destination', title: '02 The Destination', icon: <Target />, completed: false, href: '/destination' },
-  { id: 'route', title: '03 The Route', icon: <RouteIcon />, completed: false, href: '/route' },
+  { id: 'driver', title: '01 The Driver', icon: <Car className="text-accent" />, completed: false, href: '/driver' },
+  { id: 'destination', title: '02 The Destination', icon: <Target className="text-accent" />, completed: false, href: '/destination' },
+  { id: 'route', title: '03 The Route', icon: <RouteIcon className="text-accent" />, completed: false, href: '/route' },
 ];
 
 const quotes = [
@@ -68,21 +68,23 @@ export default function BasecampDashboardPage() {
   
   return (
     <div className="flex-1 space-y-8 p-4 md:p-8 pt-6">
-      <div className="flex items-center justify-between space-y-2">
-        <div className="flex items-center gap-4">
-          <Avatar className="h-20 w-20">
-            <AvatarImage src={userImage} data-ai-hint="person portrait" />
-            <AvatarFallback>U</AvatarFallback>
-          </Avatar>
-          <h1 className="text-3xl font-bold tracking-tight font-headline">
-            Good morning, Keke!
-          </h1>
-        </div>
-        <div className="flex items-center space-x-4">
-          <Button variant="outline">
-            <Edit className="mr-2 h-4 w-4" />
-            Edit Profile
-          </Button>
+      <div className="max-w-6xl mx-auto">
+        <div className="flex items-center justify-between space-y-2">
+          <div className="flex items-center gap-4">
+            <Avatar className="h-20 w-20">
+              <AvatarImage src={userImage} data-ai-hint="person portrait" />
+              <AvatarFallback>U</AvatarFallback>
+            </Avatar>
+            <h1 className="text-3xl font-bold tracking-tight font-headline">
+              Good morning, Keke!
+            </h1>
+          </div>
+          <div className="flex items-center space-x-4">
+            <Button variant="outline">
+              <Edit className="mr-2 h-4 w-4" />
+              Edit Profile
+            </Button>
+          </div>
         </div>
       </div>
       
@@ -104,107 +106,108 @@ export default function BasecampDashboardPage() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-8">
-            {/* Registration Section */}
-            <div>
-                <h3 className="text-2xl font-bold font-headline mb-4">Register for the Expedition</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <StatusCard
-                        isComplete={tasks.registered}
-                        incompleteText="Register for your Expedition"
-                        completeText="Expedition Registered"
-                        description="Your journey is official!"
-                        onClick={() => setTasks(prev => ({...prev, registered: !prev.registered}))}
-                    />
-                    <StatusCard
-                        isComplete={tasks.quizTaken}
-                        incompleteText="Take the Role Satisfaction Quiz"
-                        completeText="Retake Role Satisfaction Quiz"
-                        description="Measure your new alignment"
-                        onClick={() => setTasks(prev => ({...prev, quizTaken: !prev.quizTaken}))}
-                    />
-                </div>
-            </div>
+      <div className="max-w-6xl mx-auto space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-2 space-y-8">
+              {/* Registration Section */}
+              <div>
+                  <h3 className="text-2xl font-bold font-headline mb-4">Register for the Expedition</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <StatusCard
+                          isComplete={tasks.registered}
+                          incompleteText="Register for your Expedition"
+                          completeText="Expedition Registered"
+                          description="Your journey is official!"
+                          onClick={() => setTasks(prev => ({...prev, registered: !prev.registered}))}
+                      />
+                      <StatusCard
+                          isComplete={tasks.quizTaken}
+                          incompleteText="Take the Role Satisfaction Quiz"
+                          completeText="Retake Role Satisfaction Quiz"
+                          description="Measure your new alignment"
+                          onClick={() => setTasks(prev => ({...prev, quizTaken: !prev.quizTaken}))}
+                      />
+                  </div>
+              </div>
 
-            {/* Essentials Section */}
-            <div>
-                <h3 className="text-2xl font-bold font-headline mb-4">Pick Up Your Essentials</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <StatusCard
-                        isComplete={tasks.guideDownloaded}
-                        incompleteText="Download Your Guide"
-                        completeText="Guide Downloaded"
-                        description="Your expedition guide is ready!"
-                        onClick={() => setTasks(prev => ({...prev, guideDownloaded: !prev.guideDownloaded}))}
-                    />
-                    <StatusCard
-                        isComplete={tasks.playlistAdded}
-                        incompleteText="Add The Playlist"
-                        completeText="Playlist Added"
-                        description="Your soundtrack is ready!"
-                        onClick={() => setTasks(prev => ({...prev, playlistAdded: !prev.playlistAdded}))}
-                    />
-                </div>
-            </div>
+              {/* Essentials Section */}
+              <div>
+                  <h3 className="text-2xl font-bold font-headline mb-4">Pick Up Your Essentials</h3>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <StatusCard
+                          isComplete={tasks.guideDownloaded}
+                          incompleteText="Download Your Guide"
+                          completeText="Guide Downloaded"
+                          description="Your expedition guide is ready!"
+                          onClick={() => setTasks(prev => ({...prev, guideDownloaded: !prev.guideDownloaded}))}
+                      />
+                      <StatusCard
+                          isComplete={tasks.playlistAdded}
+                          incompleteText="Add The Playlist"
+                          completeText="Playlist Added"
+                          description="Your soundtrack is ready!"
+                          onClick={() => setTasks(prev => ({...prev, playlistAdded: !prev.playlistAdded}))}
+                      />
+                  </div>
+              </div>
+          </div>
+
+          {/* Wisdom Widget */}
+          <div className="lg:row-span-2">
+              <Card className="bg-card/80 h-full">
+                  <CardHeader>
+                      <CardTitle className="flex items-center gap-2 font-headline">
+                          <BookOpen className="text-accent" /> Wisdom From The Wilderness
+                      </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                      <p className="text-lg italic text-muted-foreground">"{quote}"</p>
+                  </CardContent>
+              </Card>
+          </div>
+
+          {/* Expedition Prep Section */}
+          <div className="lg:col-span-2">
+              <h3 className="text-2xl font-bold font-headline mb-4">Expedition Prep</h3>
+              <div className="space-y-3">
+                   {expeditionStages.map(stage => (
+                      <Link href={stage.href} key={stage.id}>
+                          <Card className="hover:border-primary/50 transition-colors flex items-center p-4">
+                             <div className="flex items-center gap-4">
+                                  <div className="p-2 bg-secondary rounded-md text-accent">
+                                      {stage.icon}
+                                  </div>
+                                  <p className="font-bold text-lg">{stage.title}</p>
+                             </div>
+                             <div className="ml-auto">
+                              {stage.completed ? <CheckCircle2 className="text-accent"/> : <ArrowRight className="text-muted-foreground"/>}
+                             </div>
+                          </Card>
+                      </Link>
+                  ))}
+              </div>
+          </div>
         </div>
-
-        {/* Wisdom Widget */}
-        <div className="lg:row-span-2">
-            <Card className="bg-card/80 h-full">
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 font-headline">
-                        <BookOpen className="text-accent" /> Wisdom From The Wilderness
-                    </CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="text-lg italic text-muted-foreground">"{quote}"</p>
-                </CardContent>
-            </Card>
-        </div>
-
-        {/* Expedition Prep Section */}
-        <div className="lg:col-span-2">
-            <h3 className="text-2xl font-bold font-headline mb-4">Expedition Prep</h3>
-            <div className="space-y-3">
-                 {expeditionStages.map(stage => (
-                    <Link href={stage.href} key={stage.id}>
-                        <Card className="hover:border-primary/50 transition-colors flex items-center p-4">
-                           <div className="flex items-center gap-4">
-                                <div className="p-2 bg-secondary rounded-md text-accent">
-                                    {stage.icon}
-                                </div>
-                                <p className="font-bold text-lg">{stage.title}</p>
-                           </div>
-                           <div className="ml-auto">
-                            {stage.completed ? <CheckCircle2 className="text-accent"/> : <ArrowRight className="text-muted-foreground"/>}
-                           </div>
-                        </Card>
-                    </Link>
-                ))}
-            </div>
+        
+        {/* Check Your Expedition Status */}
+        <div>
+          <h3 className="text-2xl font-bold font-headline mb-4">Check Your Expedition Status</h3>
+          <Card>
+              <CardContent className="p-6">
+                  <div className="grid grid-cols-2 gap-8 text-center">
+                      <div>
+                          <p className="text-4xl font-bold text-accent">78%</p>
+                          <p className="text-sm text-muted-foreground">Role Clarity Score</p>
+                      </div>
+                       <div>
+                          <p className="text-4xl font-bold text-accent">12</p>
+                          <p className="text-sm text-muted-foreground">Days on Journey</p>
+                      </div>
+                  </div>
+              </CardContent>
+          </Card>
         </div>
       </div>
-      
-      {/* Check Your Expedition Status */}
-      <div>
-        <h3 className="text-2xl font-bold font-headline mb-4">Check Your Expedition Status</h3>
-        <Card>
-            <CardContent className="p-6">
-                <div className="grid grid-cols-2 gap-8 text-center">
-                    <div>
-                        <p className="text-4xl font-bold text-accent">78%</p>
-                        <p className="text-sm text-muted-foreground">Role Clarity Score</p>
-                    </div>
-                     <div>
-                        <p className="text-4xl font-bold text-accent">12</p>
-                        <p className="text-sm text-muted-foreground">Days on Journey</p>
-                    </div>
-                </div>
-            </CardContent>
-        </Card>
-      </div>
-
     </div>
   );
 }
