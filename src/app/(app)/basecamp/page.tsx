@@ -203,19 +203,21 @@ export default function BasecampDashboardPage() {
                     <h3 className="text-2xl font-bold font-headline mb-4">Expedition Prep</h3>
                     <div className="space-y-4">
                         {expeditionStages.map(stage => (
-                            <Link href={stage.href} key={stage.id} className="block">
-                                <Card className="hover:border-primary/50 transition-colors flex items-center p-4">
-                                <div className="flex items-center gap-4">
-                                        <div className="p-2 bg-secondary rounded-md text-accent">
-                                            {stage.icon}
-                                        </div>
-                                        <p className="font-bold text-lg">{stage.title}</p>
-                                </div>
-                                <div className="ml-auto">
-                                    {stage.completed ? <CheckCircle2 className="text-accent"/> : <ArrowRight className="text-muted-foreground"/>}
-                                </div>
-                                </Card>
-                            </Link>
+                            <div key={stage.id}>
+                                <Link href={stage.href} className="block">
+                                    <Card className="hover:border-primary/50 transition-colors flex items-center p-4">
+                                    <div className="flex items-center gap-4">
+                                            <div className="p-2 bg-secondary rounded-md text-accent">
+                                                {stage.icon}
+                                            </div>
+                                            <p className="font-bold text-lg">{stage.title}</p>
+                                    </div>
+                                    <div className="ml-auto">
+                                        {stage.completed ? <CheckCircle2 className="text-accent"/> : <ArrowRight className="text-muted-foreground"/>}
+                                    </div>
+                                    </Card>
+                                </Link>
+                             </div>
                         ))}
                     </div>
                 </div>
@@ -265,9 +267,9 @@ interface StatusCardProps {
 
 function StatusCard({ icon, isComplete, incompleteText, completeText, description, onClick }: StatusCardProps) {
     return (
-        <Card onClick={onClick} className={cn("cursor-pointer transition-all duration-300 hover:border-primary/50 hover:scale-105", isComplete && 'bg-secondary/50')}>
+        <Card onClick={onClick} className={cn("group cursor-pointer transition-all duration-300 hover:border-primary/50 hover:scale-105", isComplete && 'bg-secondary/50')}>
             <CardContent className="p-6 flex items-center gap-4">
-                 <div className={cn("flex items-center justify-center size-10 rounded-full", isComplete ? "bg-accent" : "bg-foreground")}>
+                 <div className={cn("flex items-center justify-center size-10 rounded-full transition-transform duration-300 group-hover:animate-shiver", isComplete ? "bg-accent" : "bg-foreground")}>
                   {isComplete ? <CheckCircle2 className="size-5 text-primary-foreground" /> : icon}
                 </div>
                 <div>
@@ -278,5 +280,3 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
         </Card>
     )
 }
-
-    
