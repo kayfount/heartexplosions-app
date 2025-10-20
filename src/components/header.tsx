@@ -16,6 +16,7 @@ import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { initiateSignOut } from '@/firebase/non-blocking-login';
 import { useAuth, useUser } from '@/firebase';
+import { UserNav } from './user-nav';
 
 const navItems = [
   { href: '/basecamp', icon: <Tent />, label: 'Basecamp' },
@@ -27,14 +28,7 @@ const navItems = [
 
 export function Header() {
   const pathname = usePathname();
-  const auth = useAuth();
   const { user, isUserLoading } = useUser();
-
-  const handleLogout = () => {
-    if (auth) {
-      initiateSignOut(auth);
-    }
-  };
   
   const showNav = user && !isUserLoading;
 
@@ -67,12 +61,7 @@ export function Header() {
             </nav>
           )}
           <div className="flex items-center gap-2">
-            {showNav && (
-               <Button variant="ghost" onClick={handleLogout} className="text-[#072F29] hoverbg-secondary/50">
-                  <LogOut className="mr-2 size-4" />
-                  Log Out
-              </Button>
-            )}
+            {showNav && <UserNav />}
           </div>
         </div>
       </div>

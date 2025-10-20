@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -11,80 +12,56 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { LogOut, User, Settings } from 'lucide-react';
-import { useSidebar } from './ui/sidebar';
+import { LogOut, User as UserIcon } from 'lucide-react';
+import { useAuth, useUser } from '@/firebase';
+import { initiateSignOut } from '@/firebase/non-blocking-login';
 
 export function UserNav() {
-  const { state } = useSidebar();
-  const userImage = "https://picsum.photos/seed/avatar1/100/100";
+  const auth = useAuth();
+  const { user } = useUser();
 
-  if (state === 'collapsed') {
-    return (
-       <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button variant="ghost" size="icon" className="rounded-full">
-            <Avatar className="h-8 w-8">
-              <AvatarImage src={userImage} alt="@user" data-ai-hint="person portrait" />
-              <AvatarFallback>U</AvatarFallback>
-            </Avatar>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent className="w-56" align="end" forceMount>
-          {content()}
-        </DropdownMenuContent>
-      </DropdownMenu>
-    )
-  }
+  const handleLogout = () => {
+    if (auth) {
+      initiateSignOut(auth);
+    }
+  };
+
+  const userImage = user?.photoURL || "https://picsum.photos/seed/avatar1/100/100";
+  const userName = user?.displayName || "Trailblazer";
+  const userEmail = user?.email || "user@example.com";
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button
-          variant="ghost"
-          className="h-auto w-full justify-start gap-3 px-2"
-        >
-          <Avatar className="h-9 w-9">
-            <AvatarImage src={userImage} alt="@user" data-ai-hint="person portrait" />
-            <AvatarFallback>U</AvatarFallback>
+        <Button variant="ghost" className="relative h-10 w-10 rounded-full">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={userImage} alt={userName} data-ai-hint="person portrait" />
+            <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div className="flex flex-col items-start text-left">
-            <p className="text-sm font-medium">Explorer</p>
-            <p className="text-xs text-muted-foreground">user@example.com</p>
-          </div>
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-56" align="end" forceMount>
-        {content()}
+        <DropdownMenuLabel className="font-normal">
+          <div className="flex flex-col space-y-1">
+            <p className="text-sm font-medium leading-none">{userName}</p>
+            <p className="text-xs leading-none text-muted-foreground">
+              {userEmail}
+            </p>
+          </div>
+        </DropdownMenuLabel>
+        <DropdownMenuSeparator />
+        <DropdownMenuGroup>
+          <DropdownMenuItem>
+            <UserIcon className="mr-2 h-4 w-4" />
+            <span>Edit Profile</span>
+          </DropdownMenuItem>
+        </DropdownMenuGroup>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={handleLogout}>
+          <LogOut className="mr-2 h-4 w-4" />
+          <span>Log out</span>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   );
 }
-
-const content = () => (
-  <>
-    <DropdownMenuLabel className="font-normal">
-      <div className="flex flex-col space-y-1">
-        <p className="text-sm font-medium leading-none">Explorer</p>
-        <p className="text-xs leading-none text-muted-foreground">
-          user@example.com
-        </p>
-      </div>
-    </DropdownMenuLabel>
-    <DropdownMenuSeparator />
-    <DropdownMenuGroup>
-      <DropdownMenuItem>
-        <User className="mr-2 h-4 w-4" />
-        <span>Profile</span>
-      </DropdownMenuItem>
-      <DropdownMenuItem>
-        <Settings className="mr-2 h-4 w-4" />
-        <span>Settings</span>
-      </DropdownMenuItem>
-    </DropdownMenuGroup>
-    <DropdownMenuSeparator />
-    <DropdownMenuItem>
-      <LogOut className="mr-2 h-4 w-4" />
-      <span>Log out</span>
-    </DropdownMenuItem>
-  </>
-)

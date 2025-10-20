@@ -79,12 +79,6 @@ export default function BasecampDashboardPage() {
               Good morning, Keke!
             </h1>
           </div>
-          <div className="flex items-center space-x-4">
-            <Button variant="outline">
-              <Edit className="mr-2 h-4 w-4" />
-              Edit Profile
-            </Button>
-          </div>
         </div>
       </div>
       
