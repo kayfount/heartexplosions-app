@@ -1,3 +1,4 @@
+
 'use server';
 
 import { generateLifePurposeReport, type LifePurposeReportInput } from '@/ai/flows/generate-life-purpose-report';
@@ -58,6 +59,11 @@ export async function updateProfileAction(input: UpdateProfileActionInput) {
     const { uid, displayName, file } = input;
     let photoURL: string | undefined = undefined;
 
+    // Ensure at least one update operation is requested
+    if (!displayName && !file) {
+        return { success: true, message: 'No profile information to update.' };
+    }
+
     try {
         if (file) {
             const fileBuffer = Buffer.from(await file.arrayBuffer());
@@ -77,3 +83,5 @@ export async function updateProfileAction(input: UpdateProfileActionInput) {
         return { success: false, error: `Failed to update profile: ${errorMessage}` };
     }
 }
+
+    

@@ -36,6 +36,7 @@ import { useUser } from '@/firebase';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { updateProfileAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   firstName: z.string().min(1, 'First name is required.'),
@@ -65,6 +66,7 @@ const journeyStatuses = [
 export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegistered }: RegistrationModalProps) {
   const { user } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -94,17 +96,45 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     }
   }, [user, form]);
   
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-      form.setValue('profilePicture', file);
+    if (!file || !user) return;
+    
+    setIsUploading(true);
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewUrl(reader.result as string);
+    };
+    reader.readAsDataURL(file);
+
+    try {
+      const result = await updateProfileAction({
+        uid: user.uid,
+        file: file,
+      });
+
+      if (result.success) {
+        toast({
+          title: 'Profile Picture Updated',
+          description: 'Your new picture has been saved.',
+        });
+      } else {
+         throw new Error(result.error);
+      }
+    } catch (error) {
+       toast({
+        variant: 'destructive',
+        title: 'Upload Failed',
+        description: error instanceof Error ? error.message : 'Could not upload your picture.',
+      });
+      // Revert preview if upload fails
+      setPreviewUrl(user.photoURL || null);
+    } finally {
+        setIsUploading(false);
     }
   };
+
 
   const onSubmit = async (data: RegistrationFormValues) => {
     if (!user) return;
@@ -113,22 +143,27 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     try {
       const displayName = `${data.firstName} ${data.lastName}`.trim();
       
-      const result = await updateProfileAction({
-        uid: user.uid,
-        displayName,
-        file: data.profilePicture
-      });
-      
-      if (result.success) {
-        onRegister(data);
-        toast({
-          title: 'Profile Updated',
-          description: 'Your expedition details have been saved.',
-        });
-        onOpenChange(false);
-      } else {
-        throw new Error(result.error);
+      // Only update name if it has changed from current user's display name
+      const profileDataToUpdate: { uid: string; displayName?: string } = { uid: user.uid };
+      if (displayName !== user.displayName) {
+        profileDataToUpdate.displayName = displayName;
       }
+
+      // If only name is being updated, call the action
+      if (profileDataToUpdate.displayName) {
+        const result = await updateProfileAction(profileDataToUpdate);
+        if (!result.success) {
+          throw new Error(result.error);
+        }
+      }
+      
+      onRegister(data);
+      toast({
+        title: 'Profile Updated',
+        description: 'Your expedition details have been saved.',
+      });
+      onOpenChange(false);
+
     } catch (error) {
        toast({
         variant: 'destructive',
@@ -169,10 +204,11 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
                   type="button"
                   variant="outline"
                   size="icon"
-                  className="absolute bottom-0 right-0 rounded-full bg-secondary"
-                  onClick={() => fileInputRef.current?.click()}
+                  className={cn("absolute bottom-0 right-0 rounded-full bg-secondary", isUploading && "cursor-not-allowed")}
+                  onClick={() => !isUploading && fileInputRef.current?.click()}
+                  disabled={isUploading}
                 >
-                  <Camera className="h-4 w-4" />
+                  {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
                 </Button>
                 <Input
                   type="file"
@@ -180,6 +216,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
                   className="hidden"
                   onChange={handleFileChange}
                   accept="image/png, image/jpeg, image/gif"
+                  disabled={isUploading}
                 />
               </div>
             </div>
@@ -259,7 +296,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
               )}
             />
             <DialogFooter>
-                <Button type="submit" disabled={isSubmitting} className="w-full bg-primary-gradient text-primary-foreground font-bold">
+                <Button type="submit" disabled={isSubmitting || isUploading} className="w-full bg-primary-gradient text-primary-foreground font-bold">
                     {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                     {isRegistered ? 'Update My Expedition' : 'Begin My Expedition'}
                 </Button>
@@ -270,3 +307,5 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     </Dialog>
   );
 }
+
+    
