@@ -18,6 +18,7 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { RegistrationModal } from './registration-modal';
+import { useUser } from '@/firebase';
 
 // Mock data and state for demonstration purposes
 const initialTasks = {
@@ -47,6 +48,7 @@ export default function BasecampDashboardPage() {
   const [isRegistrationOpen, setRegistrationOpen] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
+  const { user } = useUser();
 
   useEffect(() => {
     setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
@@ -60,7 +62,8 @@ export default function BasecampDashboardPage() {
     }
   }, [searchParams, router]);
 
-  const userImage = "https://picsum.photos/seed/avatar1/100/100";
+  const userImage = user?.photoURL || "https://picsum.photos/seed/avatar1/100/100";
+  const userName = user?.displayName || 'Keke';
   const allSetupTasksCompleted = Object.values(tasks).every(Boolean);
   
   const handleRegistration = (data: any) => {
@@ -97,10 +100,10 @@ export default function BasecampDashboardPage() {
             <div className="flex items-center gap-4">
               <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
                 <AvatarImage src={userImage} data-ai-hint="person portrait" />
-                <AvatarFallback>U</AvatarFallback>
+                <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
               </Avatar>
               <h1 className="text-3xl font-bold tracking-tight font-headline">
-                Good morning, Keke!
+                Good morning, {userName}!
               </h1>
             </div>
           </div>

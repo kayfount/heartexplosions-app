@@ -30,8 +30,12 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Tent, Loader2 } from 'lucide-react';
-import { useState } from 'react';
+import { Tent, Loader2, Camera } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { useUser } from '@/firebase';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { updateProfileAction } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   firstName: z.string().min(1, 'First name is required.'),
@@ -39,6 +43,7 @@ const formSchema = z.object({
   callSign: z.string().optional(),
   journeyStatus: z.string().min(1, 'Please select your journey status.'),
   whyNow: z.string().optional(),
+  profilePicture: z.any().optional(),
 });
 
 type RegistrationFormValues = z.infer<typeof formSchema>;
@@ -46,7 +51,7 @@ type RegistrationFormValues = z.infer<typeof formSchema>;
 interface RegistrationModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onRegister: (data: RegistrationFormValues) => void;
+  onRegister: (data: Partial<RegistrationFormValues>) => void;
   isRegistered: boolean;
 }
 
@@ -58,7 +63,11 @@ const journeyStatuses = [
 ];
 
 export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegistered }: RegistrationModalProps) {
+  const { user } = useUser();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const form = useForm<RegistrationFormValues>({
     resolver: zodResolver(formSchema),
@@ -71,15 +80,68 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     },
   });
 
-  const onSubmit = (data: RegistrationFormValues) => {
-    setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-        onRegister(data);
-        setIsSubmitting(false);
-        onOpenChange(false);
-    }, 1000);
+  useEffect(() => {
+    if (user) {
+      const nameParts = user.displayName?.split(' ') || ['', ''];
+      form.reset({
+        firstName: nameParts[0] || '',
+        lastName: nameParts.slice(1).join(' ') || '',
+        callSign: '', // This would need to be stored somewhere
+      });
+      if (user.photoURL) {
+        setPreviewUrl(user.photoURL);
+      }
+    }
+  }, [user, form]);
+  
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPreviewUrl(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+      form.setValue('profilePicture', file);
+    }
   };
+
+  const onSubmit = async (data: RegistrationFormValues) => {
+    if (!user) return;
+    setIsSubmitting(true);
+    
+    try {
+      const displayName = `${data.firstName} ${data.lastName}`.trim();
+      
+      const result = await updateProfileAction({
+        uid: user.uid,
+        displayName,
+        file: data.profilePicture
+      });
+      
+      if (result.success) {
+        onRegister(data);
+        toast({
+          title: 'Profile Updated',
+          description: 'Your expedition details have been saved.',
+        });
+        onOpenChange(false);
+      } else {
+        throw new Error(result.error);
+      }
+    } catch (error) {
+       toast({
+        variant: 'destructive',
+        title: 'Uh oh!',
+        description: error instanceof Error ? error.message : 'Something went wrong.',
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const userImage = previewUrl || user?.photoURL || "https://picsum.photos/seed/avatar1/100/100";
+  const userInitial = user?.displayName?.charAt(0) || 'U';
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -97,6 +159,30 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+             <div className="flex flex-col items-center space-y-4">
+              <div className="relative">
+                <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
+                  <AvatarImage src={userImage} />
+                  <AvatarFallback>{userInitial}</AvatarFallback>
+                </Avatar>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  className="absolute bottom-0 right-0 rounded-full bg-secondary"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  <Camera className="h-4 w-4" />
+                </Button>
+                <Input
+                  type="file"
+                  ref={fileInputRef}
+                  className="hidden"
+                  onChange={handleFileChange}
+                  accept="image/png, image/jpeg, image/gif"
+                />
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
