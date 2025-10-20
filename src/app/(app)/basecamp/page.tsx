@@ -177,14 +177,16 @@ export default function BasecampDashboardPage() {
                 <div>
                     <h3 className="text-2xl font-bold font-headline mb-4">Pick Up Your Essentials</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <StatusCard
-                            icon={<Download className="size-5 text-primary-foreground" />}
-                            isComplete={tasks.guideDownloaded}
-                            incompleteText="Download Your Guide"
-                            completeText="Guide Downloaded"
-                            description="Your expedition guide is ready!"
-                            onClick={() => setTasks(prev => ({...prev, guideDownloaded: !prev.guideDownloaded}))}
-                        />
+                        <a href="/guide.pdf" download onClick={() => setTasks(prev => ({...prev, guideDownloaded: true}))}>
+                            <StatusCard
+                                icon={<Download className="size-5 text-primary-foreground" />}
+                                isComplete={tasks.guideDownloaded}
+                                incompleteText="Download Your Guide"
+                                completeText="Guide Downloaded"
+                                description="Your expedition guide is ready!"
+                                onClick={() => {}} // The parent `a` tag handles the action
+                            />
+                        </a>
                         <StatusCard
                             icon={<Music className="size-5 text-primary-foreground" />}
                             isComplete={tasks.playlistAdded}
@@ -266,8 +268,18 @@ interface StatusCardProps {
 }
 
 function StatusCard({ icon, isComplete, incompleteText, completeText, description, onClick }: StatusCardProps) {
+    // The component might be wrapped in an `<a>` tag, so stop propagation on the click
+    // to prevent potential double-event firing.
+    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
+        if (onClick) {
+            e.preventDefault(); // prevent navigation if it's inside an anchor
+            e.stopPropagation();
+            onClick();
+        }
+    }
+
     return (
-        <Card onClick={onClick} className={cn("group cursor-pointer transition-all duration-300 hover:border-primary/50 hover:scale-105", isComplete && 'bg-secondary/50')}>
+        <Card onClick={handleClick} className={cn("group cursor-pointer transition-all duration-300 hover:border-primary/50 hover:scale-105", isComplete && 'bg-secondary/50')}>
             <CardContent className="p-6 flex items-center gap-4">
                  <div className={cn("flex items-center justify-center size-10 rounded-full transition-transform duration-300 group-hover:animate-shiver", isComplete ? "bg-accent" : "bg-foreground")}>
                   {isComplete ? <CheckCircle2 className="size-5 text-primary-foreground" /> : icon}
@@ -280,3 +292,5 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
         </Card>
     )
 }
+
+    
