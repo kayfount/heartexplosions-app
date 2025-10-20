@@ -49,7 +49,7 @@ export function TrifixSelectorModal({
         </DialogHeader>
         <div className="max-h-[60vh] overflow-y-auto pr-4">
           <ScrollArea className="h-full">
-            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3 p-1">
+            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3 p-1">
               {permutations.map((p) => (
                  <button
                     key={p}
