@@ -10,7 +10,6 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
 import { trifixData } from './trifix-data';
@@ -34,7 +33,7 @@ export function TrifixSelectorModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-4xl max-h-[80vh] flex flex-col">
+      <DialogContent className="sm:max-w-4xl max-h-[80vh] flex flex-col bg-card">
         <DialogHeader>
           <DialogTitle className="text-2xl font-bold font-headline">
             Select Your Trifix
@@ -45,22 +44,24 @@ export function TrifixSelectorModal({
         </DialogHeader>
         <div className="flex-grow min-h-0">
           <ScrollArea className="h-full pr-6">
-            <div className="space-y-6">
+            <div className="space-y-4">
               {typeData?.groups.map((group, groupIndex) => (
-                <div key={groupIndex}>
-                    <p className="text-base text-foreground/80 leading-relaxed">
-                    {group.permutations.map((p, pIndex) => (
-                        <React.Fragment key={p}>
-                        <button
-                            onClick={() => onSelectTrifix(p)}
-                            className="hover:underline hover:text-primary focus:outline-none focus:ring-2 focus:ring-ring rounded"
-                        >
-                            {p}
-                        </button>
-                        {pIndex < group.permutations.length - 1 ? ', ' : ''}
-                        </React.Fragment>
+                <div key={groupIndex} className="space-y-2">
+                  <div className="flex flex-wrap gap-2">
+                    {group.permutations.map((p) => (
+                      <button
+                        key={p}
+                        onClick={() => onSelectTrifix(p)}
+                        className={cn(
+                          "px-3 py-1 rounded-md transition-colors",
+                          "bg-primary text-primary-foreground",
+                          "hover:bg-card hover:text-primary hover:border-primary border-2 border-transparent"
+                        )}
+                      >
+                        {p}
+                      </button>
                     ))}
-                    </p>
+                  </div>
                 </div>
               ))}
             </div>
