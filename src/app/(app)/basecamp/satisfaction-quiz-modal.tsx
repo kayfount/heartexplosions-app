@@ -14,7 +14,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Progress } from '@/components/ui/progress';
-import { Flame, ArrowRight, X } from 'lucide-react';
+import { Flame, ArrowRight, ArrowLeft, X, User } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const quizQuestions = [
@@ -46,21 +46,35 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
   const [sliderValue, setSliderValue] = useState(5);
 
   const totalQuestions = quizQuestions.length;
-  const progress = (currentQuestion / totalQuestions) * 100;
-  const totalScore = answers.reduce((sum, val) => sum + val, 0);
-
+  const progress = ((currentQuestion + 1) / totalQuestions) * 100;
+  
   const handleNextQuestion = () => {
-    setAnswers(prev => [...prev, sliderValue]);
+    const newAnswers = [...answers];
+    newAnswers[currentQuestion] = sliderValue;
+    setAnswers(newAnswers);
+
     if (currentQuestion < totalQuestions - 1) {
       setCurrentQuestion(prev => prev + 1);
-      setSliderValue(5); // Reset slider for next question
+      setSliderValue(newAnswers[currentQuestion + 1] ?? 5);
     } else {
+      const totalScore = newAnswers.reduce((sum, val) => sum + val, 0);
+      onQuizComplete(totalScore);
       setStage('results');
+    }
+  };
+
+  const handlePreviousQuestion = () => {
+    if (currentQuestion > 0) {
+        const newAnswers = [...answers];
+        newAnswers[currentQuestion] = sliderValue;
+        setAnswers(newAnswers);
+        setCurrentQuestion(prev => prev - 1);
+        setSliderValue(newAnswers[currentQuestion - 1] ?? 5);
     }
   };
   
   const handleStart = () => {
-    setAnswers([]);
+    setAnswers(Array(totalQuestions).fill(5));
     setCurrentQuestion(0);
     setSliderValue(5);
     setStage('quiz');
@@ -72,7 +86,8 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
   };
   
   const handleFinish = () => {
-    onQuizComplete(totalScore + sliderValue);
+    const totalScore = answers.reduce((sum, val) => sum + val, 0);
+    onQuizComplete(totalScore);
     handleClose();
   }
 
@@ -101,33 +116,43 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
         const question = quizQuestions[currentQuestion];
         return (
           <div>
-            <Progress value={progress} className="h-2 mb-4" />
-            <p className="text-sm font-bold text-accent uppercase tracking-wider text-center mb-2">{question.topic}</p>
+            <DialogHeader>
+                <div className='flex items-center gap-2 text-sm text-destructive font-bold'>
+                    <User className='size-4'/>
+                    Question {currentQuestion + 1} of {totalQuestions}
+                </div>
+            </DialogHeader>
+            
+            <p className="text-sm font-bold text-destructive uppercase tracking-wider text-center mt-6 mb-2">{question.topic}</p>
             <p className="text-lg font-semibold text-center mb-6 min-h-[5rem] flex items-center justify-center">{question.statement}</p>
             
             <div className="my-8">
+               <p className="text-center font-bold text-lg mb-4">{sliderValue}/10</p>
               <Slider
                 value={[sliderValue]}
                 onValueChange={(value) => setSliderValue(value[0])}
                 max={10}
                 step={1}
               />
-              <div className="flex justify-between text-xs text-muted-foreground mt-2">
+              <div className="flex justify-between text-sm text-muted-foreground mt-2">
                 <span>Not at all</span>
-                <span>Extremely much</span>
+                <span>Fully true</span>
               </div>
             </div>
 
-            <DialogFooter>
-              <Button onClick={handleNextQuestion} className="w-full bg-primary-gradient text-primary-foreground font-bold">
-                {currentQuestion < totalQuestions - 1 ? 'Next' : 'See My Score'} <ArrowRight className="ml-2"/>
-              </Button>
+            <DialogFooter className="flex justify-between w-full">
+                <Button onClick={handlePreviousQuestion} variant="outline" disabled={currentQuestion === 0}>
+                    <ArrowLeft className="mr-2"/> Previous
+                </Button>
+                <Button onClick={handleNextQuestion} className="bg-destructive hover:bg-destructive/80 text-destructive-foreground">
+                    {currentQuestion < totalQuestions - 1 ? 'Next' : 'See My Score'} <ArrowRight className="ml-2"/>
+                </Button>
             </DialogFooter>
           </div>
         );
       
       case 'results':
-          const finalScore = totalScore;
+          const finalScore = answers.reduce((sum, val) => sum + val, 0);
         return (
              <div className="text-center">
                  <DialogTitle className="text-2xl font-bold font-headline text-foreground mb-2">Your Role Clarity Score</DialogTitle>
