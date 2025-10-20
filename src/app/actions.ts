@@ -57,22 +57,26 @@ interface UpdateProfileActionInput {
 
 export async function updateProfileAction(input: UpdateProfileActionInput) {
     const { uid, displayName, file } = input;
-    let photoURL: string | undefined = undefined;
-
-    // Ensure at least one update operation is requested
+    
     if (!displayName && !file) {
         return { success: true, message: 'No profile information to update.' };
     }
 
     try {
+        const auth = getAuth(getFirebaseAdminApp());
+        const user = await auth.getUser(uid);
+
+        let photoURL: string | undefined = user.photoURL;
+
         if (file) {
             const fileBuffer = Buffer.from(await file.arrayBuffer());
             photoURL = await uploadFile(uid, file.name, file.type, fileBuffer);
         }
+        
+        const displayNameUpdate = displayName || user.displayName;
 
-        const auth = getAuth(getFirebaseAdminApp());
         await auth.updateUser(uid, {
-            ...(displayName && { displayName }),
+            ...(displayNameUpdate && { displayName: displayNameUpdate }),
             ...(photoURL && { photoURL }),
         });
 
@@ -83,5 +87,3 @@ export async function updateProfileAction(input: UpdateProfileActionInput) {
         return { success: false, error: `Failed to update profile: ${errorMessage}` };
     }
 }
-
-    
