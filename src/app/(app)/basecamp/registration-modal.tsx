@@ -84,7 +84,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[525px] bg-secondary/80 backdrop-blur-sm border-foreground/20">
+      <DialogContent className="sm:max-w-[525px] bg-light-box-surface/80 backdrop-blur-sm border-foreground/20">
         <DialogHeader>
           <div className="flex items-center gap-3 mb-2">
             <Tent className="size-6 text-foreground" />
