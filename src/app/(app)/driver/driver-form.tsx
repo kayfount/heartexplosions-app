@@ -6,6 +6,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
+import * as React from 'react';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -302,7 +303,7 @@ export function DriverForm() {
         <Accordion type="single" collapsible className="w-full">
             <AccordionItem value="item-1">
                 <AccordionTrigger>
-                    <span className="font-bold text-lg">Need Help Choosing Your Trifix?</span>
+                    <span className="font-bold text-lg">Need Help Choosing Your Trifix? See Options</span>
                 </AccordionTrigger>
                 <AccordionContent>
                     <div className="space-y-6 p-4">
@@ -313,13 +314,15 @@ export function DriverForm() {
                             {typeGroup.groups.map((group, groupIndex) => (
                                 <p key={groupIndex} className="text-base text-foreground/80 leading-relaxed">
                                 {group.permutations.map((p, pIndex) => (
+                                    <React.Fragment key={p}>
                                     <button
-                                    key={p}
-                                    onClick={() => handleSelectTrifix(p)}
-                                    className="hover:underline hover:text-primary focus:outline-none focus:ring-2 focus:ring-ring rounded"
+                                        onClick={() => handleSelectTrifix(p)}
+                                        className="hover:underline hover:text-primary focus:outline-none focus:ring-2 focus:ring-ring rounded"
                                     >
-                                    {p}{pIndex < group.permutations.length - 1 ? ', ' : ''}
+                                        {p}
                                     </button>
+                                    {pIndex < group.permutations.length - 1 ? ', ' : ''}
+                                    </React.Fragment>
                                 ))}
                                 </p>
                             ))}
@@ -363,3 +366,5 @@ export function DriverForm() {
     </>
   );
 }
+
+    
