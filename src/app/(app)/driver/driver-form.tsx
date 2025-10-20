@@ -55,8 +55,19 @@ const formSchema = z.object({
 
 const enneagramTypes = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const wings = ['1w9', '1w2', '2w1', '2w3', '3w2', '3w4', '4w3', '4w5', '5w4', '5w6', '6w5', '6w7', '7w6', '7w8', '8w7', '8w9', '9w8', '9w1'];
-const subtypes = ['sp', 'sx', 'so'];
-const stackings = ['sp/sx', 'sp/so', 'sx/sp', 'sx/so', 'so/sp', 'so/sx'];
+const subtypes = [
+    { value: 'sp', label: 'SP (Self-Preservation)'},
+    { value: 'sx', label: 'SX (Sexual / One-to-One)'},
+    { value: 'so', label: 'SO (Social)'},
+];
+const stackings = [
+    { value: 'sp/sx', label: 'SP/SX'},
+    { value: 'sp/so', label: 'SP/SO'},
+    { value: 'sx/sp', label: 'SX/SP'},
+    { value: 'sx/so', label: 'SX/SO'},
+    { value: 'so/sp', label: 'SO/SP'},
+    { value: 'so/sx', label: 'SO/SX'},
+];
 const tests = [
     { name: "Free Test ($0)", vendor: "Eclectic Energies", href: "#"},
     { name: "Cost-Effective Test ($$)", vendor: "Nate Bebout", href: "#"},
@@ -89,10 +100,14 @@ export function DriverForm() {
     }
      if (!form.formState.isValid) return null;
     
-    const subtypeCode = subtype.toUpperCase();
+    // The logic seems a bit off, let's correct it based on the visual example.
+    // Example: 4w5 SX SX/SP 451
+    // It should be Type+Wing, Subtype, Stacking, Trifix
     const wingCode = wing.replace(enneagramType, '');
+    const subtypeCode = subtype.toUpperCase();
+    const stackingCode = instinctualStacking.toUpperCase();
 
-    return `Enneagram ${enneagramType}${wingCode} ${subtypeCode} ${instinctualStacking.toUpperCase()} ${trifix}`;
+    return `Enneagram ${enneagramType}${wingCode} ${subtypeCode} ${stackingCode} ${trifix}`;
 
   }, [watchedValues, form.formState.isValid]);
   
@@ -154,9 +169,7 @@ export function DriverForm() {
                             <SelectTrigger><SelectValue placeholder="Select Subtype" /></SelectTrigger>
                           </FormControl>
                            <SelectContent>
-                            <SelectItem value="sp">SP (Self-Preservation)</SelectItem>
-                            <SelectItem value="sx">SX (Sexual / One-to-One)</SelectItem>
-                            <SelectItem value="so">SO (Social)</SelectItem>
+                            {subtypes.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
                           </SelectContent>
                         </Select>
                       </FormItem>
@@ -172,7 +185,7 @@ export function DriverForm() {
                           <FormControl>
                             <SelectTrigger><SelectValue placeholder="Select Stacking" /></SelectTrigger>
                           </FormControl>
-                          <SelectContent>{stackings.map(s => <SelectItem key={s} value={s}>{s.toUpperCase()}</SelectItem>)}</SelectContent>
+                          <SelectContent>{stackings.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}</SelectContent>
                         </Select>
                       </FormItem>
                     )}
@@ -219,9 +232,9 @@ export function DriverForm() {
                       transition={{ duration: 0.5, ease: "easeInOut" }}
                       className="overflow-hidden"
                   >
-                      <div className="bg-secondary p-6 rounded-lg text-center">
-                          <p className="text-sm font-bold text-secondary-foreground">Your Unique Purpose Archetype:</p>
-                          <p className="text-lg font-bold text-accent">{purposeArchetype}</p>
+                      <div className="bg-[#d2f0dc] p-6 rounded-lg text-center">
+                          <p className="text-sm font-bold text-foreground">Your Unique Purpose Archetype:</p>
+                          <p className="text-lg font-bold text-foreground">{purposeArchetype}</p>
                       </div>
                   </motion.div>
               )}
@@ -264,5 +277,3 @@ export function DriverForm() {
     </>
   );
 }
-
-    
