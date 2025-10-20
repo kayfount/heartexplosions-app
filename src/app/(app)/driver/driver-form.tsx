@@ -1,12 +1,13 @@
-
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as React from 'react';
+import { ExternalLink, ArrowLeft, ArrowRight } from 'lucide-react';
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -16,7 +17,6 @@ import {
   FormField,
   FormItem,
   FormLabel,
-  FormMessage,
 } from '@/components/ui/form';
 import {
   Select,
@@ -26,70 +26,64 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Sparkles, Download } from 'lucide-react';
-import { generateReportAction } from '@/app/actions';
-import { useToast } from '@/hooks/use-toast';
-import type { LifePurposeReportOutput } from '@/ai/flows/generate-life-purpose-report';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { TrifixSelectorModal } from './trifix-selector-modal';
 
 const formSchema = z.object({
-  enneagramType: z.string().min(1, 'Please select your Enneagram type.'),
-  wing: z.string().min(1, 'Please select your wing.'),
-  instinctualStacking: z.string().min(1, 'Please select your instinctual stacking.'),
-  trifix: z.string().min(1, 'Please enter your Trifix.'),
+  enneagramType: z.string().min(1, 'Required'),
+  wing: z.string().min(1, 'Required'),
+  subtype: z.string().min(1, 'Required'),
+  instinctualStacking: z.string().min(1, 'Required'),
+  trifix: z.string().min(1, 'Required'),
 });
 
 const enneagramTypes = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const wings = ['1w9', '1w2', '2w1', '2w3', '3w2', '3w4', '4w3', '4w5', '5w4', '5w6', '6w5', '6w7', '7w6', '7w8', '8w7', '8w9', '9w8', '9w1'];
+const subtypes = ['SO (Social)', 'SP (Self-Preservation)', 'SX (Sexual / One-to-One)'];
 const stackings = ['so/sp', 'so/sx', 'sp/so', 'sp/sx', 'sx/so', 'sx/sp'];
+const tests = [
+    { name: "Free Test ($0)", vendor: "Eclectic Energies", href: "#"},
+    { name: "Cost-Effective Test ($$)", vendor: "Nate Bebout", href: "#"},
+    { name: "Tritype Test ($$)", vendor: "Tritype Test", href: "#"},
+    { name: "Comprehensive Test ($$$)", vendor: "IEQ9", href: "#"},
+]
 
 export function DriverForm() {
-  const [isLoading, setIsLoading] = useState(false);
-  const [report, setReport] = useState<LifePurposeReportOutput | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       enneagramType: '',
       wing: '',
+      subtype: '',
       instinctualStacking: '',
       trifix: '',
     },
+    mode: 'onChange'
   });
 
-  const selectedType = useWatch({
-    control: form.control,
-    name: 'enneagramType',
-  });
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true);
-    setReport(null);
-    const result = await generateReportAction(values);
-    setIsLoading(false);
-
-    if (result.success && result.data) {
-      setReport(result.data);
-      toast({
-        title: 'Report Generated!',
-        description: 'Your Life Purpose Report is ready.',
-      });
-    } else {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: result.error || 'Something went wrong.',
-      });
+  const watchedValues = useWatch({ control: form.control });
+  
+  const purposeArchetype = useMemo(() => {
+    const { enneagramType, wing, subtype, instinctualStacking, trifix } = watchedValues;
+    
+    if (!enneagramType || !wing || !subtype || !instinctualStacking || !trifix) {
+        return null;
     }
-  }
+    
+    const subtypeCode = subtype.split(' ')[0];
+
+    return `Enneagram ${wing} ${subtypeCode} ${instinctualStacking} ${trifix}`;
+
+  }, [watchedValues]);
 
   const handleSelectTrifix = (trifix: string) => {
     form.setValue('trifix', trifix, { shouldValidate: true });
     setIsModalOpen(false);
   };
+  
+  const selectedType = watchedValues.enneagramType;
 
   return (
     <>
@@ -99,27 +93,22 @@ export function DriverForm() {
         onSelectTrifix={handleSelectTrifix}
         dominantType={selectedType}
       />
-      <Card>
-        <CardHeader>
-          <CardTitle>Enter Your Details</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="bg-card p-8 rounded-lg shadow-sm border">
+        <Form {...form}>
+            <form className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                 <FormField
                   control={form.control}
                   name="enneagramType"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Enneagram Type</FormLabel>
+                      <FormLabel>Dominant Enneagram Type *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Select your core type" /></SelectTrigger>
+                          <SelectTrigger><SelectValue placeholder="Select Type" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>{enneagramTypes.map(t => <SelectItem key={t} value={t}>Type {t}</SelectItem>)}</SelectContent>
                       </Select>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -128,14 +117,28 @@ export function DriverForm() {
                   name="wing"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Wing</FormLabel>
+                      <FormLabel>Strongest Wing *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Select your wing" /></SelectTrigger>
+                          <SelectTrigger><SelectValue placeholder="Select Wing" /></SelectTrigger>
                         </FormControl>
                         <SelectContent>{wings.map(w => <SelectItem key={w} value={w}>{w}</SelectItem>)}</SelectContent>
                       </Select>
-                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                 <FormField
+                  control={form.control}
+                  name="subtype"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Subtype *</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger><SelectValue placeholder="Select Subtype" /></SelectTrigger>
+                        </FormControl>
+                        <SelectContent>{subtypes.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                      </Select>
                     </FormItem>
                   )}
                 />
@@ -144,23 +147,23 @@ export function DriverForm() {
                   name="instinctualStacking"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Instinctual Stacking</FormLabel>
+                      <FormLabel>Instinctual Stacking *</FormLabel>
                       <Select onValueChange={field.onChange} defaultValue={field.value}>
                         <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Select your stacking" /></SelectTrigger>
+                          <SelectTrigger><SelectValue placeholder="Select Stacking" /></SelectTrigger>
                         </FormControl>
-                        <SelectContent>{stackings.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                        <SelectContent>{stackings.map(s => <SelectItem key={s} value={s.toUpperCase()}>{s.toUpperCase()}</SelectItem>)}</SelectContent>
                       </Select>
-                      <FormMessage />
                     </FormItem>
                   )}
                 />
+                <div className="md:col-span-2">
                  <FormField
                   control={form.control}
                   name="trifix"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Trifix</FormLabel>
+                      <FormLabel>Trifix/Tritype *</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g. 125, 478" {...field} />
                       </FormControl>
@@ -168,57 +171,71 @@ export function DriverForm() {
                         <Button
                             type="button"
                             variant="link"
-                            className="p-0 h-auto"
+                            className="p-0 h-auto text-primary"
                             onClick={() => setIsModalOpen(true)}
                             disabled={!selectedType}
                         >
                             Need Help Choosing? See Options
                         </Button>
                       </FormDescription>
-                      <FormMessage />
                     </FormItem>
                   )}
-                />
-              </div>
-              <Button type="submit" disabled={isLoading} size="lg" className="w-full md:w-auto bg-primary-gradient text-primary-foreground font-bold shadow-lg">
-                {isLoading ? (
-                  <><Loader2 className="mr-2 h-4 w-4 animate-spin" /> Generating...</>
-                ) : (
-                  <><Sparkles className="mr-2 h-4 w-4" /> Generate My Report</>
-                )}
-              </Button>
+                 />
+                </div>
+            </div>
             </form>
-          </Form>
-        </CardContent>
-      </Card>
+        </Form>
+        <AnimatePresence>
+            {purposeArchetype && (
+                 <motion.div
+                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                    animate={{ opacity: 1, height: 'auto', marginTop: '24px' }}
+                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                    transition={{ duration: 0.5, ease: "easeInOut" }}
+                    className="overflow-hidden"
+                 >
+                    <div className="bg-secondary p-6 rounded-lg text-center">
+                        <p className="text-sm font-bold text-secondary-foreground">Your Unique Purpose Archetype:</p>
+                        <p className="text-lg font-bold text-accent">{purposeArchetype}</p>
+                    </div>
+                 </motion.div>
+            )}
+        </AnimatePresence>
+      </div>
+
+      <div className="mt-12">
+        <Separator />
+        <div className="mt-8">
+            <h3 className="text-xl font-bold font-headline mb-2">Don't know your Enneagram details?</h3>
+            <p className="text-muted-foreground mb-6">Take one of these recommended tests:</p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {tests.map(test => (
+                    <a href={test.href} key={test.name} target="_blank" rel="noopener noreferrer">
+                        <Card className="hover:border-primary/50 transition-colors">
+                            <CardContent className="p-4 flex justify-between items-center">
+                                <div>
+                                    <p className="font-bold">{test.name}</p>
+                                    <p className="text-sm text-muted-foreground">{test.vendor}</p>
+                                </div>
+                                <ExternalLink className="size-4 text-muted-foreground" />
+                            </CardContent>
+                        </Card>
+                    </a>
+                ))}
+            </div>
+        </div>
+      </div>
       
-      <AnimatePresence>
-      {report && (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5 }}
-        >
-        <Card className="mt-8 border-primary/50">
-          <CardHeader className="flex flex-row justify-between items-start">
-            <div>
-              <CardTitle>Your Life Purpose Report</CardTitle>
-            </div>
-            <div className="flex gap-2">
-                <Button variant="outline" size="sm"><Download className="mr-2 h-4 w-4" /> PDF</Button>
-                <Button variant="outline" size="sm"><Download className="mr-2 h-4 w-4" /> Audio</Button>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <div className="prose prose-lg max-w-none text-foreground/90 whitespace-pre-wrap font-body">
-              {report.report}
-            </div>
-          </CardContent>
-        </Card>
-        </motion.div>
-      )}
-      </AnimatePresence>
+       <div className="mt-12 flex justify-between items-center">
+            <Button variant="outline" disabled>
+                <ArrowLeft /> Previous
+            </Button>
+            <Button asChild className="bg-primary-gradient text-primary-foreground font-bold">
+                <Link href="/destination">
+                   Next <ArrowRight />
+                </Link>
+            </Button>
+        </div>
     </>
   );
 }

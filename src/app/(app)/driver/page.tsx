@@ -6,10 +6,10 @@ export default function DriverPage() {
     <div className="container mx-auto max-w-5xl p-4 md:p-8">
       <div className="flex items-center gap-4 mb-6">
         <Car className="size-10 text-primary" />
-        <h1 className="text-4xl font-bold font-headline">The Driver: Reveal Your Purpose</h1>
+        <h1 className="text-4xl font-bold font-headline">Determine Your Unique Purpose Archetype</h1>
       </div>
       <p className="text-lg text-foreground/80 mb-8">
-        Uncover your core motivations and natural genius. By providing your Enneagram details, our AI will generate a personalized Life Purpose Report, outlining your path to growth, your core values, and your unique strengths.
+        Your UPA is a high-resolution snapshot of how you're wired to contribute to the world, built using five deep dimensions of the Enneagram.
       </p>
       
       <DriverForm />
