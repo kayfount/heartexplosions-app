@@ -171,7 +171,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent 
-        className="sm:max-w-md bg-light-box-surface border-foreground/20"
+        className="sm:max-w-md bg-card border-foreground/20"
         onInteractOutside={(e) => e.preventDefault()}
       >
         <AnimatePresence mode="wait">
