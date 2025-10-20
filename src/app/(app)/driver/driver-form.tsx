@@ -29,6 +29,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import { TrifixSelectorModal } from './trifix-selector-modal';
+import { trifixData } from './trifix-data';
 
 const formSchema = z.object({
   enneagramType: z.string().min(1, 'Required'),
@@ -50,7 +52,7 @@ const tests = [
 ]
 
 export function DriverForm() {
-
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -64,7 +66,8 @@ export function DriverForm() {
   });
 
   const watchedValues = useWatch({ control: form.control });
-  
+  const selectedEnneagramType = useWatch({ control: form.control, name: 'enneagramType' });
+
   const purposeArchetype = useMemo(() => {
     const { enneagramType, wing, subtype, instinctualStacking, trifix } = watchedValues;
     
@@ -79,138 +82,161 @@ export function DriverForm() {
 
   }, [watchedValues]);
   
+  const handleSelectTrifix = (trifix: string) => {
+    form.setValue('trifix', trifix, { shouldValidate: true });
+    setIsModalOpen(false);
+  };
+  
   return (
-    <div className="bg-card p-8 rounded-lg shadow-sm">
-        <Form {...form}>
-            <form className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
-                <FormField
-                  control={form.control}
-                  name="enneagramType"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Dominant Enneagram Type *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+    <>
+      <TrifixSelectorModal
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onSelect={handleSelectTrifix}
+        enneagramType={selectedEnneagramType}
+      />
+      <div className="bg-card p-8 rounded-lg shadow-sm">
+          <Form {...form}>
+              <form className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                  <FormField
+                    control={form.control}
+                    name="enneagramType"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Dominant Enneagram Type *</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger><SelectValue placeholder="Select Type" /></SelectTrigger>
+                          </FormControl>
+                          <SelectContent>{enneagramTypes.map(t => <SelectItem key={t} value={t}>Type {t}</SelectItem>)}</SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="wing"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Strongest Wing *</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger><SelectValue placeholder="Select Wing" /></SelectTrigger>
+                          </FormControl>
+                          <SelectContent>{wings.map(w => <SelectItem key={w} value={w}>{w}</SelectItem>)}</SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="subtype"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Subtype *</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger><SelectValue placeholder="Select Subtype" /></SelectTrigger>
+                          </FormControl>
+                          <SelectContent>{subtypes.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="instinctualStacking"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Instinctual Stacking *</FormLabel>
+                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                          <FormControl>
+                            <SelectTrigger><SelectValue placeholder="Select Stacking" /></SelectTrigger>
+                          </FormControl>
+                          <SelectContent>{stackings.map(s => <SelectItem key={s} value={s}>{s.toUpperCase()}</SelectItem>)}</SelectContent>
+                        </Select>
+                      </FormItem>
+                    )}
+                  />
+                  <div className="md:col-span-2">
+                  <FormField
+                    control={form.control}
+                    name="trifix"
+                    render={({ field }) => (
+                      <FormItem>
+                        <div className="flex justify-between items-center mb-2">
+                          <FormLabel>Trifix/Tritype *</FormLabel>
+                          <button
+                            type="button"
+                            onClick={() => setIsModalOpen(true)}
+                            disabled={!selectedEnneagramType}
+                            className="text-sm font-medium text-primary hover:underline disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            Need Help Choosing? See Options
+                          </button>
+                        </div>
                         <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Select Type" /></SelectTrigger>
+                          <Input placeholder="e.g. 125, 478" {...field} />
                         </FormControl>
-                        <SelectContent>{enneagramTypes.map(t => <SelectItem key={t} value={t}>Type {t}</SelectItem>)}</SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="wing"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Strongest Wing *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Select Wing" /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>{wings.map(w => <SelectItem key={w} value={w}>{w}</SelectItem>)}</SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-                 <FormField
-                  control={form.control}
-                  name="subtype"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Subtype *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Select Subtype" /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>{subtypes.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-                 <FormField
-                  control={form.control}
-                  name="instinctualStacking"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Instinctual Stacking *</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Select Stacking" /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>{stackings.map(s => <SelectItem key={s} value={s}>{s.toUpperCase()}</SelectItem>)}</SelectContent>
-                      </Select>
-                    </FormItem>
-                  )}
-                />
-                <div className="md:col-span-2">
-                 <FormField
-                  control={form.control}
-                  name="trifix"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Trifix/Tritype *</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. 125, 478" {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                 />
-                </div>
-            </div>
-            </form>
-        </Form>
-        <AnimatePresence>
-            {purposeArchetype && (
-                 <motion.div
-                    initial={{ opacity: 0, height: 0, marginTop: 0 }}
-                    animate={{ opacity: 1, height: 'auto', marginTop: '24px' }}
-                    exit={{ opacity: 0, height: 0, marginTop: 0 }}
-                    transition={{ duration: 0.5, ease: "easeInOut" }}
-                    className="overflow-hidden"
-                 >
-                    <div className="bg-secondary p-6 rounded-lg text-center">
-                        <p className="text-sm font-bold text-secondary-foreground">Your Unique Purpose Archetype:</p>
-                        <p className="text-lg font-bold text-accent">{purposeArchetype}</p>
-                    </div>
-                 </motion.div>
-            )}
-        </AnimatePresence>
-      
-      <div className="mt-12">
-        <Separator />
-        <div className="mt-8">
-            <h3 className="text-xl font-bold font-headline mb-2">Don't know your Enneagram details?</h3>
-            <p className="text-muted-foreground mb-6">Take one of these recommended tests:</p>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {tests.map(test => (
-                    <a href={test.href} key={test.name} target="_blank" rel="noopener noreferrer">
-                        <Card className="hover:border-primary/50 transition-colors border-2">
-                            <CardContent className="p-4 flex justify-between items-center">
-                                <div>
-                                    <p className="font-bold">{test.name}</p>
-                                    <p className="text-sm text-muted-foreground">{test.vendor}</p>
-                                </div>
-                                <ExternalLink className="size-4 text-muted-foreground" />
-                            </CardContent>
-                        </Card>
-                    </a>
-                ))}
-            </div>
+                      </FormItem>
+                    )}
+                  />
+                  </div>
+              </div>
+              </form>
+          </Form>
+          <AnimatePresence>
+              {purposeArchetype && (
+                  <motion.div
+                      initial={{ opacity: 0, height: 0, marginTop: 0 }}
+                      animate={{ opacity: 1, height: 'auto', marginTop: '24px' }}
+                      exit={{ opacity: 0, height: 0, marginTop: 0 }}
+                      transition={{ duration: 0.5, ease: "easeInOut" }}
+                      className="overflow-hidden"
+                  >
+                      <div className="bg-secondary p-6 rounded-lg text-center">
+                          <p className="text-sm font-bold text-secondary-foreground">Your Unique Purpose Archetype:</p>
+                          <p className="text-lg font-bold text-accent">{purposeArchetype}</p>
+                      </div>
+                  </motion.div>
+              )}
+          </AnimatePresence>
+        
+        <div className="mt-12">
+          <Separator />
+          <div className="mt-8">
+              <h3 className="text-xl font-bold font-headline mb-2">Don't know your Enneagram details?</h3>
+              <p className="text-muted-foreground mb-6">Take one of these recommended tests:</p>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {tests.map(test => (
+                      <a href={test.href} key={test.name} target="_blank" rel="noopener noreferrer">
+                          <Card className="hover:border-primary/50 transition-colors border-2">
+                              <CardContent className="p-4 flex justify-between items-center">
+                                  <div>
+                                      <p className="font-bold">{test.name}</p>
+                                      <p className="text-sm text-muted-foreground">{test.vendor}</p>
+                                  </div>
+                                  <ExternalLink className="size-4 text-muted-foreground" />
+                              </CardContent>
+                          </Card>
+                      </a>
+                  ))}
+              </div>
+          </div>
         </div>
+        
+        <div className="mt-12 flex justify-between items-center">
+              <Button variant="outline" asChild>
+                  <Link href="/basecamp"><ArrowLeft /> Previous</Link>
+              </Button>
+              <Button asChild className="bg-primary-gradient text-primary-foreground font-bold">
+                  <Link href="/destination">
+                    Next <ArrowRight />
+                  </Link>
+              </Button>
+          </div>
       </div>
-      
-       <div className="mt-12 flex justify-between items-center">
-            <Button variant="outline" asChild>
-                <Link href="/basecamp"><ArrowLeft /> Previous</Link>
-            </Button>
-            <Button asChild className="bg-primary-gradient text-primary-foreground font-bold">
-                <Link href="/destination">
-                   Next <ArrowRight />
-                </Link>
-            </Button>
-        </div>
-    </div>
+    </>
   );
 }
