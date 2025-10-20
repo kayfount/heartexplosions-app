@@ -51,11 +51,10 @@ interface RegistrationModalProps {
 }
 
 const journeyStatuses = [
-    "Just beginning",
+    "Just considering a change",
+    "Preparing to make a move",
     "Actively transitioning",
-    "Feeling stuck or stalled",
-    "Deepening my current path",
-    "Rebuilding after a major life event"
+    "Not looking to change right now"
 ];
 
 export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegistered }: RegistrationModalProps) {
