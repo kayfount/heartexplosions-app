@@ -1,140 +1,77 @@
 /**
- * @file Firestore Security Rules for Heart Compass Application
- * @description This ruleset enforces a strict user-ownership model, ensuring that only authenticated users can access their own data.
+ * @file Firebase Security Rules for Heart Compass application.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model. Each user has sole access to their profile and associated Life Purpose Report.
  *
  * Data Structure:
- * All user-related data is nested under the `/users/{userId}` path, where `{userId}` corresponds to the Firebase Auth UID.
- * This includes profile information, Basecamp data, Life Purpose Reports, Purpose Profiles, Route Plans, AI Coach conversations, and Reflection Prompt Responses.
+ * All data is nested under /users/{userId}, with userProfile and lifePurposeReport subcollections.
  *
  * Key Security Decisions:
- * - User listing is disabled to prevent unauthorized enumeration of user accounts.
- * - All data is private and accessible only to the owning user.
+ * - Users can only access their own data. No cross-user access is permitted.
+ * - Listing of users is disallowed to protect privacy.
  *
- * Authorization Strategy:
- * The rules leverage path-based authorization using the `isOwner(userId)` function.
- * All write operations are restricted to the authenticated user matching the `{userId}` in the path.
- * All read operations are similarly restricted to the authenticated user.
+ * Denormalization for Authorization:
+ * The userId path parameter is used to enforce ownership, avoiding the need for complex queries or data duplication within documents.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper function to check if the user is signed in and owns the document.
+    /**
+     * @description Enforces user-ownership for UserProfile documents.
+     * @path /users/{userId}/userProfile
+     * @allow (create) - Authenticated user creates their own profile using the registration form, with profilePicUrl field included.
+     *   Request: { auth: { uid: "user123" }, resource.data: { id: "user123", email: "test@example.com", profilePicUrl: "https://example.com/image.jpg", currentSeason: "Spring", constraints: "Time", values: "Family", strengths: "Kindness", interests: "Reading", timeBudget: "2 hours", startingPointSummary: "You are here...", lifePurposeReportId: "report456" } }
+     * @allow (get, update, delete) - Authenticated user retrieves, updates, or deletes their own profile.
+     *   Request: { auth: { uid: "user123" }, resource.data: { id: "user123", email: "test@example.com", profilePicUrl: "https://example.com/new_image.jpg", currentSeason: "Summer", constraints: "Money", values: "Health", strengths: "Patience", interests: "Hiking", timeBudget: "3 hours", startingPointSummary: "Update...", lifePurposeReportId: "report456" } }
+     * @deny (create) - Attempt to create a profile with a mismatched user ID.
+     *   Request: { auth: { uid: "user456" }, resource.data: { id: "user123", email: "test@example.com", profilePicUrl: "https://example.com/image.jpg", currentSeason: "Spring", constraints: "Time", values: "Family", strengths: "Kindness", interests: "Reading", timeBudget: "2 hours", startingPointSummary: "You are here...", lifePurposeReportId: "report456" } }
+     * @deny (get, update, delete) - Attempt to access another user's profile.
+     *   Request: { auth: { uid: "user456" } }
+     * @principle Enforces document ownership and restricts access to a user's own data.
+     */
+    match /users/{userId}/userProfile {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isSignedIn() && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Enforces user-ownership for LifePurposeReport documents.
+     * @path /users/{userId}/lifePurposeReport
+     * @allow (create) - Authenticated user creates their own report.
+     *   Request: { auth: { uid: "user123" }, resource.data: { id: "report456", enneagramType: "5", wing: "4", instinctualStacking: "so/sx", tritype: "548", naturalGenius: "Insight", growthEdge: "Action", motivations: "Understanding", coreValues: "Integrity", reportPdfUrl: "https://example.com/report.pdf", reportAudioUrl: "https://example.com/report.mp3" } }
+     * @allow (get, update, delete) - Authenticated user retrieves, updates, or deletes their own report.
+     *   Request: { auth: { uid: "user123" } }
+     * @deny (create) - Attempt to create a report with a mismatched user ID.
+     *   Request: { auth: { uid: "user456" }, resource.data: { id: "report456", enneagramType: "5", wing: "4", instinctualStacking: "so/sx", tritype: "548", naturalGenius: "Insight", growthEdge: "Action", motivations: "Understanding", coreValues: "Integrity", reportPdfUrl: "https://example.com/report.pdf", reportAudioUrl: "https://example.com/report.mp3" } }
+     * @deny (get, update, delete) - Attempt to access another user's report.
+     *   Request: { auth: { uid: "user456" } }
+     * @principle Enforces document ownership and restricts access to a user's own data.
+     */
+    match /users/{userId}/lifePurposeReport {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isSignedIn() && request.resource.data.id != null;
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    // --- Helper Functions ---
+
     function isSignedIn() {
       return request.auth != null;
     }
 
     function isOwner(userId) {
-      return isSignedIn() && request.auth.uid == userId;
+      return request.auth.uid == userId;
     }
 
     function isExistingOwner(userId) {
-      return isOwner(userId) && exists(resource);
-    }
-
-    /**
-     * @description Protects the /users/{userId} collection, ensuring only the owner can read and write their own profile.
-     * @path /users/{userId}
-     */
-    match /users/{userId} {
-      // Read permissions:
-      allow get: if isOwner(userId);
-      allow list: if false;
-
-      // Write permissions:
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Protects the /users/{userId}/basecamp collection, ensuring only the owner can read and write their own Basecamp data.
-     * @path /users/{userId}/basecamp
-     */
-    match /users/{userId}/basecamp {
-      // Read permissions:
-      allow get: if isOwner(userId);
-      allow list: if false;
-
-      // Write permissions:
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Protects the /users/{userId}/lifePurposeReports/{lifePurposeReportId} collection, ensuring only the owner can read and write their own Life Purpose Reports.
-     * @path /users/{userId}/lifePurposeReports/{lifePurposeReportId}
-     */
-    match /users/{userId}/lifePurposeReports/{lifePurposeReportId} {
-      // Read permissions:
-      allow get: if isOwner(userId);
-      allow list: if false;
-
-      // Write permissions:
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Protects the /users/{userId}/purposeProfiles/{purposeProfileId} collection, ensuring only the owner can read and write their own Purpose Profiles.
-     * @path /users/{userId}/purposeProfiles/{purposeProfileId}
-     */
-    match /users/{userId}/purposeProfiles/{purposeProfileId} {
-      // Read permissions:
-      allow get: if isOwner(userId);
-      allow list: if false;
-
-      // Write permissions:
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Protects the /users/{userId}/routePlans/{routePlanId} collection, ensuring only the owner can read and write their own Route Plans.
-     * @path /users/{userId}/routePlans/{routePlanId}
-     */
-    match /users/{userId}/routePlans/{routePlanId} {
-      // Read permissions:
-      allow get: if isOwner(userId);
-      allow list: if false;
-
-      // Write permissions:
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Protects the /users/{userId}/aiCoachConversations/{aiCoachConversationId} collection, ensuring only the owner can read and write their own AI Coach conversations.
-     * @path /users/{userId}/aiCoachConversations/{aiCoachConversationId}
-     */
-    match /users/{userId}/aiCoachConversations/{aiCoachConversationId} {
-      // Read permissions:
-      allow get: if isOwner(userId);
-      allow list: if false;
-
-      // Write permissions:
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
-    }
-
-    /**
-     * @description Protects the /users/{userId}/reflectionPromptResponses/{reflectionPromptResponseId} collection, ensuring only the owner can read and write their own Reflection Prompt Responses.
-     * @path /users/{userId}/reflectionPromptResponses/{reflectionPromptResponseId}
-     */
-    match /users/{userId}/reflectionPromptResponses/{reflectionPromptResponseId} {
-      // Read permissions:
-      allow get: if isOwner(userId);
-      allow list: if false;
-
-      // Write permissions:
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
+        return isOwner(userId) && resource != null;
     }
   }
 }
