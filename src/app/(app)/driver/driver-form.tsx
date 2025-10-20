@@ -26,8 +26,8 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { TrifixSelectorModal } from './trifix-selector-modal';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
   enneagramType: z.string().min(1, 'Required'),
@@ -49,7 +49,6 @@ const tests = [
 ]
 
 export function DriverForm() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -74,25 +73,12 @@ export function DriverForm() {
     
     const subtypeCode = subtype.split(' ')[0];
 
-    return `Enneagram ${wing} ${subtypeCode} ${instinctualStacking} ${trifix}`;
+    return `Enneagram ${wing} ${subtypeCode} ${instinctualStacking.toUpperCase()} ${trifix}`;
 
   }, [watchedValues]);
-
-  const handleSelectTrifix = (trifix: string) => {
-    form.setValue('trifix', trifix, { shouldValidate: true });
-    setIsModalOpen(false);
-  };
   
-  const selectedType = watchedValues.enneagramType;
-
   return (
     <>
-      <TrifixSelectorModal
-        isOpen={isModalOpen}
-        onOpenChange={setIsModalOpen}
-        onSelectTrifix={handleSelectTrifix}
-        dominantType={selectedType}
-      />
       <div className="bg-card p-8 rounded-lg shadow-sm border">
         <Form {...form}>
             <form className="space-y-6">
@@ -152,7 +138,7 @@ export function DriverForm() {
                         <FormControl>
                           <SelectTrigger><SelectValue placeholder="Select Stacking" /></SelectTrigger>
                         </FormControl>
-                        <SelectContent>{stackings.map(s => <SelectItem key={s} value={s.toUpperCase()}>{s.toUpperCase()}</SelectItem>)}</SelectContent>
+                        <SelectContent>{stackings.map(s => <SelectItem key={s} value={s}>{s.toUpperCase()}</SelectItem>)}</SelectContent>
                       </Select>
                     </FormItem>
                   )}
@@ -167,17 +153,6 @@ export function DriverForm() {
                       <FormControl>
                         <Input placeholder="e.g. 125, 478" {...field} />
                       </FormControl>
-                      <FormDescription>
-                        <Button
-                            type="button"
-                            variant="link"
-                            className="p-0 h-auto text-primary"
-                            onClick={() => setIsModalOpen(true)}
-                            disabled={!selectedType}
-                        >
-                            Need Help Choosing? See Options
-                        </Button>
-                      </FormDescription>
                     </FormItem>
                   )}
                  />
@@ -227,8 +202,8 @@ export function DriverForm() {
       </div>
       
        <div className="mt-12 flex justify-between items-center">
-            <Button variant="outline" disabled>
-                <ArrowLeft /> Previous
+            <Button variant="outline" asChild>
+                <Link href="/basecamp"><ArrowLeft /> Previous</Link>
             </Button>
             <Button asChild className="bg-primary-gradient text-primary-foreground font-bold">
                 <Link href="/destination">
