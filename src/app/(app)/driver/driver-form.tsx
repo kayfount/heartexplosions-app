@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo } from 'react';
@@ -78,8 +79,7 @@ export function DriverForm() {
   }, [watchedValues]);
   
   return (
-    <>
-      <div className="bg-card p-8 rounded-lg shadow-sm border">
+    <div className="bg-card p-8 rounded-lg shadow-sm">
         <Form {...form}>
             <form className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -176,8 +176,7 @@ export function DriverForm() {
                  </motion.div>
             )}
         </AnimatePresence>
-      </div>
-
+      
       <div className="mt-12">
         <Separator />
         <div className="mt-8">
@@ -186,7 +185,7 @@ export function DriverForm() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {tests.map(test => (
                     <a href={test.href} key={test.name} target="_blank" rel="noopener noreferrer">
-                        <Card className="hover:border-primary/50 transition-colors">
+                        <Card className="hover:border-primary/50 transition-colors border-2">
                             <CardContent className="p-4 flex justify-between items-center">
                                 <div>
                                     <p className="font-bold">{test.name}</p>
@@ -211,6 +210,6 @@ export function DriverForm() {
                 </Link>
             </Button>
         </div>
-    </>
+    </div>
   );
 }
