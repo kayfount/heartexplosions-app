@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -23,6 +24,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Sparkles, Download } from 'lucide-react';
 import { generateReportAction } from '@/app/actions';
@@ -33,14 +35,12 @@ const formSchema = z.object({
   enneagramType: z.string().min(1, 'Please select your Enneagram type.'),
   wing: z.string().min(1, 'Please select your wing.'),
   instinctualStacking: z.string().min(1, 'Please select your instinctual stacking.'),
-  tritype: z.string().min(1, 'Please select your Tritype.'),
+  trifix: z.string().min(1, 'Please enter your Trifix.'),
 });
 
 const enneagramTypes = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const wings = ['1w9', '1w2', '2w1', '2w3', '3w2', '3w4', '4w3', '4w5', '5w4', '5w6', '6w5', '6w7', '7w6', '7w8', '8w7', '8w9', '9w8', '9w1'];
 const stackings = ['so/sp', 'so/sx', 'sp/so', 'sp/sx', 'sx/so', 'sx/sp'];
-const tritypes = ['125', '126', '127', '135', '136', '137', '145', '146', '147', '258', '259', '268', '269', '278', '279', '358', '359', '368', '369', '378', '379', '458', '459', '468', '469', '478', '479'];
-
 
 export function DriverForm() {
   const [isLoading, setIsLoading] = useState(false);
@@ -53,7 +53,7 @@ export function DriverForm() {
       enneagramType: '',
       wing: '',
       instinctualStacking: '',
-      tritype: '',
+      trifix: '',
     },
   });
 
@@ -138,16 +138,16 @@ export function DriverForm() {
                 />
                  <FormField
                   control={form.control}
-                  name="tritype"
+                  name="trifix"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Tritype</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
-                        <FormControl>
-                          <SelectTrigger><SelectValue placeholder="Select your tritype" /></SelectTrigger>
-                        </FormControl>
-                        <SelectContent>{tritypes.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                      </Select>
+                      <FormLabel>Trifix</FormLabel>
+                      <FormControl>
+                        <Input placeholder="e.g. 125, 478" {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        select your trifix here
+                      </FormDescription>
                       <FormMessage />
                     </FormItem>
                   )}
