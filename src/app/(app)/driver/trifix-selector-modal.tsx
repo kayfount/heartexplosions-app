@@ -29,6 +29,7 @@ export function TrifixSelectorModal({
   const permutations = useMemo(() => {
     if (!enneagramType) return [];
     const typeData = trifixData.find(t => t.type === enneagramType);
+    // Flatten the groups of permutations while maintaining their original order.
     return typeData ? typeData.groups.flatMap(g => g.permutations) : [];
   }, [enneagramType]);
 
@@ -56,7 +57,7 @@ export function TrifixSelectorModal({
                     className={cn(
                         "h-12 w-20 flex items-center justify-center rounded-md font-mono text-lg font-bold transition-colors",
                         "bg-primary text-primary-foreground",
-                        "hover:bg-primary/80"
+                        "hover:bg-card hover:text-primary hover:border-primary border-2 border-transparent"
                     )}
                     >
                     {p}
