@@ -132,8 +132,8 @@ export default function BasecampDashboardPage() {
         </div>
 
         <div className="max-w-5xl mx-auto space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 space-y-8">
+            {/* Registration & Essentials Section */}
+            <div className="space-y-8">
                 {/* Registration Section */}
                 <div>
                     <h3 className="text-2xl font-bold font-headline mb-4">Register for the Expedition</h3>
@@ -180,37 +180,38 @@ export default function BasecampDashboardPage() {
                     </div>
                 </div>
             </div>
+            
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Expedition Prep Section */}
+                <div className="lg:col-span-2">
+                    <h3 className="text-2xl font-bold font-headline mb-4">Expedition Prep</h3>
+                    <div className="space-y-3">
+                        {expeditionStages.map(stage => (
+                            <Link href={stage.href} key={stage.id}>
+                                <Card className="hover:border-primary/50 transition-colors flex items-center p-4">
+                                <div className="flex items-center gap-4">
+                                        <div className="p-2 bg-secondary rounded-md text-accent">
+                                            {stage.icon}
+                                        </div>
+                                        <p className="font-bold text-lg">{stage.title}</p>
+                                </div>
+                                <div className="ml-auto">
+                                    {stage.completed ? <CheckCircle2 className="text-accent"/> : <ArrowRight className="text-muted-foreground"/>}
+                                </div>
+                                </Card>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
 
-            {/* Wisdom Widget */}
-            <div className="lg:row-span-2 pt-12">
-                <h3 className="text-2xl font-bold font-headline mb-4 flex items-center gap-2">
-                    <BookOpen className="text-accent" /> Wisdom From The Wilderness
-                </h3>
-                <p className="text-lg italic text-muted-foreground">"{quote}"</p>
-            </div>
-
-            {/* Expedition Prep Section */}
-            <div className="lg:col-span-2">
-                <h3 className="text-2xl font-bold font-headline mb-4">Expedition Prep</h3>
-                <div className="space-y-3">
-                     {expeditionStages.map(stage => (
-                        <Link href={stage.href} key={stage.id}>
-                            <Card className="hover:border-primary/50 transition-colors flex items-center p-4">
-                               <div className="flex items-center gap-4">
-                                    <div className="p-2 bg-secondary rounded-md text-accent">
-                                        {stage.icon}
-                                    </div>
-                                    <p className="font-bold text-lg">{stage.title}</p>
-                               </div>
-                               <div className="ml-auto">
-                                {stage.completed ? <CheckCircle2 className="text-accent"/> : <ArrowRight className="text-muted-foreground"/>}
-                               </div>
-                            </Card>
-                        </Link>
-                    ))}
+                {/* Wisdom Widget */}
+                <div>
+                    <h3 className="text-2xl font-bold font-headline mb-4 flex items-center gap-2 pt-7">
+                        <BookOpen className="text-accent" /> Wisdom From The Wilderness
+                    </h3>
+                    <p className="text-lg italic text-muted-foreground">"{quote}"</p>
                 </div>
             </div>
-          </div>
           
           {/* Check Your Expedition Status */}
           <div>
