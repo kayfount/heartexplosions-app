@@ -4,7 +4,6 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  LogOut,
   Tent,
   Car,
   MapPin,
@@ -14,8 +13,7 @@ import {
 import { Logo } from './logo';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
-import { initiateSignOut } from '@/firebase/non-blocking-login';
-import { useAuth, useUser } from '@/firebase';
+import { useUser } from '@/firebase';
 import { UserNav } from './user-nav';
 
 const navItems = [
@@ -41,7 +39,8 @@ export function Header() {
               <Logo />
             </Link>
           </div>
-          {showNav && (
+          {showNav ? (
+            <>
             <nav className="hidden md:flex md:items-center md:gap-2 absolute left-1/2 -translate-x-1/2">
               {navItems.map((item) => (
                 <Link
@@ -59,10 +58,20 @@ export function Header() {
                 </Link>
               ))}
             </nav>
+            <div className="flex items-center gap-2">
+              <UserNav />
+            </div>
+            </>
+          ) : (
+             <div className="flex items-center gap-4">
+                <Button asChild variant="ghost">
+                    <Link href="/login">Log In</Link>
+                </Button>
+                <Button asChild className="bg-primary-gradient text-primary-foreground font-bold">
+                    <Link href="/signup">Sign Up</Link>
+                </Button>
+             </div>
           )}
-          <div className="flex items-center gap-2">
-            {showNav && <UserNav />}
-          </div>
         </div>
       </div>
     </header>

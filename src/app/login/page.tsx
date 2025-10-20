@@ -28,7 +28,7 @@ import { initiateEmailSignIn } from '@/firebase/non-blocking-login';
 import { Loader2 } from 'lucide-react';
 import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 const formSchema = z.object({
   email: z.string().email('Please enter a valid email address.'),
@@ -39,6 +39,7 @@ export default function LoginPage() {
   const auth = useAuth();
   const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -54,9 +55,11 @@ export default function LoginPage() {
     }
   }, [user, isUserLoading, router]);
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!auth) return;
-    initiateEmailSignIn(auth, values.email, values.password);
+    setIsSubmitting(true);
+    await initiateEmailSignIn(auth, values.email, values.password);
+    // The redirect is handled by the useEffect hook
   }
 
   if (isUserLoading || user) {
@@ -68,14 +71,14 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center">
+    <div className="flex min-h-screen items-center justify-center p-4">
       <Card className="w-full max-w-sm">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <CardHeader className="space-y-1 text-center">
-              <div className="mx-auto">
+              <Link href="/" className="mx-auto">
                 <Logo />
-              </div>
+              </Link>
               <CardTitle>Welcome Back</CardTitle>
               <CardDescription>
                 Enter your email below to log in to your account
@@ -117,9 +120,9 @@ export default function LoginPage() {
               <Button
                 type="submit"
                 className="w-full bg-primary-gradient text-primary-foreground font-bold"
-                disabled={form.formState.isSubmitting}
+                disabled={isSubmitting}
               >
-                 {form.formState.isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                 {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 Log In
               </Button>
               <div className="text-center text-sm">
