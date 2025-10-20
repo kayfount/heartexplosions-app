@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, type ReactNode } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -14,6 +14,10 @@ import {
   BookOpen,
   Tent,
   CheckCircle2,
+  ClipboardPen,
+  ClipboardCheck,
+  Download,
+  Music
 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -135,6 +139,7 @@ export default function BasecampDashboardPage() {
                     <h3 className="text-2xl font-bold font-headline mb-4">Register for the Expedition</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <StatusCard
+                            icon={<ClipboardPen className="size-5 text-secondary-foreground" />}
                             isComplete={tasks.registered}
                             incompleteText="Register for your Expedition"
                             completeText="Expedition Registered"
@@ -142,6 +147,7 @@ export default function BasecampDashboardPage() {
                             onClick={() => setRegistrationOpen(true)}
                         />
                         <StatusCard
+                            icon={<ClipboardCheck className="size-5 text-secondary-foreground" />}
                             isComplete={tasks.quizTaken}
                             incompleteText="Take the Role Satisfaction Quiz"
                             completeText="Retake Role Satisfaction Quiz"
@@ -156,6 +162,7 @@ export default function BasecampDashboardPage() {
                     <h3 className="text-2xl font-bold font-headline mb-4">Pick Up Your Essentials</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <StatusCard
+                            icon={<Download className="size-5 text-secondary-foreground" />}
                             isComplete={tasks.guideDownloaded}
                             incompleteText="Download Your Guide"
                             completeText="Guide Downloaded"
@@ -163,6 +170,7 @@ export default function BasecampDashboardPage() {
                             onClick={() => setTasks(prev => ({...prev, guideDownloaded: !prev.guideDownloaded}))}
                         />
                         <StatusCard
+                            icon={<Music className="size-5 text-secondary-foreground" />}
                             isComplete={tasks.playlistAdded}
                             incompleteText="Add The Playlist"
                             completeText="Playlist Added"
@@ -230,6 +238,7 @@ export default function BasecampDashboardPage() {
 
 // Helper component for status cards
 interface StatusCardProps {
+    icon: ReactNode;
     isComplete: boolean;
     incompleteText: string;
     completeText: string;
@@ -237,12 +246,12 @@ interface StatusCardProps {
     onClick: () => void;
 }
 
-function StatusCard({ isComplete, incompleteText, completeText, description, onClick }: StatusCardProps) {
+function StatusCard({ icon, isComplete, incompleteText, completeText, description, onClick }: StatusCardProps) {
     return (
         <Card onClick={onClick} className={cn("cursor-pointer transition-colors hover:border-primary/50", isComplete && 'bg-secondary/50')}>
             <CardContent className="p-6 flex items-center gap-4">
-                <div>
-                  {isComplete ? <CheckCircle2 className="size-8 text-accent" /> : <div className="size-8 rounded-full border-2 border-dashed border-muted-foreground flex items-center justify-center"><ArrowRight className="size-4 text-muted-foreground" /></div>}
+                 <div className={cn("flex items-center justify-center size-10 rounded-full", isComplete ? "bg-accent" : "bg-foreground")}>
+                  {isComplete ? <CheckCircle2 className="size-5 text-primary-foreground" /> : icon}
                 </div>
                 <div>
                     <p className="font-bold">{isComplete ? completeText : incompleteText}</p>
