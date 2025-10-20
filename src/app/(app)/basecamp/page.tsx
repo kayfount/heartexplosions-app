@@ -185,7 +185,7 @@ export default function BasecampDashboardPage() {
                 {/* Expedition Prep Section */}
                 <div className="lg:col-span-2">
                     <h3 className="text-2xl font-bold font-headline mb-4">Expedition Prep</h3>
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                         {expeditionStages.map(stage => (
                             <Link href={stage.href} key={stage.id}>
                                 <Card className="hover:border-primary/50 transition-colors flex items-center p-4">
