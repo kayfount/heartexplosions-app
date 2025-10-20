@@ -81,7 +81,7 @@ export function TrifixSelectorModal({ isOpen, onOpenChange, onSelectTrifix }: Tr
             Click on any number to select your Trifix. The list is organized by dominant type.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="flex-grow pr-6">
+        <ScrollArea className="flex-1 pr-6">
           <div className="space-y-6">
             {trifixEntries.map(([type, permutations], index) => (
               <div key={type}>
@@ -110,5 +110,3 @@ export function TrifixSelectorModal({ isOpen, onOpenChange, onSelectTrifix }: Tr
     </Dialog>
   );
 }
-
-    
