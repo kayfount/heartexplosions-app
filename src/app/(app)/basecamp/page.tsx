@@ -22,6 +22,7 @@ import {
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { RegistrationModal } from './registration-modal';
+import { SatisfactionQuizModal } from './satisfaction-quiz-modal';
 import { useUser } from '@/firebase';
 
 // Mock data and state for demonstration purposes
@@ -50,6 +51,7 @@ export default function BasecampDashboardPage() {
   const [isReturningUser, setIsReturningUser] = useState(true);
   const [quote, setQuote] = useState('');
   const [isRegistrationOpen, setRegistrationOpen] = useState(false);
+  const [isQuizOpen, setQuizOpen] = useState(false);
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user } = useUser();
@@ -75,6 +77,12 @@ export default function BasecampDashboardPage() {
     setTasks(prev => ({...prev, registered: true}));
   };
 
+  const handleQuizComplete = (score: number) => {
+    console.log("Quiz completed with score:", score);
+    setTasks(prev => ({...prev, quizTaken: true}));
+    setQuizOpen(false);
+  }
+
   const getFocusText = () => {
     if (tasks.registered) {
       const incompleteTasks = [];
@@ -97,6 +105,11 @@ export default function BasecampDashboardPage() {
         onOpenChange={setRegistrationOpen}
         onRegister={handleRegistration}
         isRegistered={tasks.registered}
+      />
+      <SatisfactionQuizModal
+        isOpen={isQuizOpen}
+        onOpenChange={setQuizOpen}
+        onQuizComplete={handleQuizComplete}
       />
       <div className="flex-1 space-y-8 p-4 md:p-8 pt-6">
         <div className="max-w-5xl mx-auto">
@@ -152,7 +165,7 @@ export default function BasecampDashboardPage() {
                             incompleteText="Take the Role Satisfaction Quiz"
                             completeText="Retake Role Satisfaction Quiz"
                             description="Measure your new alignment"
-                            onClick={() => setTasks(prev => ({...prev, quizTaken: !prev.quizTaken}))}
+                            onClick={() => setQuizOpen(true)}
                         />
                     </div>
                 </div>
