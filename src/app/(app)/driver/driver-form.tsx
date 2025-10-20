@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as React from 'react';
-import { ExternalLink, ArrowLeft, ArrowRight } from 'lucide-react';
+import { ExternalLink, ArrowLeft, ArrowRight, ArrowBigRight } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from '@/components/ui/form';
 import {
   Select,
@@ -32,17 +33,29 @@ import { Separator } from '@/components/ui/separator';
 import { TrifixSelectorModal } from './trifix-selector-modal';
 import { trifixData } from './trifix-data';
 
+const allPermutations = trifixData.flatMap(t => t.groups.flatMap(g => g.permutations));
+
 const formSchema = z.object({
   enneagramType: z.string().min(1, 'Required'),
   wing: z.string().min(1, 'Required'),
   subtype: z.string().min(1, 'Required'),
   instinctualStacking: z.string().min(1, 'Required'),
   trifix: z.string().min(1, 'Required'),
+}).refine(data => {
+    if (!data.enneagramType || !data.trifix) return true; // Let required validation handle it
+    const typeData = trifixData.find(t => t.type === data.enneagramType);
+    if (!typeData) return true; // Should not happen if enneagramType is from the list
+    const validPermutations = typeData.groups.flatMap(g => g.permutations);
+    return validPermutations.includes(data.trifix);
+}, {
+    message: "this trifix doesn't exist, select one from the options",
+    path: ['trifix'],
 });
+
 
 const enneagramTypes = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const wings = ['1w9', '1w2', '2w1', '2w3', '3w2', '3w4', '4w3', '4w5', '5w4', '5w6', '6w5', '6w7', '7w6', '7w8', '8w7', '8w9', '9w8', '9w1'];
-const subtypes = ['SP (Self-Preservation)', 'SX (Sexual / One-to-One)', 'SO (Social)'];
+const subtypes = ['sp', 'sx', 'so'];
 const stackings = ['sp/sx', 'sp/so', 'sx/sp', 'sx/so', 'so/sp', 'so/sx'];
 const tests = [
     { name: "Free Test ($0)", vendor: "Eclectic Energies", href: "#"},
@@ -74,13 +87,14 @@ export function DriverForm() {
     if (!enneagramType || !wing || !subtype || !instinctualStacking || !trifix) {
         return null;
     }
+     if (!form.formState.isValid) return null;
     
-    const subtypeCode = subtype.split(' ')[0];
+    const subtypeCode = subtype.toUpperCase();
     const wingCode = wing.replace(enneagramType, '');
 
     return `Enneagram ${enneagramType}${wingCode} ${subtypeCode} ${instinctualStacking.toUpperCase()} ${trifix}`;
 
-  }, [watchedValues]);
+  }, [watchedValues, form.formState.isValid]);
   
   const handleSelectTrifix = (trifix: string) => {
     form.setValue('trifix', trifix, { shouldValidate: true });
@@ -139,7 +153,11 @@ export function DriverForm() {
                           <FormControl>
                             <SelectTrigger><SelectValue placeholder="Select Subtype" /></SelectTrigger>
                           </FormControl>
-                          <SelectContent>{subtypes.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                           <SelectContent>
+                            <SelectItem value="sp">SP (Self-Preservation)</SelectItem>
+                            <SelectItem value="sx">SX (Sexual / One-to-One)</SelectItem>
+                            <SelectItem value="so">SO (Social)</SelectItem>
+                          </SelectContent>
                         </Select>
                       </FormItem>
                     )}
@@ -163,7 +181,7 @@ export function DriverForm() {
                   <FormField
                     control={form.control}
                     name="trifix"
-                    render={({ field }) => (
+                    render={({ field, fieldState }) => (
                       <FormItem>
                         <div className="flex justify-between items-center mb-2">
                           <FormLabel>Trifix/Tritype *</FormLabel>
@@ -179,6 +197,12 @@ export function DriverForm() {
                         <FormControl>
                           <Input placeholder="e.g. 125, 478" {...field} />
                         </FormControl>
+                        {fieldState.error?.message && (
+                           <div className="flex items-center gap-1 text-sm font-medium text-destructive">
+                                {fieldState.error.message}
+                                <ArrowBigRight className="size-4" />
+                           </div>
+                        )}
                       </FormItem>
                     )}
                   />
@@ -240,3 +264,5 @@ export function DriverForm() {
     </>
   );
 }
+
+    
