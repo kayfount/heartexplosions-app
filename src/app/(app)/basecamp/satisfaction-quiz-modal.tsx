@@ -140,14 +140,14 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
               </div>
             </div>
 
-            <DialogFooter className="flex justify-between w-full">
+            <div className="flex justify-between w-full">
                 <Button onClick={handlePreviousQuestion} variant="outline" disabled={currentQuestion === 0}>
                     <ArrowLeft className="mr-2"/> Previous
                 </Button>
                 <Button onClick={handleNextQuestion} className="bg-destructive hover:bg-destructive/80 text-destructive-foreground">
                     {currentQuestion < totalQuestions - 1 ? 'Next' : 'See My Score'} <ArrowRight className="ml-2"/>
                 </Button>
-            </DialogFooter>
+            </div>
           </div>
         );
       
