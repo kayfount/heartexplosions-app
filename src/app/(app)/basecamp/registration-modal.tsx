@@ -32,11 +32,12 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tent, Loader2, Camera } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import { useUser } from '@/firebase';
+import { useUser, useAuth } from '@/firebase';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { updateProfileAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { updateProfile } from 'firebase/auth';
 
 const formSchema = z.object({
   firstName: z.string().min(1, 'First name is required.'),
@@ -65,6 +66,7 @@ const journeyStatuses = [
 
 export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegistered }: RegistrationModalProps) {
   const { user } = useUser();
+  const auth = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -94,19 +96,17 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
         setPreviewUrl(user.photoURL);
       }
     }
-  }, [user, form]);
+  }, [user, form, isOpen]);
   
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file || !user) return;
+    if (!file || !user || !auth?.currentUser) return;
     
     setIsUploading(true);
 
-    const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreviewUrl(reader.result as string);
-    };
-    reader.readAsDataURL(file);
+    // Create a temporary local URL for immediate preview
+    const localPreviewUrl = URL.createObjectURL(file);
+    setPreviewUrl(localPreviewUrl);
 
     try {
       const result = await updateProfileAction({
@@ -114,13 +114,17 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
         file: file,
       });
 
-      if (result.success) {
+      if (result.success && result.photoURL) {
+        // Manually update the user profile on the client to force a re-render
+        // across all components using the useUser hook.
+        await updateProfile(auth.currentUser, { photoURL: result.photoURL });
+        
         toast({
           title: 'Profile Picture Updated',
           description: 'Your new picture has been saved.',
         });
       } else {
-         throw new Error(result.error);
+         throw new Error(result.error || 'The server did not return a new photo URL.');
       }
     } catch (error) {
        toast({
@@ -132,29 +136,31 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
       setPreviewUrl(user.photoURL || null);
     } finally {
         setIsUploading(false);
+        // Clean up the local URL
+        if(localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
     }
   };
 
 
   const onSubmit = async (data: RegistrationFormValues) => {
-    if (!user) return;
+    if (!user || !auth?.currentUser) return;
     setIsSubmitting(true);
     
     try {
       const displayName = `${data.firstName} ${data.lastName}`.trim();
       
-      // Only update name if it has changed from current user's display name
       const profileDataToUpdate: { uid: string; displayName?: string } = { uid: user.uid };
       if (displayName !== user.displayName) {
         profileDataToUpdate.displayName = displayName;
       }
 
-      // If only name is being updated, call the action
       if (profileDataToUpdate.displayName) {
         const result = await updateProfileAction(profileDataToUpdate);
         if (!result.success) {
           throw new Error(result.error);
         }
+        // Manually update client state
+        await updateProfile(auth.currentUser, { displayName });
       }
       
       onRegister(data);
@@ -197,7 +203,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
              <div className="flex flex-col items-center space-y-4">
               <div className="relative">
                 <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
-                  <AvatarImage src={userImage} />
+                  <AvatarImage src={userImage} key={userImage} />
                   <AvatarFallback>{userInitial}</AvatarFallback>
                 </Avatar>
                 <Button
@@ -291,6 +297,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
                       className="resize-none"
                       {...field}
                     />
+
                   </FormControl>
                 </FormItem>
               )}
@@ -307,5 +314,3 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     </Dialog>
   );
 }
-
-    

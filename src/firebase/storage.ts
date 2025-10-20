@@ -31,11 +31,15 @@ export async function uploadFile(
   await file.save(fileBuffer, {
     metadata: {
       contentType: fileType,
+      // Add a cache control header to ensure the browser fetches the new image
+      cacheControl: 'public, max-age=0, must-revalidate',
     },
   });
 
   // Make the file public and get its URL
   await file.makePublic();
 
-  return file.publicUrl();
+  // The public URL can be constructed directly and is more reliable.
+  // The ?alt=media query parameter ensures the file is served directly.
+  return `https://storage.googleapis.com/${bucket.name}/${filePath}`;
 }

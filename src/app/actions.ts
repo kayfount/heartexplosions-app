@@ -58,6 +58,10 @@ interface UpdateProfileActionInput {
 export async function updateProfileAction(input: UpdateProfileActionInput) {
     const { uid, displayName, file } = input;
     
+    if (!uid) {
+        return { success: false, error: 'User ID is missing.' };
+    }
+    
     if (!displayName && !file) {
         return { success: true, message: 'No profile information to update.' };
     }
@@ -73,14 +77,21 @@ export async function updateProfileAction(input: UpdateProfileActionInput) {
             photoURL = await uploadFile(uid, file.name, file.type, fileBuffer);
         }
         
-        const displayNameUpdate = displayName || user.displayName;
+        const updates: { displayName?: string; photoURL?: string } = {};
 
-        await auth.updateUser(uid, {
-            ...(displayNameUpdate && { displayName: displayNameUpdate }),
-            ...(photoURL && { photoURL }),
-        });
+        if (displayName && displayName !== user.displayName) {
+            updates.displayName = displayName;
+        }
 
-        return { success: true };
+        if (photoURL && photoURL !== user.photoURL) {
+            updates.photoURL = photoURL;
+        }
+
+        if (Object.keys(updates).length > 0) {
+            await auth.updateUser(uid, updates);
+        }
+
+        return { success: true, photoURL: updates.photoURL || user.photoURL };
     } catch (error) {
         console.error('Error updating profile:', error);
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
