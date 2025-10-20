@@ -249,7 +249,7 @@ interface StatusCardProps {
 
 function StatusCard({ icon, isComplete, incompleteText, completeText, description, onClick }: StatusCardProps) {
     return (
-        <Card onClick={onClick} className={cn("cursor-pointer transition-colors hover:border-primary/50", isComplete && 'bg-secondary/50')}>
+        <Card onClick={onClick} className={cn("cursor-pointer transition-all duration-300 hover:border-primary/50 hover:scale-105", isComplete && 'bg-secondary/50')}>
             <CardContent className="p-6 flex items-center gap-4">
                  <div className={cn("flex items-center justify-center size-10 rounded-full", isComplete ? "bg-accent" : "bg-foreground")}>
                   {isComplete ? <CheckCircle2 className="size-5 text-primary-foreground" /> : icon}
