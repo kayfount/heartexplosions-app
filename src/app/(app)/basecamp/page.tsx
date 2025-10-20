@@ -3,23 +3,21 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
-  Edit,
-  Tent,
   ArrowRight,
-  Download,
-  ListMusic,
-  CheckCircle2,
   Car,
   Target,
   Route as RouteIcon,
-  BookOpen
+  BookOpen,
+  Tent,
+  CheckCircle2,
 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Separator } from '@/components/ui/separator';
 import { cn } from '@/lib/utils';
+import { RegistrationModal } from './registration-modal';
 
 // Mock data and state for demonstration purposes
 const initialTasks = {
@@ -46,157 +44,184 @@ export default function BasecampDashboardPage() {
   const [tasks, setTasks] = useState(initialTasks);
   const [isReturningUser, setIsReturningUser] = useState(true);
   const [quote, setQuote] = useState('');
-  
+  const [isRegistrationOpen, setRegistrationOpen] = useState(false);
+  const searchParams = useSearchParams();
+  const router = useRouter();
+
   useEffect(() => {
     setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
   }, []);
 
+  useEffect(() => {
+    if (searchParams.get('register') === 'true') {
+      setRegistrationOpen(true);
+      // Remove the query param from the URL without reloading the page
+      router.replace('/basecamp', {scroll: false});
+    }
+  }, [searchParams, router]);
+
   const userImage = "https://picsum.photos/seed/avatar1/100/100";
-  const allTasksCompleted = Object.values(tasks).every(Boolean);
+  const allSetupTasksCompleted = Object.values(tasks).every(Boolean);
+  
+  const handleRegistration = (data: any) => {
+    console.log("Registration data:", data);
+    setTasks(prev => ({...prev, registered: true}));
+  };
 
   const getFocusText = () => {
-    if (allTasksCompleted) {
-      return "Excellent work! You've completed all four essential setup tasks: registered for the expedition, taken the Role Satisfaction Quiz, downloaded your guide, and added the playlist. You're fully equipped and ready for the journey ahead.";
+    if (tasks.registered) {
+      const incompleteTasks = [];
+      if (!tasks.quizTaken) incompleteTasks.push("take the Role Satisfaction Quiz");
+      if (!tasks.guideDownloaded) incompleteTasks.push("download your guide");
+      if (!tasks.playlistAdded) incompleteTasks.push("add the playlist");
+      
+      if (incompleteTasks.length === 0) {
+        return "Excellent work! You've completed all essential setup tasks. You're fully equipped and ready for the journey ahead.";
+      }
+      return `You're registered! Your next steps are to ${incompleteTasks.join(', ')}.`;
     }
-    const incompleteTasks = [];
-    if (!tasks.registered) incompleteTasks.push("register for the expedition");
-    if (!tasks.quizTaken) incompleteTasks.push("take the Role Satisfaction Quiz");
-    if (!tasks.guideDownloaded) incompleteTasks.push("download your guide");
-    if (!tasks.playlistAdded) incompleteTasks.push("add the playlist");
-    return `Let's get you set up for the journey. Your next steps are to ${incompleteTasks.join(', ')}.`;
+    return "Let's get you set up for the journey. Your first step is to register for the expedition.";
   }
   
   return (
-    <div className="flex-1 space-y-8 p-4 md:p-8 pt-6">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex items-center justify-between space-y-2">
-          <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
-              <AvatarImage src={userImage} data-ai-hint="person portrait" />
-              <AvatarFallback>U</AvatarFallback>
-            </Avatar>
-            <h1 className="text-3xl font-bold tracking-tight font-headline">
-              Good morning, Keke!
-            </h1>
+    <>
+      <RegistrationModal 
+        isOpen={isRegistrationOpen} 
+        onOpenChange={setRegistrationOpen}
+        onRegister={handleRegistration}
+        isRegistered={tasks.registered}
+      />
+      <div className="flex-1 space-y-8 p-4 md:p-8 pt-6">
+        <div className="max-w-5xl mx-auto">
+          <div className="flex items-center justify-between space-y-2 mb-8">
+            <div className="flex items-center gap-4">
+              <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
+                <AvatarImage src={userImage} data-ai-hint="person portrait" />
+                <AvatarFallback>U</AvatarFallback>
+              </Avatar>
+              <h1 className="text-3xl font-bold tracking-tight font-headline">
+                Good morning, Keke!
+              </h1>
+            </div>
           </div>
-        </div>
-      </div>
-      
-      {/* Welcome Box */}
-      <Card className="w-full max-w-5xl mx-auto bg-card/80 border-border shadow-lg">
-        <CardContent className="p-8 text-center">
-            <Tent className="mx-auto size-12 text-accent mb-4"/>
-            <h2 className="text-3xl font-bold font-headline mb-2">{isReturningUser ? "Welcome Back to Basecamp" : "Welcome to Basecamp!"}</h2>
-            <p className="text-muted-foreground mb-6">This is your starting point, the place you return to between each stage of your journey.</p>
-            <p className="text-foreground/80 text-center"><b className="font-bold">Your Focus:</b> {getFocusText()}</p>
-            
-            {allTasksCompleted && (
-                 <Button asChild className="mt-6 bg-primary-gradient text-primary-foreground font-bold">
-                    <Link href="/driver">
-                        Continue to The Driver <ArrowRight className="ml-2"/>
-                    </Link>
-                </Button>
-            )}
-        </CardContent>
-      </Card>
-
-      <div className="max-w-5xl mx-auto space-y-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <div className="lg:col-span-2 space-y-8">
-              {/* Registration Section */}
-              <div>
-                  <h3 className="text-2xl font-bold font-headline mb-4">Register for the Expedition</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <StatusCard
-                          isComplete={tasks.registered}
-                          incompleteText="Register for your Expedition"
-                          completeText="Expedition Registered"
-                          description="Your journey is official!"
-                          onClick={() => setTasks(prev => ({...prev, registered: !prev.registered}))}
-                      />
-                      <StatusCard
-                          isComplete={tasks.quizTaken}
-                          incompleteText="Take the Role Satisfaction Quiz"
-                          completeText="Retake Role Satisfaction Quiz"
-                          description="Measure your new alignment"
-                          onClick={() => setTasks(prev => ({...prev, quizTaken: !prev.quizTaken}))}
-                      />
-                  </div>
-              </div>
-
-              {/* Essentials Section */}
-              <div>
-                  <h3 className="text-2xl font-bold font-headline mb-4">Pick Up Your Essentials</h3>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <StatusCard
-                          isComplete={tasks.guideDownloaded}
-                          incompleteText="Download Your Guide"
-                          completeText="Guide Downloaded"
-                          description="Your expedition guide is ready!"
-                          onClick={() => setTasks(prev => ({...prev, guideDownloaded: !prev.guideDownloaded}))}
-                      />
-                      <StatusCard
-                          isComplete={tasks.playlistAdded}
-                          incompleteText="Add The Playlist"
-                          completeText="Playlist Added"
-                          description="Your soundtrack is ready!"
-                          onClick={() => setTasks(prev => ({...prev, playlistAdded: !prev.playlistAdded}))}
-                      />
-                  </div>
-              </div>
-          </div>
-
-          {/* Wisdom Widget */}
-          <div className="lg:row-span-2 pt-12">
-              <h3 className="text-2xl font-bold font-headline mb-4 flex items-center gap-2">
-                  <BookOpen className="text-accent" /> Wisdom From The Wilderness
-              </h3>
-              <p className="text-lg italic text-muted-foreground">"{quote}"</p>
-          </div>
-
-          {/* Expedition Prep Section */}
-          <div className="lg:col-span-2">
-              <h3 className="text-2xl font-bold font-headline mb-4">Expedition Prep</h3>
-              <div className="space-y-3">
-                   {expeditionStages.map(stage => (
-                      <Link href={stage.href} key={stage.id}>
-                          <Card className="hover:border-primary/50 transition-colors flex items-center p-4">
-                             <div className="flex items-center gap-4">
-                                  <div className="p-2 bg-secondary rounded-md text-accent">
-                                      {stage.icon}
-                                  </div>
-                                  <p className="font-bold text-lg">{stage.title}</p>
-                             </div>
-                             <div className="ml-auto">
-                              {stage.completed ? <CheckCircle2 className="text-accent"/> : <ArrowRight className="text-muted-foreground"/>}
-                             </div>
-                          </Card>
-                      </Link>
-                  ))}
-              </div>
-          </div>
-        </div>
         
-        {/* Check Your Expedition Status */}
-        <div>
-          <h3 className="text-2xl font-bold font-headline mb-4">Check Your Expedition Status</h3>
-          <Card>
-              <CardContent className="p-6">
-                  <div className="grid grid-cols-2 gap-8 text-center">
-                      <div>
-                          <p className="text-4xl font-bold text-accent">78%</p>
-                          <p className="text-sm text-muted-foreground">Role Clarity Score</p>
-                      </div>
-                       <div>
-                          <p className="text-4xl font-bold text-accent">12</p>
-                          <p className="text-sm text-muted-foreground">Days on Journey</p>
-                      </div>
-                  </div>
-              </CardContent>
+          {/* Welcome Box */}
+          <Card className="w-full bg-card/80 border-border shadow-lg">
+            <CardContent className="p-8 text-center">
+                <Tent className="mx-auto size-12 text-accent mb-4"/>
+                <h2 className="text-3xl font-bold font-headline mb-2">{isReturningUser ? "Welcome Back to Basecamp" : "Welcome to Basecamp!"}</h2>
+                <p className="text-muted-foreground mb-6">This is your starting point, the place you return to between each stage of your journey.</p>
+                <p className="text-foreground/80 text-center"><b className="font-bold">Your Focus:</b> {getFocusText()}</p>
+                
+                {allSetupTasksCompleted && (
+                     <Button asChild className="mt-6 bg-primary-gradient text-primary-foreground font-bold">
+                        <Link href="/driver">
+                            Continue to The Driver <ArrowRight className="ml-2"/>
+                        </Link>
+                    </Button>
+                )}
+            </CardContent>
           </Card>
         </div>
+
+        <div className="max-w-5xl mx-auto space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-2 space-y-8">
+                {/* Registration Section */}
+                <div>
+                    <h3 className="text-2xl font-bold font-headline mb-4">Register for the Expedition</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <StatusCard
+                            isComplete={tasks.registered}
+                            incompleteText="Register for your Expedition"
+                            completeText="Expedition Registered"
+                            description="Your journey is official!"
+                            onClick={() => setRegistrationOpen(true)}
+                        />
+                        <StatusCard
+                            isComplete={tasks.quizTaken}
+                            incompleteText="Take the Role Satisfaction Quiz"
+                            completeText="Retake Role Satisfaction Quiz"
+                            description="Measure your new alignment"
+                            onClick={() => setTasks(prev => ({...prev, quizTaken: !prev.quizTaken}))}
+                        />
+                    </div>
+                </div>
+
+                {/* Essentials Section */}
+                <div>
+                    <h3 className="text-2xl font-bold font-headline mb-4">Pick Up Your Essentials</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <StatusCard
+                            isComplete={tasks.guideDownloaded}
+                            incompleteText="Download Your Guide"
+                            completeText="Guide Downloaded"
+                            description="Your expedition guide is ready!"
+                            onClick={() => setTasks(prev => ({...prev, guideDownloaded: !prev.guideDownloaded}))}
+                        />
+                        <StatusCard
+                            isComplete={tasks.playlistAdded}
+                            incompleteText="Add The Playlist"
+                            completeText="Playlist Added"
+                            description="Your soundtrack is ready!"
+                            onClick={() => setTasks(prev => ({...prev, playlistAdded: !prev.playlistAdded}))}
+                        />
+                    </div>
+                </div>
+            </div>
+
+            {/* Wisdom Widget */}
+            <div className="lg:row-span-2 pt-12">
+                <h3 className="text-2xl font-bold font-headline mb-4 flex items-center gap-2">
+                    <BookOpen className="text-accent" /> Wisdom From The Wilderness
+                </h3>
+                <p className="text-lg italic text-muted-foreground">"{quote}"</p>
+            </div>
+
+            {/* Expedition Prep Section */}
+            <div className="lg:col-span-2">
+                <h3 className="text-2xl font-bold font-headline mb-4">Expedition Prep</h3>
+                <div className="space-y-3">
+                     {expeditionStages.map(stage => (
+                        <Link href={stage.href} key={stage.id}>
+                            <Card className="hover:border-primary/50 transition-colors flex items-center p-4">
+                               <div className="flex items-center gap-4">
+                                    <div className="p-2 bg-secondary rounded-md text-accent">
+                                        {stage.icon}
+                                    </div>
+                                    <p className="font-bold text-lg">{stage.title}</p>
+                               </div>
+                               <div className="ml-auto">
+                                {stage.completed ? <CheckCircle2 className="text-accent"/> : <ArrowRight className="text-muted-foreground"/>}
+                               </div>
+                            </Card>
+                        </Link>
+                    ))}
+                </div>
+            </div>
+          </div>
+          
+          {/* Check Your Expedition Status */}
+          <div>
+            <h3 className="text-2xl font-bold font-headline mb-4">Check Your Expedition Status</h3>
+            <Card>
+                <CardContent className="p-6">
+                    <div className="grid grid-cols-2 gap-8 text-center">
+                        <div>
+                            <p className="text-4xl font-bold text-accent">78%</p>
+                            <p className="text-sm text-muted-foreground">Role Clarity Score</p>
+                        </div>
+                         <div>
+                            <p className="text-4xl font-bold text-accent">12</p>
+                            <p className="text-sm text-muted-foreground">Days on Journey</p>
+                        </div>
+                    </div>
+                </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

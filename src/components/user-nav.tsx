@@ -16,15 +16,21 @@ import { LogOut, User as UserIcon } from 'lucide-react';
 import { useAuth, useUser } from '@/firebase';
 import { initiateSignOut } from '@/firebase/non-blocking-login';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 export function UserNav() {
   const auth = useAuth();
   const { user } = useUser();
+  const router = useRouter();
 
   const handleLogout = () => {
     if (auth) {
       initiateSignOut(auth);
     }
+  };
+  
+  const handleEditProfile = () => {
+    router.push('/basecamp?register=true');
   };
 
   const userImage = user?.photoURL || "https://picsum.photos/seed/avatar1/100/100";
@@ -52,12 +58,10 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <Link href="/basecamp/wizard" passHref>
-            <DropdownMenuItem>
+            <DropdownMenuItem onSelect={handleEditProfile}>
               <UserIcon className="mr-2 h-4 w-4" />
               <span>Edit Profile</span>
             </DropdownMenuItem>
-          </Link>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>
