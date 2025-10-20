@@ -30,6 +30,7 @@ import { Loader2, Sparkles, Download } from 'lucide-react';
 import { generateReportAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { LifePurposeReportOutput } from '@/ai/flows/generate-life-purpose-report';
+import { TrifixSelectorModal } from './trifix-selector-modal';
 
 const formSchema = z.object({
   enneagramType: z.string().min(1, 'Please select your Enneagram type.'),
@@ -45,6 +46,7 @@ const stackings = ['so/sp', 'so/sx', 'sp/so', 'sp/sx', 'sx/so', 'sx/sp'];
 export function DriverForm() {
   const [isLoading, setIsLoading] = useState(false);
   const [report, setReport] = useState<LifePurposeReportOutput | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -80,6 +82,13 @@ export function DriverForm() {
 
   return (
     <>
+      <TrifixSelectorModal 
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onSelect={(trifix) => {
+          form.setValue('trifix', trifix);
+        }}
+      />
       <Card>
         <CardHeader>
           <CardTitle>Enter Your Details</CardTitle>
@@ -145,8 +154,14 @@ export function DriverForm() {
                       <FormControl>
                         <Input placeholder="e.g. 125, 478" {...field} />
                       </FormControl>
-                      <FormDescription>
-                        Enter your trifix.
+                       <FormDescription>
+                        <button 
+                          type="button" 
+                          onClick={() => setIsModalOpen(true)}
+                          className="text-sm text-muted-foreground hover:text-primary underline"
+                        >
+                          Need Help Choosing? See Options
+                        </button>
                       </FormDescription>
                       <FormMessage />
                     </FormItem>
