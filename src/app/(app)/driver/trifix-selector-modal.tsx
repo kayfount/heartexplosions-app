@@ -29,7 +29,7 @@ const trifixData = {
 };
 
 export function TrifixSelectorModal({ isOpen, onOpenChange, onSelectTrifix }: TrifixSelectorModalProps) {
-  // We'll generate all permutations from the core set for display purposes, as requested.
+  // We'll generate all permutations from the core set for display purposes.
   const generatePermutations = (trifix: string) => {
     const chars = trifix.split('');
     const result: string[] = [];
