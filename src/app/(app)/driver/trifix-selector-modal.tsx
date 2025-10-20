@@ -53,7 +53,7 @@ export function TrifixSelectorModal({
                         key={p}
                         onClick={() => onSelectTrifix(p)}
                         className={cn(
-                          "px-3 py-1 rounded-md transition-colors",
+                          "flex items-center justify-center w-16 py-1 rounded-md transition-colors",
                           "bg-primary text-primary-foreground",
                           "hover:bg-card hover:text-primary hover:border-primary border-2 border-transparent"
                         )}
