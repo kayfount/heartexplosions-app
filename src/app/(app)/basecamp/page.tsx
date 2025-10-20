@@ -71,7 +71,7 @@ export default function BasecampDashboardPage() {
       <div className="max-w-5xl mx-auto">
         <div className="flex items-center justify-between space-y-2">
           <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20">
+            <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
               <AvatarImage src={userImage} data-ai-hint="person portrait" />
               <AvatarFallback>U</AvatarFallback>
             </Avatar>
@@ -147,7 +147,7 @@ export default function BasecampDashboardPage() {
           </div>
 
           {/* Wisdom Widget */}
-          <div className="lg:row-span-2">
+          <div className="lg:row-span-2 pt-12">
               <h3 className="text-2xl font-bold font-headline mb-4 flex items-center gap-2">
                   <BookOpen className="text-accent" /> Wisdom From The Wilderness
               </h3>
