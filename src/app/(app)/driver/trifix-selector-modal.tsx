@@ -50,7 +50,7 @@ export function TrifixSelectorModal({
           <ScrollArea className="h-full">
             <div className="space-y-4 p-1">
               {permutationGroups.map((group, groupIndex) => (
-                <div key={groupIndex} className="grid grid-cols-6 gap-3">
+                <div key={groupIndex} className="grid grid-cols-6 gap-x-3 gap-y-4">
                   {group.permutations.map((p) => (
                     <button
                         key={p}
