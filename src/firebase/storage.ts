@@ -1,17 +1,16 @@
 
 'use server';
 
-import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+import { getStorage } from 'firebase-admin/storage';
 import { getFirebaseAdminApp } from '@/firebase/admin';
 
 // Initialize the admin app to get the default bucket name
 const adminApp = getFirebaseAdminApp();
-const bucketName = process.env.GCLOUD_PROJECT + '.appspot.com';
-const storage = getStorage(adminApp, `gs://${bucketName}`);
+const bucket = getStorage(adminApp).bucket();
 
 
 /**
- * Uploads a file to Firebase Storage.
+ * Uploads a file to Firebase Storage using the Admin SDK.
  * This is a server-side function.
  *
  * @param uid - The user's ID.
@@ -27,14 +26,16 @@ export async function uploadFile(
   fileBuffer: Buffer
 ): Promise<string> {
   const filePath = `profile-pictures/${uid}/${fileName}`;
-  const storageRef = ref(storage, filePath);
+  const file = bucket.file(filePath);
 
-  const metadata = {
-    contentType: fileType,
-  };
+  await file.save(fileBuffer, {
+    metadata: {
+      contentType: fileType,
+    },
+  });
 
-  await uploadBytes(storageRef, fileBuffer, metadata);
-  const downloadURL = await getDownloadURL(storageRef);
+  // Make the file public and get its URL
+  await file.makePublic();
 
-  return downloadURL;
+  return file.publicUrl();
 }
