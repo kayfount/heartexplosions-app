@@ -40,8 +40,8 @@ const formSchema = z.object({
 
 const enneagramTypes = ['1', '2', '3', '4', '5', '6', '7', '8', '9'];
 const wings = ['1w9', '1w2', '2w1', '2w3', '3w2', '3w4', '4w3', '4w5', '5w4', '5w6', '6w5', '6w7', '7w6', '7w8', '8w7', '8w9', '9w8', '9w1'];
-const subtypes = ['SO (Social)', 'SP (Self-Preservation)', 'SX (Sexual / One-to-One)'];
-const stackings = ['so/sp', 'so/sx', 'sp/so', 'sp/sx', 'sx/so', 'sx/sp'];
+const subtypes = ['SP (Self-Preservation)', 'SX (Sexual / One-to-One)', 'SO (Social)'];
+const stackings = ['sp/sx', 'sp/so', 'sx/sp', 'sx/so', 'so/sp', 'so/sx'];
 const tests = [
     { name: "Free Test ($0)", vendor: "Eclectic Energies", href: "#"},
     { name: "Cost-Effective Test ($$)", vendor: "Nate Bebout", href: "#"},
@@ -73,8 +73,9 @@ export function DriverForm() {
     }
     
     const subtypeCode = subtype.split(' ')[0];
+    const wingCode = wing.replace(enneagramType, '');
 
-    return `Enneagram ${wing} ${subtypeCode} ${instinctualStacking.toUpperCase()} ${trifix}`;
+    return `Enneagram ${enneagramType}${wingCode} ${subtypeCode} ${instinctualStacking.toUpperCase()} ${trifix}`;
 
   }, [watchedValues]);
   
