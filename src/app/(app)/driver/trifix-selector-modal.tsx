@@ -9,6 +9,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { cn } from '@/lib/utils';
 
 interface TrifixSelectorModalProps {
   isOpen: boolean;
@@ -17,35 +18,56 @@ interface TrifixSelectorModalProps {
 }
 
 const trifixData = {
-  "Type 1 Dominant": [ "125", "126", "127", "135", "136", "137", "145", "146", "147" ],
-  "Type 2 Dominant": [ "258", "259", "268", "269", "278", "279", "215", "216", "217" ],
-  "Type 3 Dominant": [ "358", "359", "368", "369", "378", "379", "315", "316", "317" ],
-  "Type 4 Dominant": [ "458", "459", "468", "469", "478", "479", "415", "416", "417" ],
-  "Type 5 Dominant": [ "512", "513", "514", "528", "529", "538", "539", "548", "549" ],
-  "Type 6 Dominant": [ "612", "613", "614", "628", "629", "638", "639", "648", "649" ],
-  "Type 7 Dominant": [ "712", "713", "714", "728", "729", "738", "739", "748", "749" ],
-  "Type 8 Dominant": [ "825", "826", "827", "835", "836", "837", "845", "846", "847" ],
-  "Type 9 Dominant": [ "925", "926", "927", "935", "936", "937", "945", "946", "947" ]
+  "Type 1 Dominant": [
+    "125, 152, 215, 251, 512, 521", "126, 162, 216, 261, 612, 621", "127, 172, 217, 271, 712, 721",
+    "135, 153, 315, 351, 513, 531", "136, 163, 316, 361, 613, 631", "137, 173, 317, 371, 713, 731",
+    "145, 154, 415, 451, 514, 541", "146, 164, 416, 461, 614, 641", "147, 174, 417, 471, 714, 741"
+  ],
+  "Type 2 Dominant": [
+    "251, 215, 521, 512, 125, 152", "261, 216, 621, 612, 126, 162", "271, 217, 721, 712, 127, 172",
+    "258, 285, 528, 582, 825, 852", "268, 286, 628, 682, 826, 862", "278, 287, 728, 782, 827, 872",
+    "259, 295, 529, 592, 925, 952", "269, 296, 629, 692, 926, 962", "279, 297, 729, 792, 927, 972"
+  ],
+  "Type 3 Dominant": [
+    "351, 315, 531, 513, 135, 153", "361, 316, 631, 613, 136, 163", "371, 317, 731, 713, 137, 173",
+    "358, 385, 538, 583, 835, 853", "368, 386, 638, 683, 836, 863", "378, 387, 738, 783, 837, 873",
+    "359, 395, 539, 593, 935, 953", "369, 396, 639, 693, 936, 963", "379, 397, 739, 793, 937, 973"
+  ],
+  "Type 4 Dominant": [
+    "451, 415, 541, 514, 145, 154", "461, 416, 641, 614, 146, 164", "471, 417, 741, 714, 147, 174",
+    "458, 485, 548, 584, 845, 854", "468, 486, 648, 684, 846, 864", "478, 487, 748, 784, 847, 874",
+    "459, 495, 549, 594, 945, 954", "469, 496, 649, 694, 946, 964", "479, 497, 749, 794, 947, 974"
+  ],
+  "Type 5 Dominant": [
+    "521, 512, 125, 152, 215, 251", "531, 513, 135, 153, 315, 351", "541, 514, 145, 154, 415, 451",
+    "528, 582, 825, 852, 258, 285", "538, 583, 835, 853, 358, 385", "548, 584, 845, 854, 458, 485",
+    "529, 592, 925, 952, 259, 295", "539, 593, 935, 953, 359, 395", "549, 594, 945, 954, 459, 495"
+  ],
+  "Type 6 Dominant": [
+    "621, 612, 126, 162, 216, 261", "631, 613, 136, 163, 316, 361", "641, 614, 146, 164, 416, 461",
+    "628, 682, 826, 862, 268, 286", "638, 683, 836, 863, 368, 386", "648, 684, 846, 864, 468, 486",
+    "629, 692, 926, 962, 269, 296", "639, 693, 936, 963, 369, 396", "649, 694, 946, 964, 469, 496"
+  ],
+  "Type 7 Dominant": [
+    "721, 712, 127, 172, 217, 271", "731, 713, 137, 173, 317, 371", "741, 714, 147, 174, 417, 471",
+    "728, 782, 827, 872, 278, 287", "738, 783, 837, 873, 378, 387", "748, 784, 847, 874, 478, 487",
+    "729, 792, 927, 972, 279, 297", "739, 793, 937, 973, 379, 397", "749, 794, 947, 974, 479, 497"
+  ],
+  "Type 8 Dominant": [
+    "825, 852, 258, 285, 528, 582", "835, 853, 358, 385, 538, 583", "845, 854, 458, 485, 548, 584",
+    "826, 862, 268, 286, 628, 682", "836, 863, 368, 386, 638, 683", "846, 864, 468, 486, 648, 684",
+    "827, 872, 278, 287, 728, 782", "837, 873, 378, 387, 738, 783", "847, 874, 478, 487, 748, 784"
+  ],
+  "Type 9 Dominant": [
+    "925, 952, 259, 295, 529, 592", "935, 953, 359, 395, 539, 593", "945, 954, 459, 495, 549, 594",
+    "926, 962, 269, 296, 629, 692", "936, 963, 369, 396, 639, 693", "946, 964, 469, 496, 649, 694",
+    "927, 972, 279, 297, 729, 792", "937, 973, 379, 397, 739, 793", "947, 974, 479, 497, 749, 794"
+  ]
 };
 
 export function TrifixSelectorModal({ isOpen, onOpenChange, onSelectTrifix }: TrifixSelectorModalProps) {
-  // We'll generate all permutations from the core set for display purposes.
-  const generatePermutations = (trifix: string) => {
-    const chars = trifix.split('');
-    const result: string[] = [];
-    const permute = (arr: string[], l: number, r: number) => {
-      if (l === r) {
-        result.push(arr.join(''));
-      } else {
-        for (let i = l; i <= r; i++) {
-          [arr[l], arr[i]] = [arr[i], arr[l]]; // swap
-          permute(arr, l + 1, r);
-          [arr[l], arr[i]] = [arr[i], arr[l]]; // backtrack
-        }
-      }
-    };
-    permute(chars, 0, chars.length - 1);
-    return result;
+  const handleSelect = (trifix: string) => {
+    onSelectTrifix(trifix);
   };
 
   return (
@@ -54,29 +76,26 @@ export function TrifixSelectorModal({ isOpen, onOpenChange, onSelectTrifix }: Tr
         <DialogHeader>
           <DialogTitle>Select Your Trifix</DialogTitle>
           <DialogDescription>
-            Click on any permutation to select it. The list below shows the core Trifix followed by all its orderings.
+            Click on any number to select your Trifix. The list is organized by dominant type.
           </DialogDescription>
         </DialogHeader>
-        <ScrollArea className="flex-grow">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-8 pr-6">
-            {Object.entries(trifixData).map(([type, trifixes]) => (
+        <ScrollArea className="flex-grow pr-6">
+          <div className="space-y-6">
+            {Object.entries(trifixData).map(([type, permutations]) => (
               <div key={type}>
                 <h3 className="text-lg font-bold font-headline text-primary mb-2">{type}</h3>
-                <div className="space-y-3">
-                  {trifixes.map((coreTrifix) => (
-                    <div key={coreTrifix} className="p-3 bg-secondary/50 rounded-lg">
-                      <p className="font-bold text-sm mb-2">{coreTrifix} Permutations:</p>
-                      <div className="flex flex-wrap gap-2">
-                        {generatePermutations(coreTrifix).sort().map((p) => (
-                          <button
-                            key={p}
-                            onClick={() => onSelectTrifix(p)}
-                            className="px-3 py-1 text-sm bg-background rounded-md hover:bg-primary hover:text-primary-foreground transition-colors border-2"
-                          >
-                            {p}
-                          </button>
-                        ))}
-                      </div>
+                <div className="space-y-2">
+                  {permutations.map((line, lineIndex) => (
+                    <div key={lineIndex} className="flex flex-wrap gap-x-2 gap-y-1 text-sm">
+                      {line.split(', ').map((p) => (
+                        <button
+                          key={p}
+                          onClick={() => handleSelect(p)}
+                          className="px-2 py-0.5 rounded-md hover:bg-primary hover:text-primary-foreground transition-colors"
+                        >
+                          {p}
+                        </button>
+                      ))}
                     </div>
                   ))}
                 </div>
@@ -88,3 +107,5 @@ export function TrifixSelectorModal({ isOpen, onOpenChange, onSelectTrifix }: Tr
     </Dialog>
   );
 }
+
+    
