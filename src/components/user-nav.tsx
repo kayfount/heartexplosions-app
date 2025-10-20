@@ -15,7 +15,6 @@ import {
 import { LogOut, User as UserIcon } from 'lucide-react';
 import { useAuth, useUser } from '@/firebase';
 import { initiateSignOut } from '@/firebase/non-blocking-login';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export function UserNav() {
@@ -26,6 +25,7 @@ export function UserNav() {
   const handleLogout = () => {
     if (auth) {
       initiateSignOut(auth);
+      router.push('/');
     }
   };
   

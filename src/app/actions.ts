@@ -5,8 +5,7 @@ import { synthesizePurposeProfile, type SynthesizePurposeProfileInput } from '@/
 import { createRealisticRoutePlan, type RoutePlanInput } from '@/ai/flows/create-realistic-route-plan';
 import { interactWithAiCoach, type InteractWithAiCoachInput } from '@/ai/flows/interact-with-ai-coach';
 import { uploadFile } from '@/firebase/storage';
-import { updateProfile } from 'firebase/auth';
-import { getAuth } from 'firebase/auth/admin';
+import { getAuth } from 'firebase-admin/auth';
 import { getFirebaseAdminApp } from '@/firebase/admin';
 
 export async function generateReportAction(input: LifePurposeReportInput) {
