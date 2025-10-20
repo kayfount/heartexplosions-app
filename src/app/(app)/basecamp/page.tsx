@@ -52,6 +52,7 @@ export default function BasecampDashboardPage() {
   const [quote, setQuote] = useState('');
   const [isRegistrationOpen, setRegistrationOpen] = useState(false);
   const [isQuizOpen, setQuizOpen] = useState(false);
+  const [roleClarityScore, setRoleClarityScore] = useState<number | null>(null);
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user } = useUser();
@@ -78,7 +79,9 @@ export default function BasecampDashboardPage() {
   };
 
   const handleQuizComplete = (score: number) => {
-    console.log("Quiz completed with score:", score);
+    const totalPossibleScore = 10 * 10; // 10 questions, max score of 10
+    const percentage = Math.round((score / totalPossibleScore) * 100);
+    setRoleClarityScore(percentage);
     setTasks(prev => ({...prev, quizTaken: true}));
     setQuizOpen(false);
   }
@@ -164,7 +167,7 @@ export default function BasecampDashboardPage() {
                             isComplete={tasks.quizTaken}
                             incompleteText="Take the Role Satisfaction Quiz"
                             completeText="Retake Role Satisfaction Quiz"
-                            description="Measure your new alignment"
+                            description={tasks.quizTaken ? "Measure your new alignment" : "Get your starting score"}
                             onClick={() => setQuizOpen(true)}
                         />
                     </div>
@@ -233,7 +236,7 @@ export default function BasecampDashboardPage() {
                 <CardContent className="p-6">
                     <div className="grid grid-cols-2 gap-8 text-center">
                         <div>
-                            <p className="text-4xl font-bold text-accent">78%</p>
+                            <p className="text-4xl font-bold text-accent">{roleClarityScore !== null ? `${roleClarityScore}%` : '--'}</p>
                             <p className="text-sm text-muted-foreground">Role Clarity Score</p>
                         </div>
                          <div>
@@ -275,3 +278,5 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
         </Card>
     )
 }
+
+    
