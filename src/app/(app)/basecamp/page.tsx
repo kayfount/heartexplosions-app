@@ -139,7 +139,7 @@ export default function BasecampDashboardPage() {
                     <h3 className="text-2xl font-bold font-headline mb-4">Register for the Expedition</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <StatusCard
-                            icon={<ClipboardPen className="size-5 text-secondary-foreground" />}
+                            icon={<ClipboardPen className="size-5 text-primary-foreground" />}
                             isComplete={tasks.registered}
                             incompleteText="Register for your Expedition"
                             completeText="Expedition Registered"
@@ -147,7 +147,7 @@ export default function BasecampDashboardPage() {
                             onClick={() => setRegistrationOpen(true)}
                         />
                         <StatusCard
-                            icon={<ClipboardCheck className="size-5 text-secondary-foreground" />}
+                            icon={<ClipboardCheck className="size-5 text-primary-foreground" />}
                             isComplete={tasks.quizTaken}
                             incompleteText="Take the Role Satisfaction Quiz"
                             completeText="Retake Role Satisfaction Quiz"
@@ -162,7 +162,7 @@ export default function BasecampDashboardPage() {
                     <h3 className="text-2xl font-bold font-headline mb-4">Pick Up Your Essentials</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <StatusCard
-                            icon={<Download className="size-5 text-secondary-foreground" />}
+                            icon={<Download className="size-5 text-primary-foreground" />}
                             isComplete={tasks.guideDownloaded}
                             incompleteText="Download Your Guide"
                             completeText="Guide Downloaded"
@@ -170,7 +170,7 @@ export default function BasecampDashboardPage() {
                             onClick={() => setTasks(prev => ({...prev, guideDownloaded: !prev.guideDownloaded}))}
                         />
                         <StatusCard
-                            icon={<Music className="size-5 text-secondary-foreground" />}
+                            icon={<Music className="size-5 text-primary-foreground" />}
                             isComplete={tasks.playlistAdded}
                             incompleteText="Add The Playlist"
                             completeText="Playlist Added"
