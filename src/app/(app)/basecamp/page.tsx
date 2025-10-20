@@ -187,14 +187,16 @@ export default function BasecampDashboardPage() {
                                 onClick={() => {}} // The parent `a` tag handles the action
                             />
                         </a>
-                        <StatusCard
-                            icon={<Music className="size-5 text-primary-foreground" />}
-                            isComplete={tasks.playlistAdded}
-                            incompleteText="Add The Playlist"
-                            completeText="Playlist Added"
-                            description="Your soundtrack is ready!"
-                            onClick={() => setTasks(prev => ({...prev, playlistAdded: !prev.playlistAdded}))}
-                        />
+                         <a href="https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=4df18c5c76db4bd3" target="_blank" rel="noopener noreferrer" onClick={() => setTasks(prev => ({...prev, playlistAdded: true}))}>
+                            <StatusCard
+                                icon={<Music className="size-5 text-primary-foreground" />}
+                                isComplete={tasks.playlistAdded}
+                                incompleteText="Add The Playlist"
+                                completeText="Playlist Added"
+                                description="Your soundtrack is ready!"
+                                onClick={() => {}}
+                            />
+                        </a>
                     </div>
                 </div>
             </div>
@@ -292,5 +294,7 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
         </Card>
     )
 }
+
+    
 
     
