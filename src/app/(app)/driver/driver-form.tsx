@@ -33,6 +33,9 @@ import { Separator } from '@/components/ui/separator';
 import { TrifixSelectorModal } from './trifix-selector-modal';
 import { trifixData } from './trifix-data';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@/firebase';
+import { saveUserProfile } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
 
 const allPermutations = trifixData.flatMap(t => t.groups.flatMap(g => g.permutations));
 
@@ -83,6 +86,8 @@ const tests = [
 export function DriverForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
+  const { user } = useUser();
+  const { toast } = useToast();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -123,10 +128,23 @@ export function DriverForm() {
     setIsModalOpen(false);
   };
   
-  const handleNext = () => {
-    if (purposeArchetype) {
-      const query = new URLSearchParams({ upa: purposeArchetype }).toString();
-      router.push(`/driver/report?${query}`);
+  const handleNext = async () => {
+    if (purposeArchetype && user) {
+        try {
+            await saveUserProfile({ uid: user.uid, profileData: form.getValues()});
+            toast({
+                title: "Driver Details Saved",
+                description: "Your Enneagram details have been saved to your profile.",
+            });
+            const query = new URLSearchParams({ upa: purposeArchetype }).toString();
+            router.push(`/driver/report?${query}`);
+        } catch (error) {
+             toast({
+                variant: "destructive",
+                title: "Uh oh!",
+                description: "Could not save your driver details.",
+            });
+        }
     }
   };
 

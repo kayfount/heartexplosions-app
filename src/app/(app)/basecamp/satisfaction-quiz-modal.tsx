@@ -13,9 +13,10 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Progress } from '@/components/ui/progress';
 import { Flame, ArrowRight, ArrowLeft, X, User } from 'lucide-react';
-import { cn } from '@/lib/utils';
+import { useUser } from '@/firebase';
+import { saveUserProfile } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
 
 const quizQuestions = [
   { topic: 'Purpose', statement: 'I feel a deep sense of meaning and calling in the role I currently play.' },
@@ -44,9 +45,10 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>([]);
   const [sliderValue, setSliderValue] = useState(5);
+  const { user } = useUser();
+  const { toast } = useToast();
 
   const totalQuestions = quizQuestions.length;
-  const progress = ((currentQuestion + 1) / totalQuestions) * 100;
   
   const handleNextQuestion = () => {
     const newAnswers = [...answers];
@@ -85,8 +87,26 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
     onOpenChange(false);
   };
   
-  const handleFinish = () => {
+  const handleFinish = async () => {
     const totalScore = answers.reduce((sum, val) => sum + val, 0);
+    const percentage = Math.round((totalScore / (totalQuestions * 10)) * 100)
+    
+    if (user) {
+      try {
+        await saveUserProfile({ uid: user.uid, profileData: { roleClarityScore: percentage } });
+        toast({
+          title: "Score Saved",
+          description: "Your Role Clarity Score has been saved to your profile.",
+        });
+      } catch (error) {
+         toast({
+          variant: "destructive",
+          title: "Uh oh!",
+          description: "Could not save your score.",
+        });
+      }
+    }
+
     onQuizComplete(totalScore);
     handleClose();
   }
@@ -161,7 +181,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
                  </div>
                  <p className="text-foreground/80 mb-6">This score is a snapshot of your current alignment. It's a starting point for your journey, not a final judgment.</p>
                  <DialogFooter>
-                     <Button onClick={handleFinish} className="w-full bg-primary-gradient text-primary-foreground font-bold">Done</Button>
+                     <Button onClick={handleFinish} className="w-full bg-primary-gradient text-primary-foreground font-bold">Done & Save Score</Button>
                  </DialogFooter>
              </div>
         )

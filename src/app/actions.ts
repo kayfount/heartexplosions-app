@@ -7,6 +7,7 @@ import { createRealisticRoutePlan, type RoutePlanInput } from '@/ai/flows/create
 import { interactWithAiCoach, type InteractWithAiCoachInput } from '@/ai/flows/interact-with-ai-coach';
 import { uploadFile } from '@/firebase/storage';
 import { getAuth } from 'firebase-admin/auth';
+import { getFirestore } from 'firebase-admin/firestore';
 import { getFirebaseAdminApp } from '@/firebase/admin';
 
 export async function generateReportAction(input: LifePurposeReportInput) {
@@ -96,5 +97,28 @@ export async function updateProfileAction(input: UpdateProfileActionInput) {
         console.error('Error updating profile:', error);
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
         return { success: false, error: `Failed to update profile: ${errorMessage}` };
+    }
+}
+
+
+interface SaveUserProfileInput {
+    uid: string;
+    profileData: any;
+}
+
+export async function saveUserProfile({ uid, profileData }: SaveUserProfileInput) {
+    if (!uid) {
+        return { success: false, error: 'User ID is missing.' };
+    }
+    
+    try {
+        const db = getFirestore(getFirebaseAdminApp());
+        const userProfileRef = db.collection('users').doc(uid);
+        await userProfileRef.set(profileData, { merge: true });
+        return { success: true };
+    } catch (error) {
+        console.error('Error saving user profile:', error);
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        return { success: false, error: `Failed to save user profile: ${errorMessage}` };
     }
 }

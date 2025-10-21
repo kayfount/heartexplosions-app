@@ -51,6 +51,51 @@
         "lifePurposeReportId": {
           "type": "string",
           "description": "Reference to LifePurposeReport. (Relationship: UserProfile 1:1 LifePurposeReport)"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "callSign": {
+          "type": "string"
+        },
+        "journeyStatus": {
+          "type": "string"
+        },
+        "whyNow": {
+          "type": "string"
+        },
+        "roleClarityScore": {
+          "type": "number"
+        },
+        "enneagramType": {
+          "type": "string"
+        },
+        "wing": {
+          "type": "string"
+        },
+        "subtype": {
+          "type": "string"
+        },
+        "instinctualStacking": {
+          "type": "string"
+        },
+        "trifix": {
+          "type": "string"
+        },
+        "focusArea": {
+          "type": "string"
+        },
+        "availableHours": {
+          "type": "number"
+        },
+        "commitments": {
+          "type": "string"
+        },
+        "timeline": {
+          "type": "string"
         }
       },
       "required": [
@@ -114,6 +159,17 @@
       "required": [
         "id"
       ]
+    },
+    "satisfaction-quiz": {
+      "title": "Satisfaction Quiz",
+      "description": "Stores the user's satisfaction quiz results.",
+      "type": "object",
+      "properties": {
+        "score": {
+          "type": "number",
+          "description": "The user's score on the satisfaction quiz."
+        }
+      }
     }
   },
   "auth": {
@@ -125,38 +181,15 @@
   "firestore": {
     "structure": [
       {
-        "path": "/users/{userId}/userProfile",
+        "path": "/users/{userId}",
         "definition": {
           "entityName": "UserProfile",
           "schema": {
             "$ref": "#/backend/entities/UserProfile"
           },
-          "description": "Stores user profile information, including profile picture URL, onboarding data, and a reference to the LifePurposeReport. Path-based ownership ensures only the user can access their profile. Includes userId as a parameter to establish ownership.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            }
-          ]
-        }
-      },
-      {
-        "path": "/users/{userId}/lifePurposeReport",
-        "definition": {
-          "entityName": "LifePurposeReport",
-          "schema": {
-            "$ref": "#/backend/entities/LifePurposeReport"
-          },
-          "description": "Stores the Life Purpose Report generated for a user, including Enneagram type, natural genius, core values, and URLs to the report PDF and audio files. Path-based ownership ensures only the user can access their report. Includes userId as a parameter to establish ownership.",
-          "params": [
-            {
-              "name": "userId",
-              "description": "The unique identifier of the user."
-            }
-          ]
+          "description": "Stores user profile information, including profile picture URL, onboarding data, and a reference to the LifePurposeReport. Path-based ownership ensures only the user can access their profile. Includes userId as a parameter to establish ownership."
         }
       }
-    ],
-    "reasoning": "The Firestore structure is designed to prioritize authorization independence and facilitate secure, scalable data management for the Heart Compass application. User profiles and life purpose reports are stored in separate collections under the user's ID, ensuring clear ownership and simplified security rules. Direct path-based ownership (`/users/{userId}/userProfile`) enhances security. The design avoids hierarchical authorization dependencies, allowing atomic operations and straightforward debugging. This structure supports the QAPs by segregating user data based on ownership, enabling secure list operations within a user's scope."
+    ]
   }
 }

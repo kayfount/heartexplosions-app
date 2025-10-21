@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -7,10 +8,11 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2, Sparkles, Briefcase, HeartHandshake, Star } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { synthesizeProfileAction } from '@/app/actions';
+import { synthesizeProfileAction, saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { SynthesizePurposeProfileOutput } from '@/ai/flows/synthesize-purpose-profile';
 import { cn } from '@/lib/utils';
+import { useUser } from '@/firebase';
 
 type FocusArea = 'career' | 'contribution' | 'calling';
 
@@ -25,6 +27,7 @@ export function DestinationClient() {
   const [selectedArea, setSelectedArea] = useState<FocusArea | null>(null);
   const [profile, setProfile] = useState<SynthesizePurposeProfileOutput | null>(null);
   const { toast } = useToast();
+  const { user } = useUser();
 
   const handleSelectArea = async (area: FocusArea) => {
     setSelectedArea(area);
@@ -34,6 +37,18 @@ export function DestinationClient() {
     // In a real app, the driverReport would be fetched for the logged-in user.
     const dummyDriverReport = "The user is a Type 9, driven by peace and harmony. They avoid conflict and seek to create a calm and stable environment. Their genius lies in mediation, empathy, and seeing multiple perspectives. Growth edge is in asserting their own needs and priorities.";
     
+    if (user) {
+        try {
+            await saveUserProfile({ uid: user.uid, profileData: { focusArea: area } });
+        } catch (error) {
+             toast({
+                variant: 'destructive',
+                title: 'Error Saving Choice',
+                description: 'Could not save your focus area choice.',
+            });
+        }
+    }
+
     const result = await synthesizeProfileAction({ focusArea: area, driverReport: dummyDriverReport });
     setIsLoading(false);
 

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -22,9 +23,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Loader2, Sparkles, Check } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
-import { createRoutePlanAction } from '@/app/actions';
+import { createRoutePlanAction, saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { RoutePlanOutput } from '@/ai/flows/create-realistic-route-plan';
+import { useUser } from '@/firebase';
 
 const formSchema = z.object({
   availableHours: z.coerce.number().min(1, 'Please enter a number greater than 0.'),
@@ -43,6 +45,7 @@ export function RouteForm() {
   const [plan, setPlan] = useState<RoutePlanOutput | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const { toast } = useToast();
+  const { user } = useUser();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -57,6 +60,19 @@ export function RouteForm() {
     setIsLoading(true);
     setPlan(null);
     setTasks([]);
+
+    if (user) {
+        try {
+            await saveUserProfile({ uid: user.uid, profileData: values });
+        } catch (error) {
+            toast({
+                variant: 'destructive',
+                title: 'Error Saving Inputs',
+                description: 'Could not save your route plan inputs.',
+            });
+        }
+    }
+
     const result = await createRoutePlanAction(values);
     setIsLoading(false);
 

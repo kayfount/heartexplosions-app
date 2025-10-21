@@ -34,7 +34,7 @@ import { Tent, Loader2, Camera } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
 import { useUser, useAuth } from '@/firebase';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { updateProfileAction } from '@/app/actions';
+import { updateProfileAction, saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { updateProfile } from 'firebase/auth';
@@ -162,6 +162,18 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
         // Manually update client state
         await updateProfile(auth.currentUser, { displayName });
       }
+
+      const { firstName, lastName, callSign, journeyStatus, whyNow } = data;
+      await saveUserProfile({
+        uid: user.uid,
+        profileData: {
+            firstName,
+            lastName,
+            callSign,
+            journeyStatus,
+            whyNow,
+        }
+      });
       
       onRegister(data);
       toast({
