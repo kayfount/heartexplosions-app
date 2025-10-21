@@ -2,10 +2,11 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useDoc } from '@/firebase/firestore/use-doc';
-import { useUser, useMemoFirebase } from '@/firebase';
+import { useDoc, useMemoFirebase } from '@/firebase';
+import { useUser } from '@/firebase';
 import { doc, getFirestore } from 'firebase/firestore';
 import type { UserProfile } from '@/models/user-profile';
+import type { LifePurposeReport } from '@/models/life-purpose-report';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
@@ -15,7 +16,7 @@ import { CoachChat } from './coach-chat';
 
 export function InsightsClient() {
   const { user, isUserLoading } = useUser();
-  const firestore = getFirestore();
+  const firestore = useMemo(() => getFirestore(), []);
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user?.uid || !firestore) return null;
@@ -23,8 +24,15 @@ export function InsightsClient() {
   }, [user?.uid, firestore]);
 
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+  
+  const lifePurposeReportRef = useMemoFirebase(() => {
+    if (!userProfile?.lifePurposeReportId || !firestore) return null;
+    return doc(firestore, 'reports', userProfile.lifePurposeReportId);
+  }, [userProfile?.lifePurposeReportId, firestore]);
 
-  const isLoading = isUserLoading || isProfileLoading;
+  const { data: lifePurposeReport, isLoading: isReportLoading } = useDoc<LifePurposeReport>(lifePurposeReportRef);
+
+  const isLoading = isUserLoading || isProfileLoading || isReportLoading;
 
   const purposeArchetype = useMemo(() => {
     if (!userProfile) return null;
@@ -78,7 +86,7 @@ export function InsightsClient() {
                 <InsightCard
                     title="Your Life Purpose Report"
                     description="An AI-generated reading of your unique essence, core energies, and how you're wired to thrive."
-                    content={userProfile.lifePurposeReportId || "No report generated yet. Complete 'The Driver' step to create it."}
+                    content={lifePurposeReport?.report || "No report generated yet. Complete 'The Driver' step to create it."}
                     isAccordion
                 />
             </div>

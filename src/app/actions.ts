@@ -9,10 +9,36 @@ import { uploadFile } from '@/firebase/storage';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getFirebaseAdminApp } from '@/firebase/admin';
+import { revalidatePath } from 'next/cache';
 
-export async function generateReportAction(input: LifePurposeReportInput) {
+interface GenerateReportActionInput extends LifePurposeReportInput {
+    uid: string;
+}
+
+export async function generateReportAction(input: GenerateReportActionInput) {
+  const { uid, ...reportInput } = input;
+  if (!uid) {
+    return { success: false, error: 'User not authenticated.' };
+  }
+
   try {
-    const result = await generateLifePurposeReport(input);
+    const result = await generateLifePurposeReport(reportInput);
+    
+    // Save the report to Firestore
+    const db = getFirestore(getFirebaseAdminApp());
+    const reportRef = db.collection('reports').doc(); // Create a new report with a unique ID
+    await reportRef.set({
+      ...reportInput,
+      report: result.report,
+      createdAt: new Date().toISOString(),
+    });
+
+    // Update the user's profile with the new report ID
+    const userProfileRef = db.collection('users').doc(uid);
+    await userProfileRef.set({ lifePurposeReportId: reportRef.id }, { merge: true });
+
+    revalidatePath('/insights');
+
     return { success: true, data: result };
   } catch (error) {
     console.error(error);

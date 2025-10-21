@@ -96,6 +96,12 @@
         },
         "timeline": {
           "type": "string"
+        },
+        "coreValues": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "required": [
@@ -154,10 +160,15 @@
           "type": "string",
           "description": "URL to the audio version of the Life Purpose Report, stored in Firebase Storage.",
           "format": "uri"
+        },
+        "report": {
+          "type": "string",
+          "description": "The full text content of the generated Life Purpose Report."
         }
       },
       "required": [
-        "id"
+        "id",
+        "report"
       ]
     },
     "satisfaction-quiz": {
@@ -188,6 +199,16 @@
             "$ref": "#/backend/entities/UserProfile"
           },
           "description": "Stores user profile information, including profile picture URL, onboarding data, and a reference to the LifePurposeReport. Path-based ownership ensures only the user can access their profile. Includes userId as a parameter to establish ownership."
+        }
+      },
+      {
+        "path": "/reports/{reportId}",
+        "definition": {
+            "entityName": "LifePurposeReport",
+            "schema": {
+                "$ref": "#/backend/entities/LifePurposeReport"
+            },
+            "description": "Stores generated reports for users. The `reportId` will often correspond to a user's UID for easy lookup, but this allows for multiple reports per user in the future."
         }
       }
     ]

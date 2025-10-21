@@ -10,25 +10,35 @@ import { ArrowLeft, ArrowRight, Sparkles, Car, Loader2, BookOpen } from 'lucide-
 import { generateReportAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { useUser } from '@/firebase';
 
 export function ReportClient() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const { toast } = useToast();
+    const { user } = useUser();
     const upa = searchParams.get('upa') || 'Enneagram 4w5 SX SX/SP 451';
     
     const [isLoading, setIsLoading] = useState(false);
     const [report, setReport] = useState<string | null>(null);
 
     const handleGenerateReport = async () => {
+        if (!user) {
+            toast({
+                variant: "destructive",
+                title: "Authentication Error",
+                description: "You must be logged in to generate a report.",
+            });
+            return;
+        }
+
         setIsLoading(true);
         setReport(null);
 
-        // This is a simplified version of what would be passed.
-        // In a real scenario, you'd parse the UPA string or have the individual fields.
         const [_, type, wing, instinct, trifix] = upa.match(/Enneagram (\d)(w\d) (\w+) \w+\/\w+ (\d+)/) || [];
 
         const input = {
+            uid: user.uid,
             enneagramType: type || '',
             wing: wing || '',
             instinctualStacking: instinct || '',
@@ -120,4 +130,3 @@ export function ReportClient() {
         </div>
     );
 }
-
