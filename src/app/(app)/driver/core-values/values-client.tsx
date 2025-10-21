@@ -103,7 +103,7 @@ export function ValuesClient() {
         try {
             await saveUserProfile({ uid: user.uid, profileData: { coreValues: topValues }});
             toast({ title: 'Success!', description: 'Your core values have been saved.'});
-            router.push('/destination');
+            router.push('/driver/report');
         } catch (error) {
             toast({ variant: 'destructive', title: 'Uh oh!', description: 'Could not save your values.'});
         } finally {
@@ -177,7 +177,6 @@ export function ValuesClient() {
                                                 <SelectValue placeholder="Select a value" />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="" disabled>Select a value</SelectItem>
                                                 {selectedValues.map(v => (
                                                     <SelectItem key={v} value={v} disabled={topValues.includes(v) && topValues[i] !== v}>
                                                         {v}
