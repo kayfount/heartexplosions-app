@@ -1,0 +1,47 @@
+{
+  "SP": {
+    "name": "Self-Preservation",
+    "alias": "Self-Pres",
+    "description": "Body-identified, resource-aware, survival-focused, frugal, grounded, comfort-seeking, home-oriented, environmentally sensitive, private yet deep in relationships, equality-minded, nurtures others’ physical needs, values simplicity, security, and self-sufficiency",
+    "focusOfAttention": "Self, body, home, resources, survival, financial stability, material security, comfort, independence, self-care",
+    "whatYouWantToKnow": "Resources available, needs met now and future, ability to care for self, partner support, tranquility, peace",
+    "whatYoureSearchingFor": "Wellness, safety, shelter, financial security, stability, adequate time, supportive partner, connection with nature, predictable cycles",
+    "inARoom": "Quiet, grounded, waiting for direction, small groups, kitchen, preparing nourishment",
+    "memory": "Focused on surroundings, food, accommodations, routines, natural views",
+    "reward": "Security, financial stability, material comfort, physiological peace, settled, calm",
+    "homebase": "Comfort, cultivated style, home feels right, surroundings in place, belonging",
+    "addictedTo": "Physical comforts, food, furnishings, skincare, wellness products, material goods",
+    "trigger": "Fear of unmet needs, overdue bills, loss of shelter, financial/physiological insecurity",
+    "inPartnershipsAndTeams": "Self-preservation types want partners or teammates who provide stability and do not threaten their resource base. They build trust slowly, focusing on security, autonomy, and material or physiological well-being. Their style is more private and selective, sharing deeply with only a few, while favoring comfort, durability, and consistency. At their core, they need assurance of resources, safety, and the ability to sustain themselves and those they care for."
+  },
+  "SX": {
+    "name": "Sexual",
+    "alias": "1:1",
+    "description": "Closeness-seeking, intimacy-driven, partnership-oriented, charismatic, desirability-focused, thrives in one-on-one connection, purpose-sharing, deep conversationalist, stability and commitment longing, chemistry-attuned, triggered by lack of support or attention",
+    "focusOfAttention": "Partnership, close friendships, intense bonding, survival through deep connection, focus on “the one,” closeness and merging",
+    "whatYouWantToKnow": "Role in pairings, level of chemistry, relationship security, being deeply loved, truly seen, peace through one-on-one harmony",
+    "whatYoureSearchingFor": "Passion, chemistry, desirability, attentive partner, depth, intimacy, strong connection with one or few others",
+    "inARoom": "Magnetically drawn to one person, deep talks, leaning in, asking questions, caring",
+    "memory": "Focused on intense moments, close bonding experiences, one-on-one connections",
+    "reward": "Energy and vitality from intense bonding, closeness as fuel, intimacy as reward",
+    "homebase": "Feeling seen, deeply known, curiosity and closeness, mutual getting closer",
+    "addictedTo": "Passion, intensity, chemical feeling of bonding, craving deeper closeness",
+    "trigger": "Fear of being undesirable, disconnection from partner, lack of closeness",
+    "inPartnershipsAndTeams": "Sexual types seek passion, chemistry, and depth in partnerships and teams. They are drawn to one-on-one intensity and want a chosen connection that makes them feel special. Their communication is quick to dive deep, often charged with passion, secrets, and emotional union. They present themselves in ways that feel attractive, stylish, and unique. Ultimately, they long for union, desire, and to feel chosen, seen, and deeply bonded."
+  },
+  "SO": {
+    "name": "Social",
+    "alias": null,
+    "description": "Group-oriented, role-conscious, belonging-seeking, purpose-driven, extroverted and outgoing, thrives in social connection, alignment through community, attuned to perception and fitting in, partner-oriented in shared purpose and group activity, triggered by isolation or lack of support",
+    "focusOfAttention": "World, groups, safety in numbers, others’ roles and actions, belonging, collective security, contribution to community",
+    "whatYouWantToKnow": "Role in relationships and groups, contribution to group needs, how others connect and support, place within community",
+    "whatYoureSearchingFor": "Status, prestige, security through belonging, supportive partner in social world, connection to people, groups, causes",
+    "inARoom": "Loud, laughing, moving around, talking to many people briefly, energy spread in many directions",
+    "memory": "Focused on events in relationships, social context, group interactions, shared experiences",
+    "reward": "Recognition for contribution, honored for role, valued by group, social acknowledgment",
+    "homebase": "Inside the group, security in numbers, place in the world, belonging, identity through community",
+    "addictedTo": "Groups, sense of belonging, never enough connection, craving inclusion",
+    "trigger": "Fear of social threat, loss of group value, social shame, exclusion, being an outcast",
+    "inPartnershipsAndTeams": "Social types are oriented toward group belonging, prestige, and recognition. They want partners and teammates who support their social role, financial security, and place in the world. They tend to get to know many people easily, keep interactions friendly and engaging, and conform or elevate themselves to group standards through fashion, style, or prestige. At their core, they need admiration, respect, and validation from the group, along with a secure sense of belonging."
+  }
+}
