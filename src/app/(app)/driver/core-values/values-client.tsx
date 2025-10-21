@@ -13,24 +13,46 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowRight, CheckCircle, Save } from 'lucide-react';
+import { ArrowRight, CheckCircle, Save, PlusCircle } from 'lucide-react';
 import { useUser } from '@/firebase';
 import { saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 
-const coreValues = [
+const allCoreValues = [
+    // Initial set
     "Achievement", "Adventure", "Authenticity", "Balance", "Community", "Compassion", "Courage", "Creativity",
     "Curiosity", "Dependability", "Equality", "Fairness", "Family", "Freedom", "Friendship", "Fun",
     "Generosity", "Growth", "Honesty", "Humor", "Independence", "Influence", "Inner Peace", "Integrity",
     "Justice", "Kindness", "Knowledge", "Leadership", "Learning", "Love", "Loyalty", "Nature",
-    "Optimism", "Passion", "Patriotism", "Perseverance", "Personal Development", "Power", "Recognition", "Respect"
+    "Optimism", "Passion", "Patriotism", "Perseverance", "Personal Development", "Power", "Recognition", "Respect",
+    // Additional values
+    "Security", "Service", "Spirituality", "Stability", "Strength", "Success", "Teamwork", "Tradition",
+    "Tranquility", "Trust", "Truth", "Wealth", "Wisdom", "Accountability", "Adaptability", "Altruism",
+    "Assertiveness", "Beauty", "Belonging", "Boldness", "Calmness", "Carefulness", "Challenge", "Change",
+    "Charity", "Cleanliness", "Collaboration", "Commitment", "Competence", "Confidence", "Connection", "Consciousness",
+    "Consistency", "Contentment", "Contribution", "Control", "Conviction", "Cooperation", "Decisiveness", "Dedication",
+    "Democracy", "Dignity", "Diligence", "Discipline", "Discovery", "Diversity", "Duty", "Effectiveness",
+    "Efficiency", "Empathy", "Endurance", "Energy", "Enjoyment", "Enthusiasm", "Excellence", "Excitement",
+    "Experience", "Expertise", "Exploration", "Expressiveness", "Faith", "Fame", "Flexibility", "Focus",
+    "Forgiveness", "Fortitude", "Fulfillment", "Grace", "Gratitude", "Harmony", "Health", "Helpfulness",
+    "Holiness", "Honor", "Hope", "Humility", "Imagination", "Impact", "Inclusiveness", "Ingenuity",
+    "Initiative", "Insight", "Inspiration", "Intellect", "Intimacy", "Intuition", "Joy", "Judgement",
+    "Logic", "Mastery", "Maturity", "Meaning", "Mindfulness", "Modesty", "Motivation", "Openness",
+    "Originality", "Patience", "Peace", "Performance", "Persistence", "Playfulness", "Poise", "Potential",
+    "Practicality", "Presence", "Privacy", "Proactivity", "Professionalism", "Prosperity", "Punctuality", "Purpose",
+
 ];
+
+const INITIAL_VISIBLE_COUNT = 40;
+const INCREMENT_COUNT = 20;
+
 
 export function ValuesClient() {
     const [selectedValues, setSelectedValues] = useState<string[]>([]);
     const [topValues, setTopValues] = useState<string[]>(['', '', '', '', '']);
     const [isSaving, setIsSaving] = useState(false);
+    const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
     const { toast } = useToast();
     const { user } = useUser();
     const router = useRouter();
@@ -88,6 +110,12 @@ export function ValuesClient() {
             setIsSaving(false);
         }
     }
+    
+    const showMoreValues = () => {
+        setVisibleCount(prev => Math.min(prev + INCREMENT_COUNT, allCoreValues.length));
+    }
+
+    const displayedValues = allCoreValues.slice(0, visibleCount);
 
     return (
         <Card className="mt-8">
@@ -99,8 +127,8 @@ export function ValuesClient() {
             </CardHeader>
             <CardContent>
                 <p className="text-center font-semibold mb-4">Select values that resonate with you:</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-8">
-                    {coreValues.map(value => (
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-6">
+                    {displayedValues.map(value => (
                         <Button
                             key={value}
                             variant={selectedValues.includes(value) ? 'default' : 'outline'}
@@ -112,12 +140,22 @@ export function ValuesClient() {
                     ))}
                 </div>
 
+                {visibleCount < allCoreValues.length && (
+                    <div className="text-center">
+                        <Button variant="link" onClick={showMoreValues} className="text-primary">
+                            <PlusCircle className="mr-2"/>
+                            See More Values
+                        </Button>
+                    </div>
+                )}
+
                 <AnimatePresence>
                     {selectedValues.length > 0 && (
                         <motion.div
                             initial={{ opacity: 0, y: -20 }}
                             animate={{ opacity: 1, y: 0 }}
                             exit={{ opacity: 0, y: -20 }}
+                            className="mt-8"
                         >
                             <Card className="bg-secondary/30 p-6">
                                 <CardHeader className="p-0 mb-4">
