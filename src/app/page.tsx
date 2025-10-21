@@ -96,7 +96,7 @@ export default function Home() {
 
         {/* The Solution Section */}
         <section className="py-20">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="container mx-auto px-4 sm.px-6 lg:px-8">
             <div className="text-center mb-12 max-w-4xl mx-auto">
               <h2 className="text-3xl md:text-4xl font-bold font-headline text-foreground">A Soul-Aligned Expedition, Not Just Another System</h2>
               <p className="mt-2 text-lg text-foreground/70">Heart Explosions works where other tools fail because it's deeply personalized and designed for the multi-passionate, neurodivergent, soul-led explorer—not the corporate clone.</p>
@@ -119,7 +119,7 @@ export default function Home() {
         
         {/* The Promise Section */}
         <section className="bg-card/50 py-20">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-4xl">
+            <div className="container mx-auto px-4 sm.px-6 lg:px-8 text-center max-w-4xl">
                  <h2 className="text-3xl md:text-4xl font-bold font-headline text-foreground">You’ll finally know what to work on, <span className="text-gradient-logo">how</span> to do it, and <span className="text-gradient-logo">why</span> it matters to you.</h2>
                  <p className="mt-4 text-lg text-foreground/70">You’ll walk away with:</p>
                  <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
@@ -135,7 +135,7 @@ export default function Home() {
 
         {/* How It Works Section */}
         <section className="py-20">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 max-w-5xl text-center">
+            <div className="container mx-auto px-4 sm.px-6 lg:px-8 max-w-5xl text-center">
                 <h2 className="text-3xl md:text-4xl font-bold font-headline text-foreground">How It Works</h2>
                 <p className="mt-2 text-lg text-foreground/70 max-w-2xl mx-auto">A choose-your-own-adventure roadmap for your most soul-aligned trajectory. Modular, flexible, and trauma-informed.</p>
                 <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
@@ -157,7 +157,7 @@ export default function Home() {
         
         {/* Call to Action Section */}
         <section className="bg-secondary/40 py-20">
-            <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center max-w-3xl">
+            <div className="container mx-auto px-4 sm.px-6 lg:px-8 text-center max-w-3xl">
                 <p className="text-2xl font-bold italic text-foreground/90">“I designed this guide for people like me—visionaries rebuilding from the fire. It’s not a template. It’s a torchlight.”</p>
                 <p className="mt-2 text-lg font-bold text-foreground/70">– Kristy Fountain</p>
                 <div className="mt-8">
@@ -172,8 +172,8 @@ export default function Home() {
 
       </main>
 
-      <footer className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 text-center text-foreground/60">
-        <p>&copy; {new Date().getFullYear()} Heart Explosions. All Rights Reserved.</p>
+      <footer className="container mx-auto px-4 sm.px-6 lg:px-8 py-6 text-center text-foreground/60">
+        <p>&copy; 2024 Heart Explosions. All Rights Reserved.</p>
       </footer>
     </div>
   );
