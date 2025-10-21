@@ -38,6 +38,8 @@ export function ReportClient() {
     const upa = useMemo(() => {
         if (!userProfile) return null;
         const { enneagramType, wing, subtype, instinctualStacking, trifix } = userProfile;
+        
+        // This is the corrected, robust check.
         if (enneagramType && wing && subtype && instinctualStacking && trifix) {
             const wingCode = wing.replace(enneagramType, '');
             const subtypeLabel = subtype.toUpperCase();
