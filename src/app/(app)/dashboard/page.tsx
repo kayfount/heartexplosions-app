@@ -52,9 +52,9 @@ const features = [
     image: PlaceHolderImages.find(img => img.id === 'mountain-path'),
   },
    {
-    href: '/trail-angels',
+    href: '/insights',
     icon: <Sparkles />,
-    title: 'Trail Angels',
+    title: 'Insights',
     description: 'Get guidance from an AI coach and access a hub of helpful resources.',
     image: PlaceHolderImages.find(img => img.id === 'journal-and-pen'),
   },

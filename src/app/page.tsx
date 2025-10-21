@@ -28,7 +28,7 @@ const features = [
   },
   {
     icon: <Sparkles className="size-8 text-primary" />,
-    title: "Trail Angels",
+    title: "Insights",
     description: "Get guidance from an AI coach and access a hub of helpful resources.",
   },
 ];

@@ -21,7 +21,7 @@ const navItems = [
   { href: '/driver', label: 'The Driver', icon: <Car /> },
   { href: '/destination', label: 'The Destination', icon: <MapPin /> },
   { href: '/route', label: 'The Route', icon: <Route /> },
-  { href: '/trail-angels', label: 'Trail Angels', icon: <Sparkles /> },
+  { href: '/insights', label: 'Insights', icon: <Sparkles /> },
 ];
 
 export function Header() {
@@ -31,6 +31,7 @@ export function Header() {
   const showNav = user && !isUserLoading;
 
   const isDriverActive = pathname.startsWith('/driver');
+  const isInsightsActive = pathname.startsWith('/insights');
 
   return (
     <header className="bg-[#FAFFEE] sticky top-0 z-50 border-b border-header-border">
@@ -45,7 +46,14 @@ export function Header() {
             <>
             <nav className="hidden md:flex md:items-center md:gap-2 absolute left-1/2 -translate-x-1/2">
               {navItems.map((item) => {
-                const isActive = item.href === '/driver' ? isDriverActive : pathname === item.href;
+                let isActive = pathname === item.href;
+                if (item.href === '/driver') {
+                  isActive = isDriverActive;
+                }
+                if (item.href === '/insights') {
+                  isActive = isInsightsActive;
+                }
+                
                 return (
                   <Link
                     key={item.href}
