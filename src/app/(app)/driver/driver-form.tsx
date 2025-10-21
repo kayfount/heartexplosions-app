@@ -45,6 +45,10 @@ const formSchema = z.object({
     if (!data.enneagramType || !data.trifix) return true; // Let required validation handle it
     const typeData = trifixData.find(t => t.type === data.enneagramType);
     if (!typeData) return true; // Should not happen if enneagramType is from the list
+    
+    // If no type is selected, we shouldn't validate the trifix yet.
+    if (!data.enneagramType) return true;
+
     const validPermutations = typeData.groups.flatMap(g => g.permutations);
     return validPermutations.includes(data.trifix);
 }, {
@@ -69,10 +73,10 @@ const stackings = [
     { value: 'so/sx', label: 'SO/SX'},
 ];
 const tests = [
-    { name: "Free Test ($0)", vendor: "Eclectic Energies", href: "#"},
-    { name: "Cost-Effective Test ($$)", vendor: "Nate Bebout", href: "#"},
-    { name: "Tritype Test ($$)", vendor: "Tritype Test", href: "#"},
-    { name: "Comprehensive Test ($$$)", vendor: "IEQ9", href: "#"},
+    { name: "Free Test ($0)", vendor: "Eclectic Energies", href: "https://www.eclecticenergies.com/enneagram/test2"},
+    { name: "Cost-Effective Test ($$)", vendor: "Nate Bebout", href: "https://test.natebebout.com/products"},
+    { name: "Tritype Test ($$)", vendor: "Tritype Test", href: "https://enneagramtritypetest.com/account/"},
+    { name: "Comprehensive Test ($$$)", vendor: "IEQ9", href: "https://buy.stripe.com/eVacN44L34b414Q4he"},
 ]
 
 export function DriverForm() {
@@ -134,7 +138,10 @@ export function DriverForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Dominant Enneagram Type *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={(value) => {
+                            field.onChange(value);
+                            form.setValue('trifix', ''); // Clear trifix when type changes
+                        }} defaultValue={field.value}>
                           <FormControl>
                             <SelectTrigger><SelectValue placeholder="Select Type" /></SelectTrigger>
                           </FormControl>
@@ -277,3 +284,5 @@ export function DriverForm() {
     </>
   );
 }
+
+    
