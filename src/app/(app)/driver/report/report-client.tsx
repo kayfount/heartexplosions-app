@@ -124,7 +124,7 @@ export function ReportClient() {
                     <Link href="/driver"><ArrowLeft className="mr-2" /> Previous</Link>
                 </Button>
                 <Button asChild className="bg-primary-gradient text-primary-foreground font-bold">
-                    <Link href="/driver/core-values">Next <ArrowRight className="ml-2" /></Link>
+                    <Link href="/destination">Next <ArrowRight className="ml-2" /></Link>
                 </Button>
             </div>
         </div>
