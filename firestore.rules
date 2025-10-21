@@ -1,77 +1,66 @@
 /**
- * @file Firebase Security Rules for Heart Compass application.
- *
- * Core Philosophy:
- * This ruleset enforces a strict user-ownership model. Each user has sole access to their profile and associated Life Purpose Report.
+ * @file Firebase Security Rules
+ * @description This ruleset enforces a strict user-ownership model for the /users/{userId} collection,
+ *  ensuring that only the authenticated user can access their own profile data.
  *
  * Data Structure:
- * All data is nested under /users/{userId}, with userProfile and lifePurposeReport subcollections.
+ * - All user data is stored under the /users/{userId} collection.
  *
  * Key Security Decisions:
- * - Users can only access their own data. No cross-user access is permitted.
- * - Listing of users is disallowed to protect privacy.
+ * - User listing is disallowed to prevent information disclosure.
+ * - Data validation is relaxed to allow for rapid prototyping, except for critical
+ *   ownership checks.
+ * - The rules explicitly deny any write operations that do not meet the
+ *   ownership criteria.
  *
  * Denormalization for Authorization:
- * The userId path parameter is used to enforce ownership, avoiding the need for complex queries or data duplication within documents.
+ * - User ownership is enforced by matching the `userId` parameter in the path to the
+ *   authenticated user's `uid`. The `id` field in the `UserProfile` document must
+ *   also match the `userId` to maintain data consistency. This approach avoids the
+ *   need for complex queries or additional reads to determine ownership.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Enforces user-ownership for UserProfile documents.
-     * @path /users/{userId}/userProfile
-     * @allow (create) - Authenticated user creates their own profile using the registration form, with profilePicUrl field included.
-     *   Request: { auth: { uid: "user123" }, resource.data: { id: "user123", email: "test@example.com", profilePicUrl: "https://example.com/image.jpg", currentSeason: "Spring", constraints: "Time", values: "Family", strengths: "Kindness", interests: "Reading", timeBudget: "2 hours", startingPointSummary: "You are here...", lifePurposeReportId: "report456" } }
-     * @allow (get, update, delete) - Authenticated user retrieves, updates, or deletes their own profile.
-     *   Request: { auth: { uid: "user123" }, resource.data: { id: "user123", email: "test@example.com", profilePicUrl: "https://example.com/new_image.jpg", currentSeason: "Summer", constraints: "Money", values: "Health", strengths: "Patience", interests: "Hiking", timeBudget: "3 hours", startingPointSummary: "Update...", lifePurposeReportId: "report456" } }
-     * @deny (create) - Attempt to create a profile with a mismatched user ID.
-     *   Request: { auth: { uid: "user456" }, resource.data: { id: "user123", email: "test@example.com", profilePicUrl: "https://example.com/image.jpg", currentSeason: "Spring", constraints: "Time", values: "Family", strengths: "Kindness", interests: "Reading", timeBudget: "2 hours", startingPointSummary: "You are here...", lifePurposeReportId: "report456" } }
-     * @deny (get, update, delete) - Attempt to access another user's profile.
-     *   Request: { auth: { uid: "user456" } }
-     * @principle Enforces document ownership and restricts access to a user's own data.
+     * @description Controls access to user profile documents.
+     * @path /users/{userId}
+     * @allow (get) User with UID 'XeTG6cYWwQV9gf7w28G5KHEF3fj2' can read their own profile.
+     * @allow (create) User with UID 'XeTG6cYWwQV9gf7w28G5KHEF3fj2' can create their own profile.
+     * @allow (update) User with UID 'XeTG6cYWwQV9gf7w28G5KHEF3fj2' can update their own profile.
+     * @allow (delete) User with UID 'XeTG6cYWwQV9gf7w28G5KHEF3fj2' can delete their own profile.
+     * @deny (get) User with UID 'otherUserId' cannot read the profile of user 'XeTG6cYWwQV9gf7w28G5KHEF3fj2'.
+     * @deny (create) User with UID 'otherUserId' cannot create a profile for user 'XeTG6cYWwQV9gf7w28G5KHEF3fj2'.
+     * @deny (update) User with UID 'otherUserId' cannot update the profile of user 'XeTG6cYWwQV9gf7w28G5KHEF3fj2'.
+     * @deny (delete) User with UID 'otherUserId' cannot delete the profile of user 'XeTG6cYWwQV9gf7w28G5KHEF3fj2'.
+     * @principle Enforces document ownership for all operations.
      */
-    match /users/{userId}/userProfile {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isSignedIn() && request.resource.data.id == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-      allow delete: if isExistingOwner(userId);
-    }
+    match /users/{userId} {
+      // Helper function to check if the authenticated user is the owner of the document.
+      function isOwner(userId) {
+        return request.auth != null && request.auth.uid == userId;
+      }
 
-    /**
-     * @description Enforces user-ownership for LifePurposeReport documents.
-     * @path /users/{userId}/lifePurposeReport
-     * @allow (create) - Authenticated user creates their own report.
-     *   Request: { auth: { uid: "user123" }, resource.data: { id: "report456", enneagramType: "5", wing: "4", instinctualStacking: "so/sx", tritype: "548", naturalGenius: "Insight", growthEdge: "Action", motivations: "Understanding", coreValues: "Integrity", reportPdfUrl: "https://example.com/report.pdf", reportAudioUrl: "https://example.com/report.mp3" } }
-     * @allow (get, update, delete) - Authenticated user retrieves, updates, or deletes their own report.
-     *   Request: { auth: { uid: "user123" } }
-     * @deny (create) - Attempt to create a report with a mismatched user ID.
-     *   Request: { auth: { uid: "user456" }, resource.data: { id: "report456", enneagramType: "5", wing: "4", instinctualStacking: "so/sx", tritype: "548", naturalGenius: "Insight", growthEdge: "Action", motivations: "Understanding", coreValues: "Integrity", reportPdfUrl: "https://example.com/report.pdf", reportAudioUrl: "https://example.com/report.mp3" } }
-     * @deny (get, update, delete) - Attempt to access another user's report.
-     *   Request: { auth: { uid: "user456" } }
-     * @principle Enforces document ownership and restricts access to a user's own data.
-     */
-    match /users/{userId}/lifePurposeReport {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isSignedIn() && request.resource.data.id != null;
-      allow update: if isExistingOwner(userId);
-      allow delete: if isExistingOwner(userId);
-    }
-
-    // --- Helper Functions ---
-
-    function isSignedIn() {
-      return request.auth != null;
-    }
-
-    function isOwner(userId) {
-      return request.auth.uid == userId;
-    }
-
-    function isExistingOwner(userId) {
+      // Helper function to check if the authenticated user is the owner of the existing document.
+      function isExistingOwner(userId) {
         return isOwner(userId) && resource != null;
+      }
+
+      // Allow the owner to get their own profile.
+      allow get: if isOwner(userId);
+
+      // Prevent listing of all users.
+      allow list: if false;
+
+      // Allow the owner to create their own profile, enforcing that the ID matches the userId.
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+
+      // Allow the owner to update their own profile, enforcing immutability of the ID.
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+
+      // Allow the owner to delete their own profile.
+      allow delete: if isExistingOwner(userId);
     }
   }
 }
