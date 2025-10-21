@@ -127,6 +127,7 @@ export function ValuesClient() {
 
         setIsSaving(true);
         try {
+            // The values are auto-saved, so just need to confirm before navigating
             await saveUserProfile({ uid: user.uid, profileData: { coreValues: topValues }});
             toast({ title: 'Success!', description: 'Your core values have been saved.'});
             router.push('/driver/report');

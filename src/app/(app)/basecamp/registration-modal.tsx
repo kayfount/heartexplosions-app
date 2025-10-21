@@ -96,29 +96,32 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
 
   useEffect(() => {
     if (isOpen) {
+        let defaultValues: Partial<RegistrationFormValues> = {};
         if (userProfile) {
-            form.reset({
+            defaultValues = {
                 firstName: userProfile.firstName || user?.displayName?.split(' ')[0] || '',
                 lastName: userProfile.lastName || user?.displayName?.split(' ').slice(1).join(' ') || '',
                 callSign: userProfile.callSign || '',
                 journeyStatus: userProfile.journeyStatus || '',
                 whyNow: userProfile.whyNow || '',
-            });
+            };
         } else if (user) {
             const nameParts = user.displayName?.split(' ') || ['', ''];
-            form.reset({
+            defaultValues = {
                 firstName: nameParts[0] || '',
                 lastName: nameParts.slice(1).join(' ') || '',
                 callSign: '',
                 journeyStatus: '',
                 whyNow: '',
-            });
+            };
         }
+        form.reset(defaultValues);
+        
         if (user?.photoURL) {
             setPreviewUrl(user.photoURL);
         }
     }
-  }, [user, userProfile, form, isOpen]);
+  }, [user, userProfile, form.reset, isOpen]);
   
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
