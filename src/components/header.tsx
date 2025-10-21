@@ -30,9 +30,6 @@ export function Header() {
   
   const showNav = user && !isUserLoading;
 
-  const isDriverActive = pathname.startsWith('/driver');
-  const isInsightsActive = pathname.startsWith('/insights');
-
   return (
     <header className="bg-[#FAFFEE] sticky top-0 z-50 border-b border-header-border">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -46,13 +43,7 @@ export function Header() {
             <>
             <nav className="hidden md:flex md:items-center md:gap-2 absolute left-1/2 -translate-x-1/2">
               {navItems.map((item) => {
-                let isActive = pathname === item.href;
-                if (item.href === '/driver') {
-                  isActive = isDriverActive;
-                }
-                if (item.href === '/insights') {
-                  isActive = isInsightsActive;
-                }
+                const isActive = pathname.startsWith(item.href);
                 
                 return (
                   <Link

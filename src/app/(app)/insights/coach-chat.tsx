@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useRef, useEffect } from 'react';
@@ -20,6 +21,7 @@ import { Loader2, Send, Sparkles } from 'lucide-react';
 import { coachInteractionAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useUser } from '@/firebase';
 
 const formSchema = z.object({
   query: z.string().min(1, 'Message cannot be empty.'),
@@ -31,6 +33,7 @@ interface Message {
 }
 
 export function CoachChat() {
+  const { user } = useUser();
   const [isLoading, setIsLoading] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     { sender: 'ai', text: "Hello! I'm your AI purpose coach. How can I support you on your journey today?" }
@@ -74,6 +77,9 @@ export function CoachChat() {
     setIsLoading(false);
   }
 
+  const userImage = user?.photoURL || "https://picsum.photos/seed/avatar1/100/100";
+  const userName = user?.displayName || "Trailblazer";
+
   return (
     <Card className="flex flex-col h-[70vh] max-h-[700px]">
         <CardHeader>
@@ -104,8 +110,8 @@ export function CoachChat() {
                     </div>
                     {message.sender === 'user' && (
                     <Avatar className="h-9 w-9">
-                        <AvatarImage src="https://picsum.photos/seed/avatar1/100/100" data-ai-hint="person portrait" />
-                        <AvatarFallback>U</AvatarFallback>
+                        <AvatarImage src={userImage} data-ai-hint="person portrait" />
+                        <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
                     </Avatar>
                     )}
                 </motion.div>
