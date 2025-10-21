@@ -1,7 +1,7 @@
 
 'use client';
 
-import { Suspense, useState } from 'react';
+import { useState } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -11,7 +11,7 @@ import { generateReportAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
-function ReportContent() {
+export function ReportClient() {
     const searchParams = useSearchParams();
     const router = useRouter();
     const { toast } = useToast();
@@ -121,10 +121,3 @@ function ReportContent() {
     );
 }
 
-export default function ReportPage() {
-    return (
-        <Suspense fallback={<div>Loading...</div>}>
-            <ReportContent />
-        </Suspense>
-    );
-}
