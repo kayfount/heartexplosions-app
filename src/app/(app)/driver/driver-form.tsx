@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as React from 'react';
-import { ExternalLink, ArrowLeft, ArrowRight, ArrowBigRight, Loader2 } from 'lucide-react';
+import { ExternalLink, ArrowLeft, ArrowRight, ArrowBigRight, Loader2, Save } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
@@ -33,7 +33,7 @@ import { Separator } from '@/components/ui/separator';
 import { TrifixSelectorModal } from './trifix-selector-modal';
 import { trifixData } from './trifix-data';
 import { useRouter } from 'next/navigation';
-import { useUser, useDoc, useMemoFirebase } from '@/firebase';
+import { useUser, useDoc, useMemoFirebase, useAuth } from '@/firebase';
 import { saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { doc, getFirestore } from 'firebase/firestore';
@@ -87,9 +87,11 @@ const tests = [
 
 export function DriverForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const router = useRouter();
   const { user, isUserLoading } = useUser();
-  const firestore = useMemo(() => user ? getFirestore() : null, [user]);
+  const auth = useAuth();
+  const firestore = useMemo(() => auth ? getFirestore(auth.app) : null, [auth]);
   const { toast } = useToast();
 
   const userProfileRef = useMemoFirebase(() => {
@@ -148,22 +150,28 @@ export function DriverForm() {
   };
   
   const handleNext = async () => {
-    if (purposeArchetype && user) {
-        try {
-            await saveUserProfile({ uid: user.uid, profileData: form.getValues()});
-            toast({
-                title: "Driver Details Saved",
-                description: "Your Enneagram details have been saved to your profile.",
-            });
-            const query = new URLSearchParams({ upa: purposeArchetype }).toString();
-            router.push(`/driver/report?${query}`);
-        } catch (error) {
-             toast({
-                variant: "destructive",
-                title: "Uh oh!",
-                description: "Could not save your driver details.",
-            });
-        }
+    if (!user) return;
+    setIsSaving(true);
+    try {
+      await saveUserProfile({ uid: user.uid, profileData: form.getValues() });
+      toast({
+        title: "Driver Details Saved",
+        description: "Your Enneagram details have been saved to your profile.",
+      });
+      if (purposeArchetype) {
+        const query = new URLSearchParams({ upa: purposeArchetype }).toString();
+        router.push(`/driver/report?${query}`);
+      } else {
+        router.push('/driver/report');
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Uh oh!",
+        description: "Could not save your driver details.",
+      });
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -329,8 +337,9 @@ export function DriverForm() {
               <Button variant="outline" asChild>
                   <Link href="/basecamp"><ArrowLeft /> Previous</Link>
               </Button>
-              <Button onClick={handleNext} disabled={!purposeArchetype} className="bg-primary-gradient text-primary-foreground font-bold">
-                  Next <ArrowRight />
+              <Button onClick={handleNext} disabled={!form.formState.isValid || isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
+                  {isSaving ? <Save className="mr-2 animate-spin" /> : 'Next' }
+                  {!isSaving && <ArrowRight />}
               </Button>
           </div>
       </div>

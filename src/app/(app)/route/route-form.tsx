@@ -26,7 +26,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { createRoutePlanAction, saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { RoutePlanOutput } from '@/ai/flows/create-realistic-route-plan';
-import { useUser, useDoc, useMemoFirebase } from '@/firebase';
+import { useUser, useDoc, useMemoFirebase, useAuth } from '@/firebase';
 import { doc, getFirestore } from 'firebase/firestore';
 import type { UserProfile } from '@/models/user-profile';
 
@@ -48,7 +48,8 @@ export function RouteForm() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const { toast } = useToast();
   const { user, isUserLoading } = useUser();
-  const firestore = useMemo(() => user ? getFirestore() : null, [user]);
+  const auth = useAuth();
+  const firestore = useMemo(() => auth ? getFirestore(auth.app) : null, [auth]);
 
   const userProfileRef = useMemoFirebase(() => {
     if (!user?.uid || !firestore) return null;

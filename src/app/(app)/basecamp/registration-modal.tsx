@@ -69,7 +69,7 @@ const journeyStatuses = [
 export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegistered }: RegistrationModalProps) {
   const { user } = useUser();
   const auth = useAuth();
-  const firestore = getFirestore(auth?.app);
+  const firestore = useMemo(() => auth ? getFirestore(auth.app) : null, [auth]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -95,18 +95,26 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
   });
 
   useEffect(() => {
-    if (user) {
-      const nameParts = user.displayName?.split(' ') || ['', ''];
+    if (userProfile && isOpen) {
       form.reset({
-        firstName: userProfile?.firstName || nameParts[0] || '',
-        lastName: userProfile?.lastName || nameParts.slice(1).join(' ') || '',
-        callSign: userProfile?.callSign || '', 
-        journeyStatus: userProfile?.journeyStatus || '',
-        whyNow: userProfile?.whyNow || '',
+        firstName: userProfile.firstName || user?.displayName?.split(' ')[0] || '',
+        lastName: userProfile.lastName || user?.displayName?.split(' ').slice(1).join(' ') || '',
+        callSign: userProfile.callSign || '',
+        journeyStatus: userProfile.journeyStatus || '',
+        whyNow: userProfile.whyNow || '',
       });
-      if (user.photoURL) {
+    } else if (user && isOpen) {
+        const nameParts = user.displayName?.split(' ') || ['', ''];
+        form.reset({
+            firstName: nameParts[0] || '',
+            lastName: nameParts.slice(1).join(' ') || '',
+            callSign: '',
+            journeyStatus: '',
+            whyNow: '',
+        });
+    }
+    if (user?.photoURL) {
         setPreviewUrl(user.photoURL);
-      }
     }
   }, [user, userProfile, form, isOpen]);
   
