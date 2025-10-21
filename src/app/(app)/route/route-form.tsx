@@ -69,14 +69,13 @@ export function RouteForm() {
 
   useEffect(() => {
     if (userProfile) {
-        const defaultValues = {
+        form.reset({
             availableHours: userProfile.availableHours || 10,
             commitments: userProfile.commitments || '',
             timeline: userProfile.timeline || '3 Months',
-        };
-        form.reset(defaultValues);
+        });
     }
-  }, [userProfile, form.reset]);
+  }, [userProfile, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -241,3 +240,5 @@ export function RouteForm() {
     </>
   );
 }
+
+    

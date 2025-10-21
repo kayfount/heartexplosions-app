@@ -115,16 +115,15 @@ export function DriverForm() {
   
   useEffect(() => {
     if (userProfile) {
-        const defaultValues = {
+        form.reset({
             enneagramType: userProfile.enneagramType || '',
             wing: userProfile.wing || '',
             subtype: userProfile.subtype || '',
             instinctualStacking: userProfile.instinctualStacking || '',
             trifix: userProfile.trifix || '',
-        };
-        form.reset(defaultValues);
+        });
     }
-  }, [userProfile, form.reset]);
+  }, [userProfile, form]);
 
   const watchedValues = useWatch({ control: form.control });
   const selectedEnneagramType = useWatch({ control: form.control, name: 'enneagramType' });
@@ -343,3 +342,5 @@ export function DriverForm() {
     </>
   );
 }
+
+    

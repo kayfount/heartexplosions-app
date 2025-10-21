@@ -103,7 +103,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
             journeyStatus: userProfile.journeyStatus || '',
             whyNow: userProfile.whyNow || '',
         });
-    } else if (user && !userProfile) {
+    } else if (user) {
          const nameParts = user.displayName?.split(' ') || ['', ''];
          form.reset({
             firstName: nameParts[0] || '',
@@ -116,7 +116,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     if (user?.photoURL) {
         setPreviewUrl(user.photoURL);
     }
-  }, [user, userProfile, form.reset]);
+  }, [user, userProfile, form]);
   
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -346,3 +346,5 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     </Dialog>
   );
 }
+
+    

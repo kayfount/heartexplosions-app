@@ -238,8 +238,8 @@ export function ValuesClient() {
                 )}
             </AnimatePresence>
             <div className="mt-12 flex justify-between items-center">
-                <Button variant="outline" onClick={() => router.back()}>
-                    <ArrowLeft /> Previous
+                <Button variant="outline" asChild>
+                    <Link href="/driver/report"><ArrowLeft /> Previous</Link>
                 </Button>
                 <Button onClick={handleSaveAndContinue} disabled={!allTop5Selected || isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
                     {isSaving ? <Save className="mr-2 animate-spin" /> : 'Next' }
@@ -249,3 +249,5 @@ export function ValuesClient() {
         </div>
     );
 }
+
+    

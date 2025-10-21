@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,10 @@ import { synthesizeProfileAction, saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { SynthesizePurposeProfileOutput } from '@/ai/flows/synthesize-purpose-profile';
 import { cn } from '@/lib/utils';
-import { useUser } from '@/firebase';
+import { useUser, useDoc, useMemoFirebase } from '@/firebase';
+import { doc, getFirestore } from 'firebase/firestore';
+import type { UserProfile } from '@/models/user-profile';
+import { useMemo } from 'react';
 
 type FocusArea = 'career' | 'contribution' | 'calling';
 
@@ -27,7 +30,20 @@ export function DestinationClient() {
   const [selectedArea, setSelectedArea] = useState<FocusArea | null>(null);
   const [profile, setProfile] = useState<SynthesizePurposeProfileOutput | null>(null);
   const { toast } = useToast();
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
+  const firestore = useMemo(() => getFirestore(), []);
+  
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user?.uid || !firestore) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [user?.uid, firestore]);
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+
+  useEffect(() => {
+    if (userProfile?.focusArea) {
+      setSelectedArea(userProfile.focusArea);
+    }
+  }, [userProfile]);
 
   const handleSelectArea = async (area: FocusArea) => {
     setSelectedArea(area);
@@ -65,6 +81,14 @@ export function DestinationClient() {
         description: result.error || 'Something went wrong.',
       });
     }
+  }
+
+  if (isUserLoading || isProfileLoading) {
+      return (
+        <div className="flex justify-center items-center h-64">
+            <Loader2 className="animate-spin size-8" />
+        </div>
+      )
   }
 
   return (
@@ -136,3 +160,5 @@ export function DestinationClient() {
     </>
   );
 }
+
+    
