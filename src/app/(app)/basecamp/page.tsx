@@ -58,10 +58,10 @@ export default function BasecampDashboardPage() {
   const { user } = useUser();
 
   useEffect(() => {
+    // Moved quote selection into useEffect to prevent hydration errors.
+    // This ensures Math.random() is only called on the client.
     setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
-  }, []);
 
-  useEffect(() => {
     if (searchParams.get('register') === 'true') {
       setRegistrationOpen(true);
       // Remove the query param from the URL without reloading the page
@@ -294,3 +294,5 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
         </Card>
     )
 }
+
+    
