@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -44,7 +44,7 @@ export function ReportClient() {
         const wingCode = wing.replace(enneagramType, '');
         const subtypeLabel = subtype.toUpperCase();
         const stackingCode = instinctualStacking.toUpperCase();
-        // Correctly concatenate the strings for the UPA
+        
         return `Enneagram ${enneagramType}${wingCode} ${subtypeLabel} ${stackingCode} ${trifix}`;
     }, [userProfile]);
 
@@ -58,8 +58,8 @@ export function ReportClient() {
             return;
         }
 
-        const { enneagramType, wing, instinctualStacking, trifix } = userProfile;
-        if (!enneagramType || !wing || !instinctualStacking || !trifix) {
+        const { enneagramType, wing, subtype, instinctualStacking, trifix } = userProfile;
+        if (!enneagramType || !wing || !subtype || !instinctualStacking || !trifix) {
              toast({
                 variant: "destructive",
                 title: "Incomplete Profile",
@@ -74,6 +74,7 @@ export function ReportClient() {
             uid: user.uid,
             enneagramType,
             wing,
+            subtype,
             instinctualStacking,
             trifix,
         };

@@ -38,6 +38,7 @@ export async function generateReportAction(input: GenerateReportActionInput) {
     await userProfileRef.set({ lifePurposeReportId: reportRef.id }, { merge: true });
 
     revalidatePath('/insights');
+    revalidatePath('/driver/report');
 
     return { success: true, data: result };
   } catch (error) {
