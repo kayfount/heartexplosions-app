@@ -158,12 +158,8 @@ export function DriverForm() {
         title: "Driver Details Saved",
         description: "Your Enneagram details have been saved to your profile.",
       });
-      if (purposeArchetype) {
-        const query = new URLSearchParams({ upa: purposeArchetype }).toString();
-        router.push(`/driver/report?${query}`);
-      } else {
-        router.push('/driver/report');
-      }
+      router.push('/driver/core-values');
+
     } catch (error) {
       toast({
         variant: "destructive",
@@ -346,5 +342,3 @@ export function DriverForm() {
     </>
   );
 }
-
-    

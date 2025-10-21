@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
@@ -10,46 +10,77 @@ import { ArrowLeft, ArrowRight, Sparkles, Car, Loader2, BookOpen } from 'lucide-
 import { generateReportAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { useUser } from '@/firebase';
+import { useUser, useDoc, useMemoFirebase } from '@/firebase';
+import { doc, getFirestore } from 'firebase/firestore';
+import type { UserProfile } from '@/models/user-profile';
+import type { LifePurposeReport } from '@/models/life-purpose-report';
 
 export function ReportClient() {
-    const searchParams = useSearchParams();
     const router = useRouter();
     const { toast } = useToast();
     const { user } = useUser();
-    const upa = searchParams.get('upa') || 'Enneagram 4w5 SX SX/SP 451';
+    const firestore = useMemo(() => getFirestore(), []);
     
     const [isLoading, setIsLoading] = useState(false);
-    const [report, setReport] = useState<string | null>(null);
+
+    const userProfileRef = useMemoFirebase(() => {
+        if (!user?.uid || !firestore) return null;
+        return doc(firestore, 'users', user.uid);
+    }, [user?.uid, firestore]);
+    const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+
+    const lifePurposeReportRef = useMemoFirebase(() => {
+        if (!userProfile?.lifePurposeReportId || !firestore) return null;
+        return doc(firestore, 'reports', userProfile.lifePurposeReportId);
+    }, [userProfile?.lifePurposeReportId, firestore]);
+    const { data: lifePurposeReport, isLoading: isReportLoading } = useDoc<LifePurposeReport>(lifePurposeReportRef);
+    
+    const upa = useMemo(() => {
+        if (!userProfile) return null;
+        const { enneagramType, wing, subtype, instinctualStacking, trifix } = userProfile;
+        if (!enneagramType || !wing || !subtype || !instinctualStacking || !trifix) {
+            return null;
+        }
+        const wingCode = wing.replace(enneagramType, '');
+        const subtypeCode = subtype.toUpperCase();
+        const stackingCode = instinctualStacking.toUpperCase();
+        return `Enneagram ${enneagramType}${wingCode} ${subtypeCode} ${stackingCode} ${trifix}`;
+    }, [userProfile]);
 
     const handleGenerateReport = async () => {
-        if (!user) {
+        if (!user || !userProfile) {
             toast({
                 variant: "destructive",
                 title: "Authentication Error",
-                description: "You must be logged in to generate a report.",
+                description: "You must be logged in and have a complete driver profile.",
+            });
+            return;
+        }
+
+        const { enneagramType, wing, instinctualStacking, trifix } = userProfile;
+        if (!enneagramType || !wing || !instinctualStacking || !trifix) {
+             toast({
+                variant: "destructive",
+                title: "Incomplete Profile",
+                description: "Please complete your driver profile before generating a report.",
             });
             return;
         }
 
         setIsLoading(true);
-        setReport(null);
-
-        const [_, type, wing, instinct, trifix] = upa.match(/Enneagram (\d)(w\d) (\w+) \w+\/\w+ (\d+)/) || [];
 
         const input = {
             uid: user.uid,
-            enneagramType: type || '',
-            wing: wing || '',
-            instinctualStacking: instinct || '',
-            trifix: trifix || '',
+            enneagramType,
+            wing,
+            instinctualStacking,
+            trifix,
         };
 
         const result = await generateReportAction(input);
         setIsLoading(false);
 
         if (result.success && result.data) {
-            setReport(result.data.report);
             toast({
                 title: "Report Generated!",
                 description: "Your Life Purpose Report is ready below."
@@ -80,16 +111,24 @@ export function ReportClient() {
                     <CardDescription>Using your UPA, we'll create your personalized compass for aligned decision-making.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <div className="bg-[#d2f0dc] p-6 rounded-lg text-center my-4">
-                        <p className="text-sm font-bold text-foreground/80">Your UPA:</p>
-                        <p className="text-lg font-bold text-foreground">{upa}</p>
-                    </div>
+                    {(isProfileLoading || isReportLoading) && !upa && (
+                         <div className="flex justify-center items-center h-40">
+                            <Loader2 className="animate-spin size-8" />
+                        </div>
+                    )}
 
-                    {!report && (
+                    {upa && (
+                        <div className="bg-[#d2f0dc] p-6 rounded-lg text-center my-4">
+                            <p className="text-sm font-bold text-foreground/80">Your UPA:</p>
+                            <p className="text-lg font-bold text-foreground">{upa}</p>
+                        </div>
+                    )}
+
+                    {!lifePurposeReport && !isReportLoading && (
                         <>
                             <p className="text-center text-muted-foreground mb-6">This one-time report will unveil your unique essence, core energies, and how you're wired to thrive.</p>
                             <div className="text-center">
-                                <Button onClick={handleGenerateReport} disabled={isLoading} className="bg-primary-gradient text-primary-foreground font-bold shadow-lg" size="lg">
+                                <Button onClick={handleGenerateReport} disabled={isLoading || !upa} className="bg-primary-gradient text-primary-foreground font-bold shadow-lg" size="lg">
                                     {isLoading ? (
                                         <><Loader2 className="mr-2 size-4 animate-spin" /> Generating...</>
                                     ) : (
@@ -100,12 +139,12 @@ export function ReportClient() {
                         </>
                     )}
 
-                     {report && (
+                     {lifePurposeReport && (
                         <div className="mt-8">
                             <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
                                 <AccordionItem value="item-1">
                                     <AccordionTrigger className="text-lg font-bold">Read Your Report</AccordionTrigger>
-                                    <AccordionContent className="prose max-w-none text-foreground/90 whitespace-pre-wrap font-body">{report}</AccordionContent>
+                                    <AccordionContent className="prose max-w-none text-foreground/90 whitespace-pre-wrap font-body">{lifePurposeReport.report}</AccordionContent>
                                 </AccordionItem>
                             </Accordion>
                              <div className="text-center mt-6">
@@ -121,7 +160,7 @@ export function ReportClient() {
 
             <div className="mt-8 flex justify-between items-center">
                 <Button variant="outline" asChild>
-                    <Link href="/driver"><ArrowLeft className="mr-2" /> Previous</Link>
+                    <Link href="/driver/core-values"><ArrowLeft className="mr-2" /> Previous</Link>
                 </Button>
                 <Button asChild className="bg-primary-gradient text-primary-foreground font-bold">
                     <Link href="/destination">Next <ArrowRight className="ml-2" /></Link>

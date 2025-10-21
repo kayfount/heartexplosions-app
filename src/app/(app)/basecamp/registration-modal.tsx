@@ -95,26 +95,28 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
   });
 
   useEffect(() => {
-    if (userProfile && isOpen) {
-      form.reset({
-        firstName: userProfile.firstName || user?.displayName?.split(' ')[0] || '',
-        lastName: userProfile.lastName || user?.displayName?.split(' ').slice(1).join(' ') || '',
-        callSign: userProfile.callSign || '',
-        journeyStatus: userProfile.journeyStatus || '',
-        whyNow: userProfile.whyNow || '',
-      });
-    } else if (user && isOpen) {
-        const nameParts = user.displayName?.split(' ') || ['', ''];
-        form.reset({
-            firstName: nameParts[0] || '',
-            lastName: nameParts.slice(1).join(' ') || '',
-            callSign: '',
-            journeyStatus: '',
-            whyNow: '',
-        });
-    }
-    if (user?.photoURL) {
-        setPreviewUrl(user.photoURL);
+    if (isOpen) {
+        if (userProfile) {
+            form.reset({
+                firstName: userProfile.firstName || user?.displayName?.split(' ')[0] || '',
+                lastName: userProfile.lastName || user?.displayName?.split(' ').slice(1).join(' ') || '',
+                callSign: userProfile.callSign || '',
+                journeyStatus: userProfile.journeyStatus || '',
+                whyNow: userProfile.whyNow || '',
+            });
+        } else if (user) {
+            const nameParts = user.displayName?.split(' ') || ['', ''];
+            form.reset({
+                firstName: nameParts[0] || '',
+                lastName: nameParts.slice(1).join(' ') || '',
+                callSign: '',
+                journeyStatus: '',
+                whyNow: '',
+            });
+        }
+        if (user?.photoURL) {
+            setPreviewUrl(user.photoURL);
+        }
     }
   }, [user, userProfile, form, isOpen]);
   
@@ -346,5 +348,3 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     </Dialog>
   );
 }
-
-    

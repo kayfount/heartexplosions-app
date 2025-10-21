@@ -69,7 +69,12 @@ export function ValuesClient() {
 
     useEffect(() => {
         if (userProfile?.coreValues && userProfile.coreValues.length > 0) {
-            setTopValues(userProfile.coreValues);
+            const currentTopValues = [...userProfile.coreValues];
+            // Ensure the array has 5 elements, padding with empty strings if necessary
+            while(currentTopValues.length < 5) {
+                currentTopValues.push('');
+            }
+            setTopValues(currentTopValues.slice(0, 5));
             // Also add them to the general selected values list so they can be picked in the dropdowns
             setSelectedValues(prev => [...new Set([...prev, ...userProfile.coreValues!])]);
         }
@@ -86,21 +91,24 @@ export function ValuesClient() {
         });
     };
     
-    const handleTopValueChange = (index: number, value: string) => {
-        setTopValues(prev => {
-            const newTopValues = [...prev];
-            // Prevent duplicate values
-            if (newTopValues.includes(value) && value !== '') {
-                toast({
-                    variant: 'destructive',
-                    title: 'Duplicate Value',
-                    description: 'This value has already been selected in your top 5.',
-                });
-                return prev;
-            }
-            newTopValues[index] = value;
-            return newTopValues;
-        });
+    const handleTopValueChange = async (index: number, value: string) => {
+        const newTopValues = [...topValues];
+        // Prevent duplicate values
+        if (newTopValues.includes(value) && value !== '') {
+            toast({
+                variant: 'destructive',
+                title: 'Duplicate Value',
+                description: 'This value has already been selected in your top 5.',
+            });
+            return;
+        }
+        newTopValues[index] = value;
+        setTopValues(newTopValues);
+        
+        // Auto-save when a value changes
+        if (user) {
+            await saveUserProfile({ uid: user.uid, profileData: { coreValues: newTopValues.filter(v => v) }});
+        }
     }
 
     const allTop5Selected = useMemo(() => {
@@ -240,5 +248,3 @@ export function ValuesClient() {
         </div>
     );
 }
-
-    
