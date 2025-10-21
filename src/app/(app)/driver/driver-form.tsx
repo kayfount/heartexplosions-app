@@ -159,7 +159,7 @@ export function DriverForm() {
         title: "Driver Details Saved",
         description: "Your Enneagram details have been saved to your profile.",
       });
-      router.push('/driver/core-values');
+      router.push('/driver/report');
 
     } catch (error) {
       toast({

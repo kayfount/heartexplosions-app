@@ -42,9 +42,10 @@ export function ReportClient() {
             return null;
         }
         const wingCode = wing.replace(enneagramType, '');
-        const subtypeCode = subtype.toUpperCase();
+        const subtypeLabel = subtype.toUpperCase();
         const stackingCode = instinctualStacking.toUpperCase();
-        return `Enneagram ${enneagramType}${wingCode} ${subtypeCode} ${stackingCode} ${trifix}`;
+        // Correctly concatenate the strings for the UPA
+        return `Enneagram ${enneagramType}${wingCode} ${subtypeLabel} ${stackingCode} ${trifix}`;
     }, [userProfile]);
 
     const handleGenerateReport = async () => {
@@ -160,10 +161,10 @@ export function ReportClient() {
 
             <div className="mt-8 flex justify-between items-center">
                 <Button variant="outline" asChild>
-                    <Link href="/driver/core-values"><ArrowLeft className="mr-2" /> Previous</Link>
+                    <Link href="/driver"><ArrowLeft className="mr-2" /> Previous</Link>
                 </Button>
                 <Button asChild className="bg-primary-gradient text-primary-foreground font-bold">
-                    <Link href="/destination">Next <ArrowRight className="ml-2" /></Link>
+                    <Link href="/driver/core-values">Next <ArrowRight className="ml-2" /></Link>
                 </Button>
             </div>
         </div>
