@@ -38,14 +38,13 @@ export function ReportClient() {
     const upa = useMemo(() => {
         if (!userProfile) return null;
         const { enneagramType, wing, subtype, instinctualStacking, trifix } = userProfile;
-        if (!enneagramType || !wing || !subtype || !instinctualStacking || !trifix) {
-            return null;
+        if (enneagramType && wing && subtype && instinctualStacking && trifix) {
+            const wingCode = wing.replace(enneagramType, '');
+            const subtypeLabel = subtype.toUpperCase();
+            const stackingCode = instinctualStacking.toUpperCase();
+            return `Enneagram ${enneagramType}${wingCode} ${subtypeLabel} ${stackingCode} ${trifix}`;
         }
-        const wingCode = wing.replace(enneagramType, '');
-        const subtypeLabel = subtype.toUpperCase();
-        const stackingCode = instinctualStacking.toUpperCase();
-        
-        return `Enneagram ${enneagramType}${wingCode} ${subtypeLabel} ${stackingCode} ${trifix}`;
+        return null;
     }, [userProfile]);
 
     const handleGenerateReport = async () => {

@@ -43,7 +43,8 @@ export async function generateReportAction(input: GenerateReportActionInput) {
     return { success: true, data: result };
   } catch (error) {
     console.error(error);
-    return { success: false, error: 'Failed to generate report.' };
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+    return { success: false, error: `Failed to generate report. ${errorMessage}` };
   }
 }
 
