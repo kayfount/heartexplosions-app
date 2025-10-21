@@ -24,6 +24,7 @@ import { cn } from '@/lib/utils';
 import { RegistrationModal } from './registration-modal';
 import { SatisfactionQuizModal } from './satisfaction-quiz-modal';
 import { useUser } from '@/firebase';
+import { quotes } from '@/lib/quotes';
 
 // Mock data and state for demonstration purposes
 const initialTasks = {
@@ -37,13 +38,6 @@ const expeditionStages = [
   { id: 'driver', title: '01 The Driver', icon: <Car className="text-accent" />, completed: false, href: '/driver' },
   { id: 'destination', title: '02 The Destination', icon: <Target className="text-accent" />, completed: false, href: '/destination' },
   { id: 'route', title: '03 The Route', icon: <RouteIcon className="text-accent" />, completed: false, href: '/route' },
-];
-
-const quotes = [
-  "The wilderness is not a place to escape from, but a place to return to.",
-  "In every walk with nature, one receives far more than he seeks.",
-  "The clearest way into the Universe is through a forest wilderness.",
-  "Look deep into nature, and then you will understand everything better."
 ];
 
 export default function BasecampDashboardPage() {
@@ -60,7 +54,8 @@ export default function BasecampDashboardPage() {
   useEffect(() => {
     // Moved quote selection into useEffect to prevent hydration errors.
     // This ensures Math.random() is only called on the client.
-    setQuote(quotes[Math.floor(Math.random() * quotes.length)]);
+    const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
+    setQuote(randomQuote.quote);
 
     if (searchParams.get('register') === 'true') {
       setRegistrationOpen(true);
