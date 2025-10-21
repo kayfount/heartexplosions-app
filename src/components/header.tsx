@@ -17,11 +17,11 @@ import { useUser } from '@/firebase';
 import { UserNav } from './user-nav';
 
 const navItems = [
-  { href: '/basecamp', icon: <Tent />, label: 'Basecamp' },
-  { href: '/driver', icon: <Car />, label: 'The Driver' },
-  { href: '/destination', icon: <MapPin />, label: 'The Destination' },
-  { href: '/route', icon: <Route />, label: 'The Route' },
-  { href: '/trail-angels', icon: <Sparkles />, label: 'Trail Angels' },
+  { href: '/basecamp', label: 'Basecamp', icon: <Tent /> },
+  { href: '/driver', label: 'The Driver', icon: <Car /> },
+  { href: '/destination', label: 'The Destination', icon: <MapPin /> },
+  { href: '/route', label: 'The Route', icon: <Route /> },
+  { href: '/trail-angels', label: 'Trail Angels', icon: <Sparkles /> },
 ];
 
 export function Header() {
@@ -29,6 +29,8 @@ export function Header() {
   const { user, isUserLoading } = useUser();
   
   const showNav = user && !isUserLoading;
+
+  const isDriverActive = pathname.startsWith('/driver');
 
   return (
     <header className="bg-[#FAFFEE] sticky top-0 z-50 border-b border-header-border">
@@ -42,21 +44,24 @@ export function Header() {
           {showNav ? (
             <>
             <nav className="hidden md:flex md:items-center md:gap-2 absolute left-1/2 -translate-x-1/2">
-              {navItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={cn(
-                    'flex items-center gap-2 text-sm font-bold transition-colors px-4 py-2 rounded-lg text-[#072F29]',
-                    pathname === item.href
-                      ? 'bg-secondary'
-                      : 'hover:bg-secondary/50'
-                  )}
-                >
-                  {item.icon}
-                  <span>{item.label}</span>
-                </Link>
-              ))}
+              {navItems.map((item) => {
+                const isActive = item.href === '/driver' ? isDriverActive : pathname === item.href;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      'flex items-center gap-2 text-sm font-bold transition-colors px-4 py-2 rounded-lg text-[#072F29]',
+                      isActive
+                        ? 'bg-secondary'
+                        : 'hover:bg-secondary/50'
+                    )}
+                  >
+                    {item.icon}
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
             </nav>
             <div className="flex items-center gap-2">
               <UserNav />

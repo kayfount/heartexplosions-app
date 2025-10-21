@@ -32,6 +32,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { TrifixSelectorModal } from './trifix-selector-modal';
 import { trifixData } from './trifix-data';
+import { useRouter } from 'next/navigation';
 
 const allPermutations = trifixData.flatMap(t => t.groups.flatMap(g => g.permutations));
 
@@ -81,6 +82,8 @@ const tests = [
 
 export function DriverForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const router = useRouter();
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -120,6 +123,13 @@ export function DriverForm() {
     setIsModalOpen(false);
   };
   
+  const handleNext = () => {
+    if (purposeArchetype) {
+      const query = new URLSearchParams({ upa: purposeArchetype }).toString();
+      router.push(`/driver/report?${query}`);
+    }
+  };
+
   return (
     <>
       <TrifixSelectorModal
@@ -274,15 +284,11 @@ export function DriverForm() {
               <Button variant="outline" asChild>
                   <Link href="/basecamp"><ArrowLeft /> Previous</Link>
               </Button>
-              <Button asChild className="bg-primary-gradient text-primary-foreground font-bold">
-                  <Link href="/destination">
-                    Next <ArrowRight />
-                  </Link>
+              <Button onClick={handleNext} disabled={!purposeArchetype} className="bg-primary-gradient text-primary-foreground font-bold">
+                  Next <ArrowRight />
               </Button>
           </div>
       </div>
     </>
   );
 }
-
-    
