@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -26,7 +26,9 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { createRoutePlanAction, saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { RoutePlanOutput } from '@/ai/flows/create-realistic-route-plan';
-import { useUser } from '@/firebase';
+import { useUser, useDoc, useMemoFirebase } from '@/firebase';
+import { doc, getFirestore } from 'firebase/firestore';
+import type { UserProfile } from '@/models/user-profile';
 
 const formSchema = z.object({
   availableHours: z.coerce.number().min(1, 'Please enter a number greater than 0.'),
@@ -45,7 +47,15 @@ export function RouteForm() {
   const [plan, setPlan] = useState<RoutePlanOutput | null>(null);
   const [tasks, setTasks] = useState<Task[]>([]);
   const { toast } = useToast();
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
+  const firestore = useMemo(() => user ? getFirestore() : null, [user]);
+
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user?.uid || !firestore) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [user?.uid, firestore]);
+
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -55,6 +65,16 @@ export function RouteForm() {
       timeline: '3 Months',
     },
   });
+
+  useEffect(() => {
+    if (userProfile) {
+        form.reset({
+            availableHours: userProfile.availableHours || 10,
+            commitments: userProfile.commitments || '',
+            timeline: userProfile.timeline || '3 Months',
+        });
+    }
+  }, [userProfile, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -108,6 +128,14 @@ export function RouteForm() {
   
   const completedTasks = tasks.filter(t => t.completed).length;
   const progress = tasks.length > 0 ? (completedTasks / tasks.length) * 100 : 0;
+
+  if (isUserLoading || isProfileLoading) {
+    return (
+      <div className="flex justify-center items-center h-96">
+          <Loader2 className="animate-spin size-8" />
+      </div>
+    )
+  }
 
   return (
     <>
@@ -211,3 +239,5 @@ export function RouteForm() {
     </>
   );
 }
+
+    

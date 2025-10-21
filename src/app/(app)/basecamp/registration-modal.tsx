@@ -32,12 +32,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tent, Loader2, Camera } from 'lucide-react';
 import { useState, useEffect, useRef } from 'react';
-import { useUser, useAuth } from '@/firebase';
+import { useUser, useAuth, useDoc, useMemoFirebase } from '@/firebase';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { updateProfileAction, saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { updateProfile } from 'firebase/auth';
+import { doc, getFirestore } from 'firebase/firestore';
+import type { UserProfile } from '@/models/user-profile';
 
 const formSchema = z.object({
   firstName: z.string().min(1, 'First name is required.'),
@@ -67,11 +69,19 @@ const journeyStatuses = [
 export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegistered }: RegistrationModalProps) {
   const { user } = useUser();
   const auth = useAuth();
+  const firestore = getFirestore(auth?.app);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
+
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user?.uid || !firestore) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [user?.uid, firestore]);
+  
+  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
 
   const form = useForm<RegistrationFormValues>({
     resolver: zodResolver(formSchema),
@@ -88,15 +98,17 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     if (user) {
       const nameParts = user.displayName?.split(' ') || ['', ''];
       form.reset({
-        firstName: nameParts[0] || '',
-        lastName: nameParts.slice(1).join(' ') || '',
-        callSign: '', // This would need to be stored somewhere
+        firstName: userProfile?.firstName || nameParts[0] || '',
+        lastName: userProfile?.lastName || nameParts.slice(1).join(' ') || '',
+        callSign: userProfile?.callSign || '', 
+        journeyStatus: userProfile?.journeyStatus || '',
+        whyNow: userProfile?.whyNow || '',
       });
       if (user.photoURL) {
         setPreviewUrl(user.photoURL);
       }
     }
-  }, [user, form, isOpen]);
+  }, [user, userProfile, form, isOpen]);
   
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -287,7 +299,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Where are you in your journey? *</FormLabel>
-                   <Select onValueChange={field.onChange} defaultValue={field.value}>
+                   <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger><SelectValue placeholder="Select your current status" /></SelectTrigger>
                         </FormControl>
@@ -326,3 +338,5 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     </Dialog>
   );
 }
+
+    

@@ -1,13 +1,13 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { motion, AnimatePresence } from 'framer-motion';
 import * as React from 'react';
-import { ExternalLink, ArrowLeft, ArrowRight, ArrowBigRight } from 'lucide-react';
+import { ExternalLink, ArrowLeft, ArrowRight, ArrowBigRight, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
@@ -33,9 +33,11 @@ import { Separator } from '@/components/ui/separator';
 import { TrifixSelectorModal } from './trifix-selector-modal';
 import { trifixData } from './trifix-data';
 import { useRouter } from 'next/navigation';
-import { useUser } from '@/firebase';
+import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
+import { doc, getFirestore } from 'firebase/firestore';
+import type { UserProfile } from '@/models/user-profile';
 
 const allPermutations = trifixData.flatMap(t => t.groups.flatMap(g => g.permutations));
 
@@ -86,8 +88,16 @@ const tests = [
 export function DriverForm() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const router = useRouter();
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
+  const firestore = useMemo(() => user ? getFirestore() : null, [user]);
   const { toast } = useToast();
+
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user?.uid || !firestore) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [user?.uid, firestore]);
+
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -100,6 +110,18 @@ export function DriverForm() {
     },
     mode: 'onChange'
   });
+  
+  useEffect(() => {
+    if (userProfile) {
+        form.reset({
+            enneagramType: userProfile.enneagramType || '',
+            wing: userProfile.wing || '',
+            subtype: userProfile.subtype || '',
+            instinctualStacking: userProfile.instinctualStacking || '',
+            trifix: userProfile.trifix || '',
+        })
+    }
+  }, [userProfile, form]);
 
   const watchedValues = useWatch({ control: form.control });
   const selectedEnneagramType = useWatch({ control: form.control, name: 'enneagramType' });
@@ -112,9 +134,6 @@ export function DriverForm() {
     }
      if (!form.formState.isValid) return null;
     
-    // The logic seems a bit off, let's correct it based on the visual example.
-    // Example: 4w5 SX SX/SP 451
-    // It should be Type+Wing, Subtype, Stacking, Trifix
     const wingCode = wing.replace(enneagramType, '');
     const subtypeCode = subtype.toUpperCase();
     const stackingCode = instinctualStacking.toUpperCase();
@@ -148,6 +167,14 @@ export function DriverForm() {
     }
   };
 
+  if (isUserLoading || isProfileLoading) {
+      return (
+        <div className="flex justify-center items-center h-96">
+            <Loader2 className="animate-spin size-8" />
+        </div>
+      )
+  }
+
   return (
     <>
       <TrifixSelectorModal
@@ -169,7 +196,7 @@ export function DriverForm() {
                         <Select onValueChange={(value) => {
                             field.onChange(value);
                             form.setValue('trifix', ''); // Clear trifix when type changes
-                        }} defaultValue={field.value}>
+                        }} value={field.value}>
                           <FormControl>
                             <SelectTrigger><SelectValue placeholder="Select Type" /></SelectTrigger>
                           </FormControl>
@@ -184,7 +211,7 @@ export function DriverForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Strongest Wing *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger><SelectValue placeholder="Select Wing" /></SelectTrigger>
                           </FormControl>
@@ -199,7 +226,7 @@ export function DriverForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Subtype *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger><SelectValue placeholder="Select Subtype" /></SelectTrigger>
                           </FormControl>
@@ -216,7 +243,7 @@ export function DriverForm() {
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel>Instinctual Stacking *</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger><SelectValue placeholder="Select Stacking" /></SelectTrigger>
                           </FormControl>
@@ -310,3 +337,5 @@ export function DriverForm() {
     </>
   );
 }
+
+    

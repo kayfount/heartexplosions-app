@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -13,11 +13,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowRight, CheckCircle, Save, PlusCircle, ArrowLeft } from 'lucide-react';
-import { useUser } from '@/firebase';
+import { ArrowRight, CheckCircle, Save, PlusCircle, ArrowLeft, Loader2 } from 'lucide-react';
+import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { doc, getFirestore } from 'firebase/firestore';
+import type { UserProfile } from '@/models/user-profile';
 
 const allCoreValues = [
     // Initial set
@@ -54,8 +56,24 @@ export function ValuesClient() {
     const [isSaving, setIsSaving] = useState(false);
     const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE_COUNT);
     const { toast } = useToast();
-    const { user } = useUser();
+    const { user, isUserLoading } = useUser();
     const router = useRouter();
+    const firestore = useMemo(() => user ? getFirestore() : null, [user]);
+
+    const userProfileRef = useMemoFirebase(() => {
+        if (!user?.uid || !firestore) return null;
+        return doc(firestore, 'users', user.uid);
+    }, [user?.uid, firestore]);
+
+    const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+
+    useEffect(() => {
+        if (userProfile?.coreValues && userProfile.coreValues.length > 0) {
+            setTopValues(userProfile.coreValues);
+            // Also add them to the general selected values list so they can be picked in the dropdowns
+            setSelectedValues(prev => [...new Set([...prev, ...userProfile.coreValues!])]);
+        }
+    }, [userProfile]);
 
     const handleSelectValue = (value: string) => {
         setSelectedValues(prev => {
@@ -117,6 +135,14 @@ export function ValuesClient() {
 
     const displayedValues = allCoreValues.slice(0, visibleCount);
 
+    if (isUserLoading || isProfileLoading) {
+        return (
+            <div className="flex justify-center items-center h-64">
+                <Loader2 className="animate-spin size-8" />
+            </div>
+        )
+    }
+
     return (
         <div className="mt-8">
             <Card>
@@ -159,12 +185,12 @@ export function ValuesClient() {
                         exit={{ opacity: 0, y: -20 }}
                         className="mt-8"
                     >
-                        <Card className="bg-secondary/30 p-6">
-                            <CardHeader className="p-0 mb-4">
+                        <Card className="bg-secondary/30">
+                             <CardHeader>
                                     <CardTitle className="text-center">Your Top 5 Core Values</CardTitle>
                                     <CardDescription className="text-center">From your selected values, choose your top 5 most important ones:</CardDescription>
                             </CardHeader>
-                            <CardContent className="p-0">
+                            <CardContent>
                             <div className="space-y-4 max-w-md mx-auto">
                                 {[...Array(5)].map((_, i) => (
                                     <div key={i} className="flex items-center gap-4">
@@ -214,3 +240,5 @@ export function ValuesClient() {
         </div>
     );
 }
+
+    
