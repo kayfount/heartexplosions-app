@@ -81,17 +81,18 @@ export async function coachInteractionAction(input: InteractWithAiCoachInput) {
 interface UpdateProfileActionInput {
     uid: string;
     displayName?: string;
-    file?: File;
+    // The 'file' prop is now expected to be a FormData object from the client
+    file?: FormData;
 }
 
 export async function updateProfileAction(input: UpdateProfileActionInput) {
-    const { uid, displayName, file } = input;
+    const { uid, displayName, file: formData } = input;
     
     if (!uid) {
         return { success: false, error: 'User ID is missing.' };
     }
     
-    if (!displayName && !file) {
+    if (!displayName && !formData) {
         return { success: true, message: 'No profile information to update.' };
     }
 
@@ -101,9 +102,12 @@ export async function updateProfileAction(input: UpdateProfileActionInput) {
 
         let photoURL: string | undefined = user.photoURL;
 
-        if (file) {
-            const fileBuffer = Buffer.from(await file.arrayBuffer());
-            photoURL = await uploadFile(uid, file.name, file.type, fileBuffer);
+        if (formData) {
+            const file = formData.get('file') as File | null;
+            if (file) {
+              const fileBuffer = Buffer.from(await file.arrayBuffer());
+              photoURL = await uploadFile(uid, file.name, file.type, fileBuffer);
+            }
         }
         
         const updates: { displayName?: string; photoURL?: string } = {};
@@ -119,6 +123,8 @@ export async function updateProfileAction(input: UpdateProfileActionInput) {
         if (Object.keys(updates).length > 0) {
             await auth.updateUser(uid, updates);
         }
+
+        revalidatePath('/basecamp');
 
         return { success: true, photoURL: updates.photoURL || user.photoURL };
     } catch (error) {
@@ -143,6 +149,15 @@ export async function saveUserProfile({ uid, profileData }: SaveUserProfileInput
         const db = getFirestore(getFirebaseAdminApp());
         const userProfileRef = db.collection('users').doc(uid);
         await userProfileRef.set(profileData, { merge: true });
+        
+        revalidatePath('/basecamp');
+        revalidatePath('/driver');
+        revalidatePath('/driver/report');
+        revalidatePath('/driver/core-values');
+        revalidatePath('/destination');
+        revalidatePath('/route');
+        revalidatePath('/insights');
+        
         return { success: true };
     } catch (error) {
         console.error('Error saving user profile:', error);
