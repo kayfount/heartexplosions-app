@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ArrowRight, CheckCircle, Save, PlusCircle } from 'lucide-react';
+import { ArrowRight, CheckCircle, Save, PlusCircle, ArrowLeft } from 'lucide-react';
 import { useUser } from '@/firebase';
 import { saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -118,97 +118,100 @@ export function ValuesClient() {
     const displayedValues = allCoreValues.slice(0, visibleCount);
 
     return (
-        <Card className="mt-8">
-            <CardHeader>
-                <CardTitle className="text-center text-2xl font-bold font-headline">Define Your Core Values</CardTitle>
-                <CardDescription className="text-center">
-                    Values are your decision-making compass. They help you stay aligned when life gets complex.
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <p className="text-center font-semibold mb-4">Select values that resonate with you:</p>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-6">
-                    {displayedValues.map(value => (
-                        <Button
-                            key={value}
-                            variant={selectedValues.includes(value) ? 'default' : 'outline'}
-                            onClick={() => handleSelectValue(value)}
-                            className={cn("w-full justify-center h-12 transition-all duration-200", selectedValues.includes(value) && "bg-primary text-primary-foreground")}
-                        >
-                            {value}
-                        </Button>
-                    ))}
-                </div>
-
-                {visibleCount < allCoreValues.length && (
-                    <div className="text-center">
-                        <Button variant="link" onClick={showMoreValues} className="text-primary">
-                            <PlusCircle className="mr-2"/>
-                            See More Values
-                        </Button>
+        <div className="mt-8">
+            <Card>
+                <CardHeader>
+                    <CardTitle className="text-center text-2xl font-bold font-headline">Define Your Core Values</CardTitle>
+                    <CardDescription className="text-center">
+                        Values are your decision-making compass. They help you stay aligned when life gets complex.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-center font-semibold mb-4">Select values that resonate with you:</p>
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-4 mb-6">
+                        {displayedValues.map(value => (
+                            <Button
+                                key={value}
+                                variant={selectedValues.includes(value) ? 'default' : 'outline'}
+                                onClick={() => handleSelectValue(value)}
+                                className={cn("w-full justify-center h-12 transition-all duration-200", selectedValues.includes(value) && "bg-primary text-primary-foreground")}
+                            >
+                                {value}
+                            </Button>
+                        ))}
                     </div>
-                )}
 
-                <AnimatePresence>
-                    {selectedValues.length > 0 && (
-                        <motion.div
-                            initial={{ opacity: 0, y: -20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                            exit={{ opacity: 0, y: -20 }}
-                            className="mt-8"
-                        >
-                            <Card className="bg-secondary/30 p-6">
-                                <CardHeader className="p-0 mb-4">
-                                     <CardTitle className="text-center">Select Your Top 5</CardTitle>
-                                     <CardDescription className="text-center">From the values you chose, select your top 5.</CardDescription>
-                                </CardHeader>
-                                <CardContent className="p-0">
-                                <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                                    {[...Array(5)].map((_, i) => (
-                                        <div key={i} className="flex flex-col items-center">
-                                            <p className="font-bold text-lg mb-2">{i + 1}</p>
-                                            <Select
-                                                value={topValues[i]}
-                                                onValueChange={(value) => handleTopValueChange(i, value)}
-                                            >
-                                                <SelectTrigger className="w-full">
-                                                    <SelectValue placeholder="Select value..." />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="" disabled>Select a value</SelectItem>
-                                                    {selectedValues.map(v => (
-                                                        <SelectItem key={v} value={v}>
-                                                            {v}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
-                                        </div>
-                                    ))}
-                                </div>
-                                {allTop5Selected && (
-                                     <motion.div
-                                        initial={{ opacity: 0, scale: 0.8 }}
-                                        animate={{ opacity: 1, scale: 1 }}
-                                        className="text-center mt-6 font-bold text-accent flex items-center justify-center gap-2"
-                                     >
-                                        <CheckCircle className="size-5" />
-                                        Great! You've identified your Top 5 Core Values.
-                                     </motion.div>
-                                )}
-                                </CardContent>
-                            </Card>
-                        </motion.div>
+                    {visibleCount < allCoreValues.length && (
+                        <div className="text-center">
+                            <Button variant="link" onClick={showMoreValues} className="text-primary">
+                                <PlusCircle className="mr-2"/>
+                                See More Values
+                            </Button>
+                        </div>
                     )}
-                </AnimatePresence>
-
-                 <div className="mt-8 flex justify-end items-center">
-                    <Button onClick={handleSaveAndContinue} disabled={!allTop5Selected || isSaving} size="lg" className="bg-primary-gradient text-primary-foreground font-bold">
-                        {isSaving ? <Save className="mr-2 animate-spin" /> : <Save className="mr-2" /> }
-                        Save & Continue <ArrowRight className="ml-2" />
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
+                </CardContent>
+            </Card>
+            <AnimatePresence>
+                {selectedValues.length > 0 && (
+                    <motion.div
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -20 }}
+                        className="mt-8"
+                    >
+                        <Card className="bg-secondary/30 p-6">
+                            <CardHeader className="p-0 mb-4">
+                                    <CardTitle className="text-center">Your Top 5 Core Values</CardTitle>
+                                    <CardDescription className="text-center">From your selected values, choose your top 5 most important ones:</CardDescription>
+                            </CardHeader>
+                            <CardContent className="p-0">
+                            <div className="space-y-4 max-w-md mx-auto">
+                                {[...Array(5)].map((_, i) => (
+                                    <div key={i} className="flex items-center gap-4">
+                                        <p className="font-bold text-lg">{i + 1}.</p>
+                                        <Select
+                                            value={topValues[i]}
+                                            onValueChange={(value) => handleTopValueChange(i, value)}
+                                        >
+                                            <SelectTrigger className="w-full">
+                                                <SelectValue placeholder="Select a value" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="" disabled>Select a value</SelectItem>
+                                                {selectedValues.map(v => (
+                                                    <SelectItem key={v} value={v} disabled={topValues.includes(v) && topValues[i] !== v}>
+                                                        {v}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                ))}
+                            </div>
+                            {allTop5Selected && (
+                                    <motion.div
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    className="text-center mt-6 font-bold text-accent flex items-center justify-center gap-2"
+                                    >
+                                    <CheckCircle className="size-5" />
+                                    Great! You've identified your Top 5 Core Values.
+                                    </motion.div>
+                            )}
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+            <div className="mt-12 flex justify-between items-center">
+                <Button variant="outline" onClick={() => router.back()}>
+                    <ArrowLeft /> Previous
+                </Button>
+                <Button onClick={handleSaveAndContinue} disabled={!allTop5Selected || isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
+                    {isSaving ? <Save className="mr-2 animate-spin" /> : 'Next' }
+                    {!isSaving && <ArrowRight className="ml-2" />}
+                </Button>
+            </div>
+        </div>
     );
 }
