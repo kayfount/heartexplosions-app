@@ -95,33 +95,28 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
   });
 
   useEffect(() => {
-    if (isOpen) {
-        let defaultValues: Partial<RegistrationFormValues> = {};
-        if (userProfile) {
-            defaultValues = {
-                firstName: userProfile.firstName || user?.displayName?.split(' ')[0] || '',
-                lastName: userProfile.lastName || user?.displayName?.split(' ').slice(1).join(' ') || '',
-                callSign: userProfile.callSign || '',
-                journeyStatus: userProfile.journeyStatus || '',
-                whyNow: userProfile.whyNow || '',
-            };
-        } else if (user) {
-            const nameParts = user.displayName?.split(' ') || ['', ''];
-            defaultValues = {
-                firstName: nameParts[0] || '',
-                lastName: nameParts.slice(1).join(' ') || '',
-                callSign: '',
-                journeyStatus: '',
-                whyNow: '',
-            };
-        }
-        form.reset(defaultValues);
-        
-        if (user?.photoURL) {
-            setPreviewUrl(user.photoURL);
-        }
+    if (userProfile) {
+        form.reset({
+            firstName: userProfile.firstName || user?.displayName?.split(' ')[0] || '',
+            lastName: userProfile.lastName || user?.displayName?.split(' ').slice(1).join(' ') || '',
+            callSign: userProfile.callSign || '',
+            journeyStatus: userProfile.journeyStatus || '',
+            whyNow: userProfile.whyNow || '',
+        });
+    } else if (user && !userProfile) {
+         const nameParts = user.displayName?.split(' ') || ['', ''];
+         form.reset({
+            firstName: nameParts[0] || '',
+            lastName: nameParts.slice(1).join(' ') || '',
+            callSign: '',
+            journeyStatus: '',
+            whyNow: '',
+        });
     }
-  }, [user, userProfile, form.reset, isOpen]);
+    if (user?.photoURL) {
+        setPreviewUrl(user.photoURL);
+    }
+  }, [user, userProfile, form.reset]);
   
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
