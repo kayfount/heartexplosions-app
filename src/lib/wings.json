@@ -1,0 +1,128 @@
+[
+  {
+    "Type + Strongest Wing": "1w9",
+    "Dominant Type": "1",
+    "Strongest Wing": "w9",
+    "Description": "1w9s are idealistic, principled, and calm. They combine the moral conviction of the Reformer with the serenity of the Peacemaker, making them patient, thoughtful, and fair-minded. At their best, they’re wise and balanced; under stress, they can become rigid, self-critical, and withdrawn.",
+    "Keywords": "idealistic, calm, patient, principled, wise, rigid, self-critical"
+  },
+  {
+    "Type + Strongest Wing": "1w2",
+    "Dominant Type": "1",
+    "Strongest Wing": "w2",
+    "Description": "1w2s are principled, empathetic, and driven to improve the world. They merge the Reformer’s standards with the Helper’s warmth, becoming advocates, educators, and ethical leaders. At their best, they are generous reformers; when unhealthy, they can be judgmental, self-righteous, and resentful.",
+    "Keywords": "principled, ethical, empathetic, generous, judgmental, reformer, advocate"
+  },
+  {
+    "Type + Strongest Wing": "2w1",
+    "Dominant Type": "2",
+    "Strongest Wing": "w1",
+    "Description": "2w1s are warm, polite, and conscientious, with a strong sense of duty. They blend the Helper’s care with the Reformer’s ethics, becoming nurturing and principled caregivers. At their best, they are selfless and encouraging; when stressed, they can repress anger and neglect their own needs.",
+    "Keywords": "warm, polite, conscientious, ethical, nurturing, repressed, selfless"
+  },
+  {
+    "Type + Strongest Wing": "2w3",
+    "Dominant Type": "2",
+    "Strongest Wing": "w3",
+    "Description": "2w3s are charming, adaptable, and ambitious. They combine the Helper’s generosity with the Achiever’s drive, often becoming playful entertainers who thrive on admiration. At their best, they are motivating and inspiring; under stress, they may become seductive, approval-seeking, or manipulative.",
+    "Keywords": "charming, ambitious, adaptable, playful, inspiring, approval-seeking"
+  },
+  {
+    "Type + Strongest Wing": "3w2",
+    "Dominant Type": "3",
+    "Strongest Wing": "w2",
+    "Description": "3w2s are energetic, outgoing, and success-driven with a personal touch. They merge the Achiever’s ambition with the Helper’s charm, making them charismatic, generous, and people-focused. At their best, they uplift others with their drive; when unbalanced, they can become overly competitive or image-conscious.",
+    "Keywords": "energetic, charismatic, charming, ambitious, competitive, image-conscious"
+  },
+  {
+    "Type + Strongest Wing": "3w4",
+    "Dominant Type": "3",
+    "Strongest Wing": "w4",
+    "Description": "3w4s are ambitious, introspective, and creative. They merge the Achiever’s drive with the Individualist’s depth, creating a person who is both performance-oriented and artistic. At their best, they are authentic visionaries; under stress, they can become moody, self-absorbed, or overly focused on uniqueness.",
+    "Keywords": "ambitious, creative, introspective, visionary, moody, image-driven"
+  },
+  {
+    "Type + Strongest Wing": "4w3",
+    "Dominant Type": "4",
+    "Strongest Wing": "w3",
+    "Description": "4w3s are expressive, competitive, and driven by both depth and success. They blend the Individualist’s emotional intensity with the Achiever’s charm, making them creative performers who long for recognition. At their best, they inspire through art and authenticity; when unhealthy, they can be dramatic or approval-seeking.",
+    "Keywords": "expressive, artistic, ambitious, dramatic, authentic, competitive"
+  },
+  {
+    "Type + Strongest Wing": "4w5",
+    "Dominant Type": "4",
+    "Strongest Wing": "w5",
+    "Description": "4w5s are introspective, intellectual, and emotionally deep. They combine the Individualist’s sensitivity with the Investigator’s curiosity, making them reflective, original, and private. At their best, they bring profound insights; under stress, they may withdraw, become eccentric, or overly melancholic.",
+    "Keywords": "introspective, sensitive, original, curious, private, melancholic"
+  },
+  {
+    "Type + Strongest Wing": "5w4",
+    "Dominant Type": "5",
+    "Strongest Wing": "w4",
+    "Description": "5w4s are cerebral, imaginative, and emotionally intense. They blend the Investigator’s detachment with the Individualist’s creativity, making them sensitive thinkers with a unique worldview. At their best, they are innovative and insightful; when stressed, they may become reclusive or alienated.",
+    "Keywords": "cerebral, imaginative, sensitive, private, reclusive, original"
+  },
+  {
+    "Type + Strongest Wing": "5w6",
+    "Dominant Type": "5",
+    "Strongest Wing": "w6",
+    "Description": "5w6s are analytical, cautious, and practical. They merge the Investigator’s curiosity with the Loyalist’s vigilance, becoming diligent problem-solvers. At their best, they are wise and reliable experts; under stress, they may become anxious, skeptical, or overly dependent on systems of security.",
+    "Keywords": "analytical, practical, reliable, skeptical, anxious, problem-solver"
+  },
+  {
+    "Type + Strongest Wing": "6w5",
+    "Dominant Type": "6",
+    "Strongest Wing": "w5",
+    "Description": "6w5s are loyal, analytical, and security-focused. They combine the Loyalist’s caution with the Investigator’s depth, creating a type that is both questioning and committed. At their best, they are steadfast and insightful; under stress, they may withdraw, overthink, or become defensive.",
+    "Keywords": "loyal, cautious, insightful, skeptical, defensive, steadfast"
+  },
+  {
+    "Type + Strongest Wing": "6w7",
+    "Dominant Type": "6",
+    "Strongest Wing": "w7",
+    "Description": "6w7s are engaging, loyal, and energetic. They merge the Loyalist’s commitment with the Enthusiast’s optimism, creating a warm, witty, and socially active type. At their best, they are loyal friends and fun companions; when unbalanced, they may become anxious, scattered, or overly dependent on reassurance.",
+    "Keywords": "engaging, witty, loyal, energetic, anxious, scattered"
+  },
+  {
+    "Type + Strongest Wing": "7w6",
+    "Dominant Type": "7",
+    "Strongest Wing": "w6",
+    "Description": "7w6s are playful, loyal, and adventurous. They combine the Enthusiast’s spontaneity with the Loyalist’s caution, balancing fun with responsibility. At their best, they are sociable and reliable; under stress, they may become anxious, avoidant, or overly busy.",
+    "Keywords": "playful, sociable, adventurous, loyal, avoidant, anxious"
+  },
+  {
+    "Type + Strongest Wing": "7w8",
+    "Dominant Type": "7",
+    "Strongest Wing": "w8",
+    "Description": "7w8s are bold, assertive, and adventurous. They merge the Enthusiast’s zest with the Challenger’s intensity, creating a strong, ambitious, and sometimes impulsive type. At their best, they are inspiring visionaries; under stress, they may become domineering or reckless.",
+    "Keywords": "bold, adventurous, assertive, ambitious, impulsive, visionary"
+  },
+  {
+    "Type + Strongest Wing": "8w7",
+    "Dominant Type": "8",
+    "Strongest Wing": "w7",
+    "Description": "8w7s are energetic, bold, and assertive. They combine the Challenger’s strength with the Enthusiast’s charisma, becoming adventurous leaders who take charge with confidence. At their best, they are inspiring and expansive; when unhealthy, they may be domineering, reckless, or excessive.",
+    "Keywords": "energetic, bold, assertive, charismatic, reckless, leader"
+  },
+  {
+    "Type + Strongest Wing": "8w9",
+    "Dominant Type": "8",
+    "Strongest Wing": "w9",
+    "Description": "8w9s are strong, grounded, and protective. They merge the Challenger’s intensity with the Peacemaker’s calm, making them powerful yet steady leaders. At their best, they are patient protectors; under stress, they may become stubborn, withdrawn, or passive-aggressive.",
+    "Keywords": "strong, grounded, protective, patient, stubborn, calm"
+  },
+  {
+    "Type + Strongest Wing": "9w8",
+    "Dominant Type": "9",
+    "Strongest Wing": "w8",
+    "Description": "9w8s are easygoing, steady, and quietly assertive. They blend the Peacemaker’s calm with the Challenger’s strength, creating a type that is grounded, friendly, and firm when needed. At their best, they are supportive and protective; under stress, they may become stubborn or passive-aggressive.",
+    "Keywords": "easygoing, steady, protective, stubborn, grounded, friendly"
+  },
+  {
+    "Type + Strongest Wing": "9w1",
+    "Dominant Type": "9",
+    "Strongest Wing": "w1",
+    "Description": "9w1s are gentle, principled, and idealistic. They merge the Peacemaker’s calm with the Reformer’s ethics, making them harmonious yet conscientious. At their best, they are wise mediators; when unbalanced, they can be self-critical, perfectionistic, or withdrawn.",
+    "Keywords": "gentle, principled, harmonious, conscientious, withdrawn, perfectionistic"
+  }
+]
