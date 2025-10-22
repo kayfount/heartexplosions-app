@@ -93,6 +93,7 @@ export async function updateProfileAction(formData: FormData) {
     try {
         const auth = getAuth(getFirebaseAdminApp());
         
+        // This is the correct way to get the file buffer in a server action
         const fileBuffer = Buffer.from(await file.arrayBuffer());
         const photoURL = await uploadFile(uid, file.name, file.type, fileBuffer);
 

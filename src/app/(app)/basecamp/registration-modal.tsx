@@ -31,7 +31,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tent, Loader2, Camera } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useUser, useAuth, useDoc, useMemoFirebase } from '@/firebase';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { updateProfileAction, saveUserProfile } from '@/app/actions';
@@ -40,7 +40,6 @@ import { cn } from '@/lib/utils';
 import { updateProfile } from 'firebase/auth';
 import { doc, getFirestore } from 'firebase/firestore';
 import type { UserProfile } from '@/models/user-profile';
-import { useMemo } from 'react';
 
 const formSchema = z.object({
   firstName: z.string().min(1, 'First name is required.'),
@@ -150,6 +149,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
         title: 'Upload Failed',
         description: error instanceof Error ? error.message : 'Could not upload your picture.',
       });
+      // Revert to the original photoURL if upload fails
       setPreviewUrl(user.photoURL || null);
     } finally {
         setIsUploading(false);
