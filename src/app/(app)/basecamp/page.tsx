@@ -291,9 +291,9 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
     }
 
     return (
-        <Card onClick={handleClick} className={cn("group cursor-pointer transition-all duration-300 hover:border-primary/50 hover:scale-105", isComplete && 'bg-secondary/50')}>
+        <Card onClick={handleClick} className={cn("group cursor-pointer transition-all duration-300 hover:border-primary/50 hover:scale-105")}>
             <CardContent className="p-6 flex items-center gap-4">
-                 <div className={cn("flex items-center justify-center size-10 rounded-full transition-transform duration-300 group-hover:animate-shiver", isComplete ? "bg-accent" : "bg-foreground")}>
+                 <div className={cn("flex items-center justify-center size-10 rounded-full transition-transform duration-300 group-hover:animate-shiver bg-foreground")}>
                   {isComplete ? <CheckCircle2 className="size-5 text-primary-foreground" /> : icon}
                 </div>
                 <div>
@@ -304,3 +304,5 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
         </Card>
     )
 }
+
+    
