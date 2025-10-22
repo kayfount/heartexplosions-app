@@ -31,13 +31,16 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Tent, Loader2 } from 'lucide-react';
-import { useState, useEffect, useMemo } from 'react';
-import { useUser, useAuth, useDoc, useMemoFirebase } from '@/firebase';
+import { Tent, Loader2, Camera, User as UserIcon } from 'lucide-react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { useUser, useAuth, useDoc, useMemoFirebase, useStorage } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { updateProfile, type User } from 'firebase/auth';
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
 import type { UserProfile } from '@/models/user-profile';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   firstName: z.string().min(1, 'First name is required.'),
@@ -63,11 +66,29 @@ const journeyStatuses = [
     "Not looking to change right now"
 ];
 
+// --- Photo Upload Constants ---
+const MAX_FILE_SIZE_MB = 15;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp', 'image/heic', 'image/heif'];
+const MIME_TYPE_TO_EXTENSION: Record<string, string> = {
+    'image/jpeg': 'jpg',
+    'image/png': 'png',
+    'image/gif': 'gif',
+    'image/webp': 'webp',
+    'image/heic': 'heic',
+    'image/heif': 'heif',
+};
+const UPLOAD_TIMEOUT_MS = 20000; // 20 seconds
+
 export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegistered }: RegistrationModalProps) {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+  const storage = useStorage();
   const firestore = useMemo(() => auth ? getFirestore(auth.app) : null, [auth]);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [optimisticAvatarUrl, setOptimisticAvatarUrl] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const userProfileRef = useMemoFirebase(() => {
@@ -89,25 +110,103 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
   });
 
   useEffect(() => {
+    const name = user?.displayName || '';
+    const [firstName, ...lastNameParts] = name.split(' ');
+    const lastName = lastNameParts.join(' ');
+    
     if (userProfile) {
       form.reset({
-        firstName: userProfile.firstName || user?.displayName?.split(' ')[0] || '',
-        lastName: userProfile.lastName || user?.displayName?.split(' ').slice(1).join(' ') || '',
+        firstName: userProfile.firstName || firstName || '',
+        lastName: userProfile.lastName || lastName || '',
         callSign: userProfile.callSign || '',
         journeyStatus: userProfile.journeyStatus || '',
         whyNow: userProfile.whyNow || '',
       });
-    } else if (user && !isProfileLoading) {
-       const nameParts = user.displayName?.split(' ') || ['', ''];
-       form.reset({
-          firstName: nameParts[0] || '',
-          lastName: nameParts.slice(1).join(' ') || '',
-          callSign: '',
-          journeyStatus: '',
-          whyNow: '',
-       });
+    } else if (user) {
+        form.reset({
+            firstName: firstName || '',
+            lastName: lastName || '',
+            callSign: '',
+            journeyStatus: '',
+            whyNow: '',
+        });
     }
-  }, [user, userProfile, form, isProfileLoading]);
+  }, [user, userProfile, form]);
+
+  const handleAvatarClick = () => {
+      if(isUploading) return;
+      fileInputRef.current?.click();
+  }
+
+  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (!auth || !storage) return;
+
+    if (!auth.currentUser) {
+        toast({ variant: 'destructive', title: 'Authentication Error', description: 'You must be logged in to upload a photo.' });
+        return;
+    }
+    
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    // --- Validation ---
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+        toast({ variant: 'destructive', title: 'Invalid File Type', description: 'Please select a PNG, JPG, WEBP, or GIF file.' });
+        return;
+    }
+    if (file.size > MAX_FILE_SIZE_BYTES) {
+        toast({ variant: 'destructive', title: 'File Too Large', description: `Please select a file smaller than ${MAX_FILE_SIZE_MB} MB.` });
+        return;
+    }
+
+    // --- Start Upload Process ---
+    setIsUploading(true);
+    const previousAvatar = optimisticAvatarUrl || user?.photoURL || null;
+    const objectURL = URL.createObjectURL(file);
+    setOptimisticAvatarUrl(objectURL);
+
+    const uid = auth.currentUser.uid;
+    const fileExtension = MIME_TYPE_TO_EXTENSION[file.type] || 'jpg';
+    const storagePath = `users/${uid}/profile.${fileExtension}`;
+    const storageRef = ref(storage, storagePath);
+
+    const uploadTask = uploadBytesResumable(storageRef, file, { contentType: file.type });
+    
+    const timeoutId = setTimeout(() => {
+        uploadTask.cancel();
+        setIsUploading(false);
+        setOptimisticAvatarUrl(previousAvatar);
+        toast({ variant: 'destructive', title: 'Upload Timed Out', description: 'The upload took too long. Please check your connection and try again.' });
+    }, UPLOAD_TIMEOUT_MS);
+
+    uploadTask.on('state_changed', 
+      () => {}, // Progress handler (can be used for progress bar if needed)
+      (error) => { // Error handler
+        clearTimeout(timeoutId);
+        setIsUploading(false);
+        setOptimisticAvatarUrl(previousAvatar);
+        console.error("Upload error:", error);
+        toast({ variant: 'destructive', title: 'Upload Failed', description: error.message || 'Could not upload your photo.' });
+      },
+      async () => { // Completion handler
+        clearTimeout(timeoutId);
+        try {
+            const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+            await updateProfile(auth.currentUser!, { photoURL: downloadURL });
+            await setDoc(doc(firestore!, 'users', uid), { photoURL: downloadURL }, { merge: true });
+            
+            setOptimisticAvatarUrl(downloadURL); // Set final URL
+            toast({ title: 'Avatar Updated!', description: 'Your new profile picture has been saved.' });
+        } catch (error: any) {
+            setOptimisticAvatarUrl(previousAvatar);
+            toast({ variant: 'destructive', title: 'Update Failed', description: error.message || 'Could not save the new photo to your profile.' });
+        } finally {
+            setIsUploading(false);
+            URL.revokeObjectURL(objectURL); // Clean up memory
+        }
+      }
+    );
+  };
   
   const onSubmit = async (data: RegistrationFormValues) => {
     if (!user || !auth?.currentUser || !firestore || isSubmitting) return;
@@ -117,12 +216,10 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
       const { firstName, lastName, callSign, journeyStatus, whyNow } = data;
       const displayName = `${firstName} ${lastName}`.trim();
       
-      // Only update the Auth profile if the name has changed
       if (displayName && displayName !== user.displayName) {
          await updateProfile(auth.currentUser, { displayName });
       }
 
-      // Always save/update the Firestore document
       await setDoc(
         doc(firestore, 'users', user.uid),
         { firstName, lastName, callSign, journeyStatus, whyNow, displayName, updatedAt: new Date().toISOString() },
@@ -148,6 +245,8 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
   };
 
   const isLoading = isUserLoading || isProfileLoading;
+  const currentAvatarUrl = optimisticAvatarUrl || user?.photoURL;
+  const userInitials = `${form.getValues('firstName')?.[0] || ''}${form.getValues('lastName')?.[0] || ''}` || 'U';
 
   return (
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
@@ -163,103 +262,143 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
             {isRegistered ? 'Update your registration details below.' : 'Complete your registration to begin your journey of purpose-driven transformation.'}
           </DialogDescription>
         </DialogHeader>
+
         {isLoading ? (
           <div className="flex justify-center items-center h-96">
             <Loader2 className="animate-spin size-8" />
           </div>
         ) : (
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
-                <FormField
-                  control={form.control}
-                  name="firstName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>First Name *</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="lastName"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Last Name *</FormLabel>
-                      <FormControl>
-                        <Input {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+          <>
+            <div className="flex justify-center my-4">
+              <div className="relative group">
+                <Avatar className="w-24 h-24 border-2 border-border/20 shadow-md">
+                  <AvatarImage src={currentAvatarUrl ?? undefined} alt="User Avatar" />
+                  <AvatarFallback className="text-3xl bg-secondary">
+                      {userInitials}
+                  </AvatarFallback>
+                </Avatar>
+                
+                {isUploading && (
+                    <div aria-busy="true" className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center">
+                        <Loader2 className="animate-spin text-white size-8" />
+                    </div>
+                )}
+                
+                <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleAvatarClick}
+                    disabled={isUploading}
+                    aria-label="Change profile photo"
+                    className="absolute -bottom-1 -right-1 w-9 h-9 rounded-full border-2 bg-background hover:bg-secondary group-hover:shadow-lg transition-shadow"
+                >
+                    <Camera className="w-5 h-5" />
+                </Button>
+                <Input
+                    type="file"
+                    ref={fileInputRef}
+                    onChange={handleFileChange}
+                    className="hidden"
+                    accept={ALLOWED_MIME_TYPES.join(',')}
                 />
               </div>
+            </div>
 
-              <FormField
-                control={form.control}
-                name="callSign"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Call Sign (Trail Name)</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                    <FormDescription>
-                      Your call sign is how you'll be addressed throughout your journey. Leave blank to use your first name.
-                    </FormDescription>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="firstName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>First Name *</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                  <FormField
+                    control={form.control}
+                    name="lastName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Last Name *</FormLabel>
+                        <FormControl>
+                          <Input {...field} />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
 
-              <FormField
-                control={form.control}
-                name="journeyStatus"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Where are you in your journey? *</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
-                          <FormControl>
-                            <SelectTrigger><SelectValue placeholder="Select your current status" /></SelectTrigger>
-                          </FormControl>
-                          <SelectContent>{journeyStatuses.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                      </Select>
+                <FormField
+                  control={form.control}
+                  name="callSign"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Call Sign (Trail Name)</FormLabel>
+                      <FormControl>
+                        <Input {...field} />
+                      </FormControl>
+                      <FormDescription>
+                        Your call sign is how you'll be addressed throughout your journey. Leave blank to use your first name.
+                      </FormDescription>
                       <FormMessage />
-                  </FormItem>
-                )}
-              />
+                    </FormItem>
+                  )}
+                />
 
-              <FormField
-                control={form.control}
-                name="whyNow"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Why does this matter to you right now?</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="e.g., I'm ready to take intentional action, I'm tired of feeling stuck..."
-                        className="resize-none"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <DialogFooter>
-                  <Button type="submit" disabled={isSubmitting} className="w-full bg-primary-gradient text-primary-foreground font-bold">
-                      {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                      {isRegistered ? 'Update My Expedition' : 'Begin My Expedition'}
-                  </Button>
-              </DialogFooter>
-            </form>
-          </Form>
+                <FormField
+                  control={form.control}
+                  name="journeyStatus"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Where are you in your journey? *</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                            <FormControl>
+                              <SelectTrigger><SelectValue placeholder="Select your current status" /></SelectTrigger>
+                            </FormControl>
+                            <SelectContent>{journeyStatuses.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+                        </Select>
+                        <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="whyNow"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Why does this matter to you right now?</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="e.g., I'm ready to take intentional action, I'm tired of feeling stuck..."
+                          className="resize-none"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                <DialogFooter>
+                    <Button type="submit" disabled={isSubmitting || isUploading} className="w-full bg-primary-gradient text-primary-foreground font-bold">
+                        {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {isRegistered ? 'Update My Expedition' : 'Begin My Expedition'}
+                    </Button>
+                </DialogFooter>
+              </form>
+            </Form>
+          </>
         )}
       </DialogContent>
     </Dialog>
   );
 }
+
+    
