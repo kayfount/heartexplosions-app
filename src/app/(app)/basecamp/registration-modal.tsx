@@ -37,7 +37,7 @@ import { useUser, useAuth, useDoc, useMemoFirebase, useStorage } from '@/firebas
 import { useToast } from '@/hooks/use-toast';
 import { updateProfile, type User } from 'firebase/auth';
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
-import { ref, uploadBytesResumable, getDownloadURL, deleteObject } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import type { UserProfile } from '@/models/user-profile';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
@@ -139,7 +139,15 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
   }
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (!auth || !storage) return;
+    if (!auth) {
+        toast({ variant: 'destructive', title: 'Authentication Error', description: 'Firebase Auth is not available.' });
+        return;
+    }
+    const storageService = storage;
+    if (!storageService) {
+        toast({ variant: 'destructive', title: 'Storage Error', description: 'Firebase Storage is not available.' });
+        return;
+    }
 
     if (!auth.currentUser) {
         toast({ variant: 'destructive', title: 'Authentication Error', description: 'You must be logged in to upload a photo.' });
@@ -168,11 +176,13 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     const uid = auth.currentUser.uid;
     const fileExtension = MIME_TYPE_TO_EXTENSION[file.type] || 'jpg';
     const storagePath = `users/${uid}/profile.${fileExtension}`;
-    const storageRef = ref(storage, storagePath);
+    const storageRef = ref(storageService, storagePath);
 
     const uploadTask = uploadBytesResumable(storageRef, file, { contentType: file.type });
     
+    let isTimeout = false;
     const timeoutId = setTimeout(() => {
+        isTimeout = true;
         uploadTask.cancel();
         setIsUploading(false);
         setOptimisticAvatarUrl(previousAvatar);
@@ -180,25 +190,39 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     }, UPLOAD_TIMEOUT_MS);
 
     uploadTask.on('state_changed', 
-      () => {}, // Progress handler (can be used for progress bar if needed)
+      () => {}, // Progress handler can be implemented here
       (error) => { // Error handler
         clearTimeout(timeoutId);
         setIsUploading(false);
         setOptimisticAvatarUrl(previousAvatar);
+        
+        // Don't show a toast if the error is a user-initiated cancel from the timeout
+        if (error.code === 'storage/canceled' && isTimeout) {
+            console.log("Upload timed out and was canceled.");
+            return;
+        }
+
         console.error("Upload error:", error);
         toast({ variant: 'destructive', title: 'Upload Failed', description: error.message || 'Could not upload your photo.' });
       },
       async () => { // Completion handler
         clearTimeout(timeoutId);
+        if (isTimeout) return;
+        
         try {
             const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-            await updateProfile(auth.currentUser!, { photoURL: downloadURL });
-            await setDoc(doc(firestore!, 'users', uid), { photoURL: downloadURL }, { merge: true });
+            if (auth.currentUser) {
+              await updateProfile(auth.currentUser, { photoURL: downloadURL });
+            }
+            if (firestore) {
+              await setDoc(doc(firestore, 'users', uid), { photoURL: downloadURL }, { merge: true });
+            }
             
             setOptimisticAvatarUrl(downloadURL); // Set final URL
             toast({ title: 'Avatar Updated!', description: 'Your new profile picture has been saved.' });
         } catch (error: any) {
             setOptimisticAvatarUrl(previousAvatar);
+            console.error("Profile update error:", error);
             toast({ variant: 'destructive', title: 'Update Failed', description: error.message || 'Could not save the new photo to your profile.' });
         } finally {
             setIsUploading(false);
@@ -228,7 +252,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
       
       onRegister(data);
       toast({
-        title: 'Profile Updated',
+        title: isRegistered ? 'Profile Updated' : 'Registration Complete!',
         description: 'Your expedition details have been saved.',
       });
       onOpenChange(false);
@@ -237,7 +261,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
        toast({
         variant: 'destructive',
         title: 'Uh oh! Something went wrong.',
-        description: error.message || 'Could not save your profile. Check your permissions.',
+        description: error.message || 'Could not save your profile.',
       });
     } finally {
       setIsSubmitting(false);
@@ -400,5 +424,3 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     </Dialog>
   );
 }
-
-    
