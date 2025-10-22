@@ -28,7 +28,7 @@ import { quotes } from '@/lib/quotes';
 import { doc, getFirestore } from 'firebase/firestore';
 import type { UserProfile } from '@/models/user-profile';
 import { useMemo } from 'react';
-import { ref, uploadString } from 'firebase/storage';
+import { ref, uploadBytesResumable, type UploadTaskSnapshot } from 'firebase/storage';
 import { useToast } from '@/hooks/use-toast';
 
 // Mock data and state for demonstration purposes
@@ -127,17 +127,42 @@ export default function BasecampDashboardPage() {
     });
 
     try {
-        await uploadString(storageRef, transparentPixel, 'data_url');
-        toast({
-            title: "Test Upload Successful!",
-            description: `File uploaded to: users/${user.uid}/test-upload/profile.png`,
-        });
+        const response = await fetch(transparentPixel);
+        const blob = await response.blob();
+        
+        const uploadTask = uploadBytesResumable(storageRef, blob);
+
+        uploadTask.on('state_changed', 
+          (snapshot: UploadTaskSnapshot) => {
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            if (snapshot.bytesTransferred > 0 && progress < 100) {
+              toast({
+                title: "Confirmation: Upload In Progress",
+                description: `Uploading: ${Math.round(progress)}% complete. Bytes transferred: ${snapshot.bytesTransferred}`,
+              });
+            }
+          }, 
+          (error) => {
+            console.error("Test upload failed:", error);
+            toast({
+                variant: "destructive",
+                title: "Test Upload Failed",
+                description: `Error: ${error.code} - ${error.message}`,
+            });
+          }, 
+          () => {
+            toast({
+                title: "Test Upload Successful!",
+                description: `File uploaded to: users/${user.uid}/test-upload/profile.png`,
+            });
+          }
+        );
     } catch (error: any) {
-        console.error("Test upload failed:", error);
+        console.error("Test upload preparation failed:", error);
         toast({
             variant: "destructive",
             title: "Test Upload Failed",
-            description: `Error: ${error.code} - ${error.message}`,
+            description: `Error: ${error.message}`,
         });
     }
   };
