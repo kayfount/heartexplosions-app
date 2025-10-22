@@ -5,7 +5,6 @@ import { generateLifePurposeReport, type LifePurposeReportInput } from '@/ai/flo
 import { synthesizePurposeProfile, type SynthesizePurposeProfileInput } from '@/ai/flows/synthesize-purpose-profile';
 import { createRealisticRoutePlan, type RoutePlanInput } from '@/ai/flows/create-realistic-route-plan';
 import { interactWithAiCoach, type InteractWithAiCoachInput } from '@/ai/flows/interact-with-ai-coach';
-import { uploadFile } from '@/firebase/storage';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getFirebaseAdminApp } from '@/firebase/admin';
@@ -77,39 +76,6 @@ export async function coachInteractionAction(input: InteractWithAiCoachInput) {
         return { success: false, error: 'Failed to get response from coach.' };
     }
 }
-
-export async function updateProfileAction(formData: FormData) {
-    const file = formData.get('file') as File | null;
-    const uid = formData.get('uid') as string | null;
-    
-    if (!uid) {
-        return { success: false, error: 'User ID is missing.' };
-    }
-    
-    if (!file) {
-        return { success: false, error: 'No file provided.'};
-    }
-
-    try {
-        const auth = getAuth(getFirebaseAdminApp());
-        
-        // This is the correct way to get the file buffer in a server action
-        const fileBuffer = Buffer.from(await file.arrayBuffer());
-        const photoURL = await uploadFile(uid, file.name, file.type, fileBuffer);
-
-        await auth.updateUser(uid, { photoURL });
-
-        revalidatePath('/basecamp');
-        revalidatePath('/user-nav'); 
-
-        return { success: true, photoURL: photoURL };
-    } catch (error) {
-        console.error('Error updating profile picture:', error);
-        const errorMessage = error instanceof Error ? error.message : 'An unexpected response was received from the server.';
-        return { success: false, error: errorMessage };
-    }
-}
-
 
 interface SaveUserProfileInput {
     uid: string;
