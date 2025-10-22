@@ -23,8 +23,11 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { RegistrationModal } from './registration-modal';
 import { SatisfactionQuizModal } from './satisfaction-quiz-modal';
-import { useUser } from '@/firebase';
+import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { quotes } from '@/lib/quotes';
+import { doc, getFirestore } from 'firebase/firestore';
+import type { UserProfile } from '@/models/user-profile';
+import { useMemo } from 'react';
 
 // Mock data and state for demonstration purposes
 const initialTasks = {
@@ -50,6 +53,26 @@ export default function BasecampDashboardPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user } = useUser();
+  const firestore = useMemo(() => getFirestore(), []);
+  
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user?.uid || !firestore) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [user?.uid, firestore]);
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+
+  useEffect(() => {
+    if (userProfile) {
+      setTasks(prev => ({
+        ...prev,
+        registered: !!(userProfile.firstName && userProfile.journeyStatus),
+        quizTaken: typeof userProfile.roleClarityScore === 'number'
+      }));
+       if(userProfile.roleClarityScore) {
+        setRoleClarityScore(userProfile.roleClarityScore);
+       }
+    }
+  }, [userProfile]);
 
   useEffect(() => {
     // Moved quote selection into useEffect to prevent hydration errors.
@@ -65,7 +88,7 @@ export default function BasecampDashboardPage() {
   }, [searchParams, router]);
 
   const userImage = user?.photoURL || "https://picsum.photos/seed/avatar1/100/100";
-  const userName = user?.displayName || 'Keke';
+  const userName = userProfile?.callSign || userProfile?.firstName || user?.displayName || 'Keke';
   const allSetupTasksCompleted = Object.values(tasks).every(Boolean);
   
   const handleRegistration = (data: any) => {
@@ -153,8 +176,8 @@ export default function BasecampDashboardPage() {
                             icon={<ClipboardPen className="size-5 text-primary-foreground" />}
                             isComplete={tasks.registered}
                             incompleteText="Register for your Expedition"
-                            completeText="Expedition Registered"
-                            description="Your journey is official!"
+                            completeText="Edit Your Expedition Details"
+                            description={tasks.registered ? "Update your profile anytime" : "Your journey is official!"}
                             onClick={() => setRegistrationOpen(true)}
                         />
                         <StatusCard
@@ -291,3 +314,4 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
 }
 
     
+

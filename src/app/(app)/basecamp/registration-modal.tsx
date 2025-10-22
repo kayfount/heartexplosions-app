@@ -36,9 +36,9 @@ import { useUser, useAuth, useDoc, useMemoFirebase } from '@/firebase';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { updateProfile } from 'firebase/auth';
+import { updateProfile, type User } from 'firebase/auth';
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
-import { ref, uploadBytesResumable, getDownloadURL, getStorage } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL, getStorage, type StorageReference } from 'firebase/storage';
 import type { UserProfile } from '@/models/user-profile';
 
 const formSchema = z.object({
@@ -124,7 +124,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!auth?.currentUser) {
+    if (!auth || !auth.currentUser) {
         toast({
             variant: 'destructive',
             title: 'Authentication Error',
@@ -157,7 +157,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
 
     try {
         const uid = auth.currentUser.uid;
-        // Ensure storage is initialized with the correct app instance from auth
+        // IMPORTANT: Initialize storage from the *same authenticated app instance*
         const storage = getStorage(auth.app);
         const storageRef = ref(storage, `users/${uid}/profile.jpg`);
         const uploadTask = uploadBytesResumable(storageRef, file, { contentType: file.type });
@@ -169,12 +169,25 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
             },
             (error) => {
                 console.error("Upload error:", error);
-                throw error; // Rethrow to be caught by the outer catch block
+                 toast({
+                    variant: 'destructive',
+                    title: 'Upload Failed',
+                    description: `Error: ${error.code || 'An unknown error occurred during upload.'}`,
+                });
+                setPreviewUrl(user?.photoURL || null); // Revert on failure
+                setIsUploading(false);
+                if(localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+                 if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
             },
             async () => {
                 try {
                     const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                    await updateProfile(auth.currentUser!, { photoURL: downloadURL });
+                    
+                    if (auth.currentUser) {
+                      await updateProfile(auth.currentUser, { photoURL: downloadURL });
+                    }
                     
                     if (firestore) {
                       const userDocRef = doc(firestore, 'users', uid);
@@ -209,8 +222,8 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
         if(localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
         toast({
             variant: 'destructive',
-            title: 'Upload Failed',
-            description: `Error: ${error.code || 'An unknown error occurred during upload.'}`,
+            title: 'Upload Setup Failed',
+            description: `Error: ${error.code || 'Could not start the upload process.'}`,
         });
         if (fileInputRef.current) {
             fileInputRef.current.value = '';
@@ -227,15 +240,13 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
       const { firstName, lastName, callSign, journeyStatus, whyNow } = data;
       const displayName = `${firstName} ${lastName}`.trim();
       
-      // This part only updates the user's display name in Auth if it has changed.
       if (displayName && displayName !== user.displayName) {
          await updateProfile(auth.currentUser, { displayName });
       }
 
-      // This is the primary data-saving operation, now on the client.
       await setDoc(
         doc(firestore, 'users', user.uid),
-        { firstName, lastName, callSign, journeyStatus, whyNow, displayName, updatedAt: Date.now() },
+        { firstName, lastName, callSign, journeyStatus, whyNow, displayName, updatedAt: new Date().toISOString() },
         { merge: true }
       );
       
@@ -269,11 +280,11 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
           <div className="flex items-center gap-3 mb-2">
             <Tent className="size-6 text-foreground" />
             <DialogTitle className="text-2xl font-bold font-headline text-foreground">
-              Join the Heart Explosions Expedition
+              {isRegistered ? 'Update Your Expedition' : 'Join the Heart Explosions Expedition'}
             </DialogTitle>
           </div>
           <DialogDescription className="text-foreground/80">
-            Complete your registration to begin your journey of purpose-driven transformation.
+            {isRegistered ? 'Update your registration details below.' : 'Complete your registration to begin your journey of purpose-driven transformation.'}
           </DialogDescription>
         </DialogHeader>
         {isLoading ? (
