@@ -250,8 +250,8 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     }
   };
 
-  const userImage = previewUrl || "https://picsum.photos/seed/avatar1/100/100";
-  const userInitial = user?.displayName?.charAt(0) || 'U';
+  const userImage = previewUrl || userProfile?.profilePicUrl || user?.photoURL;
+  const userInitial = user?.displayName?.charAt(0) || form.getValues('firstName')?.charAt(0) || 'U';
 
   const isLoading = isUserLoading || isProfileLoading;
 
@@ -279,7 +279,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
               <div className="flex flex-col items-center space-y-4">
                 <div className="relative">
                   <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
-                    <AvatarImage src={userImage} key={userImage} />
+                    <AvatarImage src={userImage || undefined} key={userImage} />
                     <AvatarFallback>{userInitial}</AvatarFallback>
                   </Avatar>
                   <Button
@@ -395,3 +395,5 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     </Dialog>
   );
 }
+
+    
