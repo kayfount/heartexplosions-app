@@ -230,11 +230,11 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
       });
       onOpenChange(false);
 
-    } catch (error) {
+    } catch (error: any) {
        toast({
         variant: 'destructive',
-        title: 'Uh oh!',
-        description: error instanceof Error ? error.message : 'Something went wrong.',
+        title: 'Uh oh! Something went wrong.',
+        description: error.message || 'Could not save your profile. Check your permissions.',
       });
     } finally {
       setIsSubmitting(false);

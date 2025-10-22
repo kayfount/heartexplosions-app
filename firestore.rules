@@ -1,66 +1,73 @@
 /**
- * @file Firebase Security Rules
- * @description This ruleset enforces a strict user-ownership model for the /users/{userId} collection,
- *  ensuring that only the authenticated user can access their own profile data.
+ * @fileoverview Firestore Security Rules for the application.
+ *
+ * Core Philosophy:
+ * This ruleset enforces a strict user-ownership model for user profiles
+ * and allows public read access to life purpose reports while restricting
+ * write access to authorized users only.
  *
  * Data Structure:
- * - All user data is stored under the /users/{userId} collection.
+ * - /users/{userId}: Stores user profile information.  Only the user can
+ *   read or write their own profile data.
+ * - /reports/{reportId}: Stores life purpose reports. Publicly readable,
+ *   but write access is restricted.
  *
  * Key Security Decisions:
- * - User listing is disallowed to prevent information disclosure.
- * - Data validation is relaxed to allow for rapid prototyping, except for critical
- *   ownership checks.
- * - The rules explicitly deny any write operations that do not meet the
- *   ownership criteria.
- *
- * Denormalization for Authorization:
- * - User ownership is enforced by matching the `userId` parameter in the path to the
- *   authenticated user's `uid`. The `id` field in the `UserProfile` document must
- *   also match the `userId` to maintain data consistency. This approach avoids the
- *   need for complex queries or additional reads to determine ownership.
+ * - User listing is disallowed.
+ * - Reports are publicly readable but not writable by end-users.
+ * - Default security posture for ambiguous relationships is strict
+ *   owner-only access.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Controls access to user profile documents.
+     * @description Secures the user profiles collection. Only the authenticated user
+     *              can read or write their own profile.
      * @path /users/{userId}
-     * @allow (get) User with UID 'XeTG6cYWwQV9gf7w28G5KHEF3fj2' can read their own profile.
-     * @allow (create) User with UID 'XeTG6cYWwQV9gf7w28G5KHEF3fj2' can create their own profile.
-     * @allow (update) User with UID 'XeTG6cYWwQV9gf7w28G5KHEF3fj2' can update their own profile.
-     * @allow (delete) User with UID 'XeTG6cYWwQV9gf7w28G5KHEF3fj2' can delete their own profile.
-     * @deny (get) User with UID 'otherUserId' cannot read the profile of user 'XeTG6cYWwQV9gf7w28G5KHEF3fj2'.
-     * @deny (create) User with UID 'otherUserId' cannot create a profile for user 'XeTG6cYWwQV9gf7w28G5KHEF3fj2'.
-     * @deny (update) User with UID 'otherUserId' cannot update the profile of user 'XeTG6cYWwQV9gf7w28G5KHEF3fj2'.
-     * @deny (delete) User with UID 'otherUserId' cannot delete the profile of user 'XeTG6cYWwQV9gf7w28G5KHEF3fj2'.
-     * @principle Enforces document ownership for all operations.
+     * @allow (create) User 'user_abc' can create their profile if request.auth.uid == 'user_abc'.
+     * @allow (get) User 'user_abc' can read their profile if request.auth.uid == 'user_abc'.
+     * @allow (update) User 'user_abc' can update their profile if request.auth.uid == 'user_abc'.
+     * @allow (delete) User 'user_abc' can delete their profile if request.auth.uid == 'user_abc'.
+     * @deny (create) User 'user_def' cannot create a profile with ID 'user_abc'.
+     * @deny (get) User 'user_def' cannot read the profile of 'user_abc'.
+     * @principle Enforces document ownership for writes and restricts access to a user's own data tree.
      */
     match /users/{userId} {
-      // Helper function to check if the authenticated user is the owner of the document.
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
       function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
+        return request.auth.uid == userId;
       }
 
-      // Helper function to check if the authenticated user is the owner of the existing document.
       function isExistingOwner(userId) {
-        return isOwner(userId) && resource != null;
+        return isOwner(userId) && existsAfter(/databases/$(database)/documents/users/$(userId));
       }
 
-      // Allow the owner to get their own profile.
-      allow get: if isOwner(userId);
-
-      // Prevent listing of all users.
+      allow get: if isSignedIn() && isOwner(userId);
       allow list: if false;
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && isExistingOwner(userId);
+      allow delete: if isSignedIn() && isExistingOwner(userId);
+    }
 
-      // Allow the owner to create their own profile, enforcing that the ID matches the userId.
-      allow create: if isOwner(userId) && request.resource.data.id == userId;
-
-      // Allow the owner to update their own profile, enforcing immutability of the ID.
-      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
-
-      // Allow the owner to delete their own profile.
-      allow delete: if isExistingOwner(userId);
+    /**
+     * @description Secures the life purpose reports collection. Allows public read access
+     *              but restricts write access.
+     * @path /reports/{reportId}
+     * @allow (get) Any user can read a report.
+     * @allow (list) Any user can list the reports.
+     * @deny (create) No user can create a report.
+     * @deny (update) No user can update a report.
+     * @deny (delete) No user can delete a report.
+     * @principle Allows public read access with owner-only writes (currently disabled).
+     */
+    match /reports/{reportId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
     }
   }
 }
