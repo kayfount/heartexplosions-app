@@ -19,7 +19,6 @@ import {
   Download,
   Music
 } from 'lucide-react';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { cn } from '@/lib/utils';
 import { RegistrationModal } from './registration-modal';
 import { SatisfactionQuizModal } from './satisfaction-quiz-modal';
@@ -87,7 +86,6 @@ export default function BasecampDashboardPage() {
     }
   }, [searchParams, router]);
 
-  const userImage = user?.photoURL || "https://picsum.photos/seed/avatar1/100/100";
   const userName = userProfile?.callSign || userProfile?.firstName || user?.displayName || 'Keke';
   const allSetupTasksCompleted = Object.values(tasks).every(Boolean);
   
@@ -135,15 +133,9 @@ export default function BasecampDashboardPage() {
       <div className="flex-1 space-y-8 p-4 md:p-8 pt-6">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center justify-between space-y-2 mb-8">
-            <div className="flex items-center gap-4">
-              <Avatar className="h-20 w-20 border-4 border-white shadow-lg">
-                <AvatarImage src={userImage} data-ai-hint="person portrait" />
-                <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <h1 className="text-3xl font-bold tracking-tight font-headline">
-                Good morning, {userName}!
-              </h1>
-            </div>
+            <h1 className="text-3xl font-bold tracking-tight font-headline">
+              Good morning, {userName}!
+            </h1>
           </div>
         
           {/* Welcome Box */}
@@ -312,6 +304,3 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
         </Card>
     )
 }
-
-    
-

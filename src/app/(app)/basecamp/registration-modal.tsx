@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -30,15 +31,12 @@ import {
 } from '@/components/ui/select';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Tent, Loader2, Camera } from 'lucide-react';
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { Tent, Loader2 } from 'lucide-react';
+import { useState, useEffect, useMemo } from 'react';
 import { useUser, useAuth, useDoc, useMemoFirebase } from '@/firebase';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 import { updateProfile, type User } from 'firebase/auth';
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
-import { ref, uploadBytesResumable, getDownloadURL, getStorage, type StorageReference } from 'firebase/storage';
 import type { UserProfile } from '@/models/user-profile';
 
 const formSchema = z.object({
@@ -65,17 +63,11 @@ const journeyStatuses = [
     "Not looking to change right now"
 ];
 
-const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-const MAX_FILE_SIZE_MB = 15;
-
 export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegistered }: RegistrationModalProps) {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const firestore = useMemo(() => auth ? getFirestore(auth.app) : null, [auth]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
   const userProfileRef = useMemoFirebase(() => {
@@ -115,123 +107,8 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
           whyNow: '',
        });
     }
-    if (user?.photoURL) {
-      setPreviewUrl(user.photoURL);
-    }
   }, [user, userProfile, form, isProfileLoading]);
   
-  const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file) return;
-
-    if (!auth || !auth.currentUser) {
-        toast({
-            variant: 'destructive',
-            title: 'Authentication Error',
-            description: 'You must be logged in to upload a photo.',
-        });
-        return;
-    }
-
-    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
-        toast({
-            variant: 'destructive',
-            title: 'Invalid File Type',
-            description: 'Please select a PNG, JPG, GIF, or WebP image.',
-        });
-        return;
-    }
-
-    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
-        toast({
-            variant: 'destructive',
-            title: 'File Too Large',
-            description: `Please select an image smaller than ${MAX_FILE_SIZE_MB} MB.`,
-        });
-        return;
-    }
-    
-    setIsUploading(true);
-    const localPreviewUrl = URL.createObjectURL(file);
-    setPreviewUrl(localPreviewUrl);
-
-    try {
-        const uid = auth.currentUser.uid;
-        // IMPORTANT: Initialize storage from the *same authenticated app instance*
-        const storage = getStorage(auth.app);
-        const storageRef = ref(storage, `users/${uid}/profile.jpg`);
-        const uploadTask = uploadBytesResumable(storageRef, file, { contentType: file.type });
-
-        uploadTask.on(
-            'state_changed',
-            (snapshot) => {
-                // Progress tracking can be implemented here if needed in the future
-            },
-            (error) => {
-                console.error("Upload error:", error);
-                 toast({
-                    variant: 'destructive',
-                    title: 'Upload Failed',
-                    description: `Error: ${error.code || 'An unknown error occurred during upload.'}`,
-                });
-                setPreviewUrl(user?.photoURL || null); // Revert on failure
-                setIsUploading(false);
-                if(localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
-                 if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
-                }
-            },
-            async () => {
-                try {
-                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                    
-                    if (auth.currentUser) {
-                      await updateProfile(auth.currentUser, { photoURL: downloadURL });
-                    }
-                    
-                    if (firestore) {
-                      const userDocRef = doc(firestore, 'users', uid);
-                      await setDoc(userDocRef, { profilePicUrl: downloadURL }, { merge: true });
-                    }
-                    
-                    setPreviewUrl(downloadURL);
-                    toast({
-                        title: 'Profile Picture Updated',
-                        description: 'Your new picture has been saved.',
-                    });
-                } catch (error: any) {
-                     console.error("Profile update error:", error);
-                     toast({
-                        variant: 'destructive',
-                        title: 'Update Failed',
-                        description: `Error: ${error.code || 'Could not finalize profile update.'}`,
-                    });
-                     setPreviewUrl(user?.photoURL || null); // Revert on failure
-                } finally {
-                    setIsUploading(false);
-                    if(localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
-                     if (fileInputRef.current) {
-                        fileInputRef.current.value = '';
-                    }
-                }
-            }
-        );
-    } catch (error: any) {
-        setIsUploading(false);
-        setPreviewUrl(user?.photoURL || null); // Revert on failure
-        if(localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
-        toast({
-            variant: 'destructive',
-            title: 'Upload Setup Failed',
-            description: `Error: ${error.code || 'Could not start the upload process.'}`,
-        });
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-    }
-  };
-
-
   const onSubmit = async (data: RegistrationFormValues) => {
     if (!user || !auth?.currentUser || !firestore || isSubmitting) return;
     setIsSubmitting(true);
@@ -240,10 +117,12 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
       const { firstName, lastName, callSign, journeyStatus, whyNow } = data;
       const displayName = `${firstName} ${lastName}`.trim();
       
+      // Only update the Auth profile if the name has changed
       if (displayName && displayName !== user.displayName) {
          await updateProfile(auth.currentUser, { displayName });
       }
 
+      // Always save/update the Firestore document
       await setDoc(
         doc(firestore, 'users', user.uid),
         { firstName, lastName, callSign, journeyStatus, whyNow, displayName, updatedAt: new Date().toISOString() },
@@ -268,9 +147,6 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     }
   };
 
-  const userImage = previewUrl || userProfile?.profilePicUrl || user?.photoURL;
-  const userInitial = form.getValues('firstName')?.charAt(0) || user?.displayName?.charAt(0) || 'U';
-
   const isLoading = isUserLoading || isProfileLoading;
 
   return (
@@ -294,32 +170,6 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
         ) : (
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              <div className="flex flex-col items-center space-y-4">
-                <div className="relative">
-                  <Avatar className="h-24 w-24 border-4 border-white shadow-lg">
-                    <AvatarImage src={userImage || undefined} key={userImage} />
-                    <AvatarFallback>{userInitial}</AvatarFallback>
-                  </Avatar>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    className={cn("absolute bottom-0 right-0 rounded-full bg-secondary", isUploading && "cursor-not-allowed")}
-                    onClick={() => !isUploading && fileInputRef.current?.click()}
-                    disabled={isUploading}
-                  >
-                    {isUploading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
-                  </Button>
-                  <Input
-                    type="file"
-                    ref={fileInputRef}
-                    className="hidden"
-                    onChange={handleFileChange}
-                    accept={ALLOWED_MIME_TYPES.join(', ')}
-                    disabled={isUploading}
-                  />
-                </div>
-              </div>
               <div className="grid grid-cols-2 gap-4">
                 <FormField
                   control={form.control}
@@ -401,7 +251,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
                 )}
               />
               <DialogFooter>
-                  <Button type="submit" disabled={isSubmitting || isUploading} className="w-full bg-primary-gradient text-primary-foreground font-bold">
+                  <Button type="submit" disabled={isSubmitting} className="w-full bg-primary-gradient text-primary-foreground font-bold">
                       {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       {isRegistered ? 'Update My Expedition' : 'Begin My Expedition'}
                   </Button>
