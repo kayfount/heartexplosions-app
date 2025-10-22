@@ -67,7 +67,7 @@ const journeyStatuses = [
 ];
 
 const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-const MAX_FILE_SIZE_MB = 5;
+const MAX_FILE_SIZE_MB = 15;
 
 export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegistered }: RegistrationModalProps) {
   const { user, isUserLoading } = useUser();
@@ -388,5 +388,3 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     </Dialog>
   );
 }
-
-    
