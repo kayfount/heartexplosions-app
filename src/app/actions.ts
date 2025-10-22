@@ -78,7 +78,6 @@ export async function coachInteractionAction(input: InteractWithAiCoachInput) {
     }
 }
 
-// The server action now accepts FormData directly.
 export async function updateProfileAction(formData: FormData) {
     const file = formData.get('file') as File | null;
     const uid = formData.get('uid') as string | null;
@@ -94,20 +93,17 @@ export async function updateProfileAction(formData: FormData) {
     try {
         const auth = getAuth(getFirebaseAdminApp());
         
-        // Convert the file to a Buffer for server-side processing.
         const fileBuffer = Buffer.from(await file.arrayBuffer());
         const photoURL = await uploadFile(uid, file.name, file.type, fileBuffer);
 
-        // Update the user record in Firebase Auth.
         await auth.updateUser(uid, { photoURL });
 
-        // Revalidate the path to ensure the new image is shown.
         revalidatePath('/basecamp');
-        revalidatePath('/user-nav'); // Or wherever the user nav is shown
+        revalidatePath('/user-nav'); 
 
         return { success: true, photoURL: photoURL };
     } catch (error) {
-        console.error('Error updating profile:', error);
+        console.error('Error updating profile picture:', error);
         const errorMessage = error instanceof Error ? error.message : 'An unexpected response was received from the server.';
         return { success: false, error: errorMessage };
     }
@@ -132,7 +128,6 @@ export async function saveUserProfile({ uid, profileData }: SaveUserProfileInput
         
         const updates: any = { ...profileData };
 
-        // If displayName is part of the data, update it in Auth as well
         if (profileData.displayName) {
             await auth.updateUser(uid, { displayName: profileData.displayName });
         }
