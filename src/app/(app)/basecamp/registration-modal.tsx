@@ -20,6 +20,7 @@ import {
   FormField,
   FormItem,
   FormLabel,
+  FormMessage,
 } from '@/components/ui/form';
 import {
     Select,
@@ -31,7 +32,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tent, Loader2, Camera } from 'lucide-react';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import { useUser, useAuth, useDoc, useMemoFirebase } from '@/firebase';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { updateProfileAction, saveUserProfile } from '@/app/actions';
@@ -94,7 +95,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
   });
 
   useEffect(() => {
-    if (userProfile && !isProfileLoading) {
+    if (userProfile) {
       form.reset({
         firstName: userProfile.firstName || user?.displayName?.split(' ')[0] || '',
         lastName: userProfile.lastName || user?.displayName?.split(' ').slice(1).join(' ') || '',
@@ -102,20 +103,17 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
         journeyStatus: userProfile.journeyStatus || '',
         whyNow: userProfile.whyNow || '',
       });
-    } else if (user && !userProfile && !isProfileLoading) {
+    } else if (user) {
        const nameParts = user.displayName?.split(' ') || ['', ''];
        form.reset({
           firstName: nameParts[0] || '',
           lastName: nameParts.slice(1).join(' ') || '',
-          callSign: '',
-          journeyStatus: '',
-          whyNow: '',
-      });
+       });
     }
     if (user?.photoURL) {
       setPreviewUrl(user.photoURL);
     }
-  }, [user, userProfile, isProfileLoading, form]);
+  }, [user, userProfile, form]);
   
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
