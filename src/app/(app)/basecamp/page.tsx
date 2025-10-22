@@ -17,16 +17,19 @@ import {
   ClipboardPen,
   ClipboardCheck,
   Download,
-  Music
+  Music,
+  UploadCloud,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RegistrationModal } from './registration-modal';
 import { SatisfactionQuizModal } from './satisfaction-quiz-modal';
-import { useUser, useDoc, useMemoFirebase } from '@/firebase';
+import { useUser, useDoc, useMemoFirebase, useStorage } from '@/firebase';
 import { quotes } from '@/lib/quotes';
 import { doc, getFirestore } from 'firebase/firestore';
 import type { UserProfile } from '@/models/user-profile';
 import { useMemo } from 'react';
+import { ref, uploadString } from 'firebase/storage';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock data and state for demonstration purposes
 const initialTasks = {
@@ -52,6 +55,8 @@ export default function BasecampDashboardPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user } = useUser();
+  const storage = useStorage();
+  const { toast } = useToast();
   const firestore = useMemo(() => getFirestore(), []);
   
   const userProfileRef = useMemoFirebase(() => {
@@ -101,6 +106,41 @@ export default function BasecampDashboardPage() {
     setTasks(prev => ({...prev, quizTaken: true}));
     setQuizOpen(false);
   }
+
+  const handleTestUpload = async () => {
+    if (!user || !storage) {
+        toast({
+            variant: "destructive",
+            title: "Authentication Error",
+            description: "You must be logged in to perform a test upload.",
+        });
+        return;
+    }
+
+    // A simple 1x1 transparent PNG as a base64 data URL
+    const transparentPixel = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
+    const storageRef = ref(storage, `users/${user.uid}/test-upload/profile.png`);
+
+    toast({
+        title: "Starting Test Upload",
+        description: "Attempting to upload a test file to Storage...",
+    });
+
+    try {
+        await uploadString(storageRef, transparentPixel, 'data_url');
+        toast({
+            title: "Test Upload Successful!",
+            description: `File uploaded to: users/${user.uid}/test-upload/profile.png`,
+        });
+    } catch (error: any) {
+        console.error("Test upload failed:", error);
+        toast({
+            variant: "destructive",
+            title: "Test Upload Failed",
+            description: `Error: ${error.code} - ${error.message}`,
+        });
+    }
+  };
 
   const getFocusText = () => {
     if (tasks.registered) {
@@ -263,6 +303,25 @@ export default function BasecampDashboardPage() {
                 </CardContent>
             </Card>
           </div>
+
+          {/* Temporary Test Upload Button */}
+            <div className="mt-8">
+                <h3 className="text-2xl font-bold font-headline mb-4">Developer Tools</h3>
+                <Card>
+                    <CardContent className="p-6">
+                        <div className="flex items-center justify-between">
+                            <div>
+                                <p className="font-bold">Test Firebase Storage Upload</p>
+                                <p className="text-sm text-muted-foreground">This will attempt to upload a small test file to your Storage bucket.</p>
+                            </div>
+                            <Button onClick={handleTestUpload} variant="outline">
+                                <UploadCloud className="mr-2" />
+                                Run Test
+                            </Button>
+                        </div>
+                    </CardContent>
+                </Card>
+            </div>
         </div>
       </div>
     </>
@@ -294,7 +353,7 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
         <Card onClick={handleClick} className={cn("group cursor-pointer transition-all duration-300 hover:border-primary/50 hover:scale-105")}>
             <CardContent className="p-6 flex items-center gap-4">
                  <div className={cn("flex items-center justify-center size-10 rounded-full transition-transform duration-300 group-hover:animate-shiver bg-foreground")}>
-                  {isComplete ? <CheckCircle2 className="size-5 text-primary-foreground" /> : icon}
+                  {icon}
                 </div>
                 <div>
                     <p className="font-bold">{isComplete ? completeText : incompleteText}</p>
