@@ -8,6 +8,8 @@ export interface UserProfile {
     whyNow?: string;
     roleClarityScore?: number;
     quizAnswers?: number[];
+    guideDownloaded?: boolean;
+    playlistAdded?: boolean;
     
     // The Driver
     enneagramType?: string;

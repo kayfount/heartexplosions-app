@@ -26,6 +26,8 @@ import { quotes } from '@/lib/quotes';
 import { doc, getFirestore } from 'firebase/firestore';
 import type { UserProfile } from '@/models/user-profile';
 import { useMemo } from 'react';
+import { saveUserProfile } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock data and state for demonstration purposes
 const initialTasks = {
@@ -51,6 +53,7 @@ export default function BasecampDashboardPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user } = useUser();
+  const { toast } = useToast();
   const firestore = useMemo(() => getFirestore(), []);
   
   const userProfileRef = useMemoFirebase(() => {
@@ -64,7 +67,9 @@ export default function BasecampDashboardPage() {
       setTasks(prev => ({
         ...prev,
         registered: !!(userProfile.firstName && userProfile.journeyStatus),
-        quizTaken: typeof userProfile.roleClarityScore === 'number'
+        quizTaken: typeof userProfile.roleClarityScore === 'number',
+        guideDownloaded: !!userProfile.guideDownloaded,
+        playlistAdded: !!userProfile.playlistAdded,
       }));
        if(userProfile.roleClarityScore) {
         setRoleClarityScore(userProfile.roleClarityScore);
@@ -95,9 +100,27 @@ export default function BasecampDashboardPage() {
 
   const handleQuizComplete = (score: number) => {
     const totalPossibleScore = 10 * 10; // 10 questions, max score of 10
+    if (totalPossibleScore === 0) return;
     const percentage = Math.round((score / totalPossibleScore) * 100);
     setRoleClarityScore(percentage);
     setTasks(prev => ({...prev, quizTaken: true}));
+  }
+
+  const handleTaskCompletion = async (task: 'guideDownloaded' | 'playlistAdded') => {
+    if (!user) return;
+    setTasks(prev => ({...prev, [task]: true}));
+    try {
+        await saveUserProfile({ uid: user.uid, profileData: { [task]: true }});
+    } catch(e) {
+        console.error(`Failed to save ${task} status`, e);
+        toast({
+            variant: 'destructive',
+            title: 'Update Failed',
+            description: `Could not save your progress for ${task}.`,
+        });
+        // Revert UI state on failure
+        setTasks(prev => ({...prev, [task]: false}));
+    }
   }
 
   const getFocusText = () => {
@@ -185,7 +208,7 @@ export default function BasecampDashboardPage() {
                 <div>
                     <h3 className="text-2xl font-bold font-headline mb-4">Pick Up Your Essentials</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <a href="/guide.pdf" download onClick={() => setTasks(prev => ({...prev, guideDownloaded: true}))}>
+                        <a href="/guide.pdf" download onClick={() => handleTaskCompletion('guideDownloaded')}>
                             <StatusCard
                                 icon={<Download className="size-5 text-primary-foreground" />}
                                 isComplete={tasks.guideDownloaded}
@@ -195,7 +218,7 @@ export default function BasecampDashboardPage() {
                                 onClick={() => {}} // The parent `a` tag handles the action
                             />
                         </a>
-                         <a href="https://open.spotify.com/playlist/6CbgYjp9ZB49TYGPHOqkX?si=4df18c5c76db4bd3" target="_blank" rel="noopener noreferrer" onClick={() => setTasks(prev => ({...prev, playlistAdded: true}))}>
+                         <a href="https://open.spotify.com/playlist/6CbgYjp9ZB49TYGPHOqkX?si=4df18c5c76db4bd3" target="_blank" rel="noopener noreferrer" onClick={() => handleTaskCompletion('playlistAdded')}>
                             <StatusCard
                                 icon={<Music className="size-5 text-primary-foreground" />}
                                 isComplete={tasks.playlistAdded}
