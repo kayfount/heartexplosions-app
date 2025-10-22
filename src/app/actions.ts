@@ -78,55 +78,34 @@ export async function coachInteractionAction(input: InteractWithAiCoachInput) {
     }
 }
 
-interface UpdateProfileActionInput {
-    uid: string;
-    displayName?: string;
-    // The 'file' prop is now expected to be a FormData object from the client
-    file?: FormData;
-}
-
-export async function updateProfileAction(input: UpdateProfileActionInput) {
-    const { uid, displayName, file: formData } = input;
+// The server action now accepts FormData directly.
+export async function updateProfileAction(formData: FormData) {
+    const file = formData.get('file') as File | null;
+    const uid = formData.get('uid') as string | null;
     
     if (!uid) {
         return { success: false, error: 'User ID is missing.' };
     }
     
-    if (!displayName && !formData) {
-        return { success: true, message: 'No profile information to update.' };
+    if (!file) {
+        return { success: false, error: 'No file provided.'};
     }
 
     try {
         const auth = getAuth(getFirebaseAdminApp());
-        const user = await auth.getUser(uid);
-
-        let photoURL: string | undefined = user.photoURL;
-
-        if (formData) {
-            const file = formData.get('file') as File | null;
-            if (file) {
-              const fileBuffer = Buffer.from(await file.arrayBuffer());
-              photoURL = await uploadFile(uid, file.name, file.type, fileBuffer);
-            }
-        }
         
-        const updates: { displayName?: string; photoURL?: string } = {};
+        // Convert the file to a Buffer for server-side processing.
+        const fileBuffer = Buffer.from(await file.arrayBuffer());
+        const photoURL = await uploadFile(uid, file.name, file.type, fileBuffer);
 
-        if (displayName && displayName !== user.displayName) {
-            updates.displayName = displayName;
-        }
+        // Update the user record in Firebase Auth.
+        await auth.updateUser(uid, { photoURL });
 
-        if (photoURL && photoURL !== user.photoURL) {
-            updates.photoURL = photoURL;
-        }
-
-        if (Object.keys(updates).length > 0) {
-            await auth.updateUser(uid, updates);
-        }
-
+        // Revalidate the path to ensure the new image is shown.
         revalidatePath('/basecamp');
+        revalidatePath('/user-nav'); // Or wherever the user nav is shown
 
-        return { success: true, photoURL: updates.photoURL || user.photoURL };
+        return { success: true, photoURL: photoURL };
     } catch (error) {
         console.error('Error updating profile:', error);
         const errorMessage = error instanceof Error ? error.message : 'An unexpected response was received from the server.';
@@ -147,8 +126,18 @@ export async function saveUserProfile({ uid, profileData }: SaveUserProfileInput
     
     try {
         const db = getFirestore(getFirebaseAdminApp());
+        const auth = getAuth(getFirebaseAdminApp());
+
         const userProfileRef = db.collection('users').doc(uid);
-        await userProfileRef.set(profileData, { merge: true });
+        
+        const updates: any = { ...profileData };
+
+        // If displayName is part of the data, update it in Auth as well
+        if (profileData.displayName) {
+            await auth.updateUser(uid, { displayName: profileData.displayName });
+        }
+        
+        await userProfileRef.set(updates, { merge: true });
         
         revalidatePath('/basecamp');
         revalidatePath('/driver');

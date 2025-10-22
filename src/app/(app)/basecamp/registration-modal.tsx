@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -129,12 +128,11 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     
     const formData = new FormData();
     formData.append('file', file);
+    formData.append('uid', user.uid); // Add uid to formData
 
     try {
-      const result = await updateProfileAction({
-        uid: user.uid,
-        file: formData,
-      });
+      // Pass the whole formData to the server action
+      const result = await updateProfileAction(formData);
 
       if (result.success && result.photoURL) {
         await updateProfile(auth.currentUser, { photoURL: result.photoURL });
@@ -142,6 +140,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
           title: 'Profile Picture Updated',
           description: 'Your new picture has been saved.',
         });
+        setPreviewUrl(result.photoURL);
       } else {
          throw new Error(result.error || 'The server did not return a new photo URL.');
       }
@@ -155,6 +154,10 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     } finally {
         setIsUploading(false);
         if(localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+        // Clear the file input so the same file can be selected again
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
     }
   };
 
@@ -166,17 +169,18 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     try {
       const displayName = `${data.firstName} ${data.lastName}`.trim();
       
+      // We are now updating displayName via a separate call if needed,
+      // as the file upload action is now just for files.
       if (displayName !== user.displayName) {
-        const updateResult = await updateProfileAction({ uid: user.uid, displayName });
-        if (!updateResult.success) throw new Error(updateResult.error);
-        await updateProfile(auth.currentUser, { displayName });
+         await updateProfile(auth.currentUser, { displayName });
       }
 
       const { firstName, lastName, callSign, journeyStatus, whyNow } = data;
       const saveResult = await saveUserProfile({
         uid: user.uid,
-        profileData: { firstName, lastName, callSign, journeyStatus, whyNow }
+        profileData: { firstName, lastName, callSign, journeyStatus, whyNow, displayName }
       });
+
       if (!saveResult.success) throw new Error(saveResult.error);
       
       onRegister(data);
