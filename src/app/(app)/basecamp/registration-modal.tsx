@@ -32,13 +32,14 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tent, Loader2, Camera } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useUser, useAuth, useDoc, useMemoFirebase } from '@/firebase';
+import { useUser, useAuth, useDoc, useMemoFirebase, useStorage } from '@/firebase';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { updateProfileAction, saveUserProfile } from '@/app/actions';
+import { saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { updateProfile } from 'firebase/auth';
 import { doc, getFirestore } from 'firebase/firestore';
+import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import type { UserProfile } from '@/models/user-profile';
 
 const formSchema = z.object({
@@ -65,9 +66,13 @@ const journeyStatuses = [
     "Not looking to change right now"
 ];
 
+const ALLOWED_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+const MAX_FILE_SIZE_MB = 5;
+
 export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegistered }: RegistrationModalProps) {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
+  const storage = useStorage();
   const firestore = useMemo(() => auth ? getFirestore(auth.app) : null, [auth]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -119,45 +124,85 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
   
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file || !user || !auth?.currentUser) return;
+    if (!file) return;
+
+    if (!auth?.currentUser) {
+        toast({
+            variant: 'destructive',
+            title: 'Authentication Error',
+            description: 'You must be logged in to upload a photo.',
+        });
+        return;
+    }
+
+    if (!ALLOWED_MIME_TYPES.includes(file.type)) {
+        toast({
+            variant: 'destructive',
+            title: 'Invalid File Type',
+            description: 'Please select a PNG, JPG, GIF, or WebP image.',
+        });
+        return;
+    }
+
+    if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+        toast({
+            variant: 'destructive',
+            title: 'File Too Large',
+            description: `Please select an image smaller than ${MAX_FILE_SIZE_MB} MB.`,
+        });
+        return;
+    }
     
     setIsUploading(true);
-
     const localPreviewUrl = URL.createObjectURL(file);
     setPreviewUrl(localPreviewUrl);
-    
-    const formData = new FormData();
-    formData.append('file', file);
-    formData.append('uid', user.uid); // Add uid to formData
 
-    try {
-      const result = await updateProfileAction(formData);
+    const uid = auth.currentUser.uid;
+    const storageRef = ref(storage, `users/${uid}/profile.jpg`);
+    const uploadTask = uploadBytesResumable(storageRef, file, { contentType: file.type });
 
-      if (result.success && result.photoURL) {
-        await updateProfile(auth.currentUser, { photoURL: result.photoURL });
-        toast({
-          title: 'Profile Picture Updated',
-          description: 'Your new picture has been saved.',
-        });
-        setPreviewUrl(result.photoURL);
-      } else {
-         throw new Error(result.error || 'The server did not return a new photo URL.');
-      }
-    } catch (error) {
-       toast({
-        variant: 'destructive',
-        title: 'Upload Failed',
-        description: error instanceof Error ? error.message : 'Could not upload your picture.',
-      });
-      // Revert to the original photoURL if upload fails
-      setPreviewUrl(user.photoURL || null);
-    } finally {
-        setIsUploading(false);
-        if(localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
-        if (fileInputRef.current) {
-          fileInputRef.current.value = '';
+    uploadTask.on(
+        'state_changed',
+        (snapshot) => {
+            // Optional: handle progress
+        },
+        (error) => {
+            console.error("Upload error:", error);
+            setIsUploading(false);
+            setPreviewUrl(user?.photoURL || null); // Revert on failure
+            toast({
+                variant: 'destructive',
+                title: 'Upload Failed',
+                description: `Error: ${error.code} - ${error.message}`,
+            });
+            if(localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+        },
+        async () => {
+            try {
+                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                await updateProfile(auth.currentUser!, { photoURL: downloadURL });
+                setPreviewUrl(downloadURL);
+                toast({
+                    title: 'Profile Picture Updated',
+                    description: 'Your new picture has been saved.',
+                });
+            } catch (error: any) {
+                console.error("Profile update error:", error);
+                 toast({
+                    variant: 'destructive',
+                    title: 'Update Failed',
+                    description: `Error: ${error.code || 'Could not finalize profile update.'}`,
+                });
+                setPreviewUrl(user?.photoURL || null); // Revert on failure
+            } finally {
+                setIsUploading(false);
+                if(localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+                 if (fileInputRef.current) {
+                    fileInputRef.current.value = '';
+                }
+            }
         }
-    }
+    );
   };
 
 
@@ -245,7 +290,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
                     ref={fileInputRef}
                     className="hidden"
                     onChange={handleFileChange}
-                    accept="image/png, image/jpeg, image/gif"
+                    accept={ALLOWED_MIME_TYPES.join(', ')}
                     disabled={isUploading}
                   />
                 </div>
@@ -343,3 +388,5 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     </Dialog>
   );
 }
+
+    
