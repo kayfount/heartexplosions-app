@@ -34,11 +34,10 @@ import { Tent, Loader2, Camera } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
 import { useUser, useAuth, useDoc, useMemoFirebase, useStorage } from '@/firebase';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { updateProfile } from 'firebase/auth';
-import { doc, getFirestore } from 'firebase/firestore';
+import { doc, getFirestore, setDoc } from 'firebase/firestore';
 import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
 import type { UserProfile } from '@/models/user-profile';
 
@@ -207,23 +206,22 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
 
 
   const onSubmit = async (data: RegistrationFormValues) => {
-    if (!user || !auth?.currentUser || isSubmitting) return;
+    if (!user || !auth?.currentUser || !firestore || isSubmitting) return;
     setIsSubmitting(true);
     
     try {
-      const displayName = `${data.firstName} ${data.lastName}`.trim();
+      const { firstName, lastName, callSign, journeyStatus, whyNow } = data;
+      const displayName = `${firstName} ${lastName}`.trim();
       
       if (displayName && displayName !== user.displayName) {
          await updateProfile(auth.currentUser, { displayName });
       }
 
-      const { firstName, lastName, callSign, journeyStatus, whyNow } = data;
-      const saveResult = await saveUserProfile({
-        uid: user.uid,
-        profileData: { firstName, lastName, callSign, journeyStatus, whyNow, displayName }
-      });
-
-      if (!saveResult.success) throw new Error(saveResult.error);
+      await setDoc(
+        doc(firestore, 'users', user.uid),
+        { firstName, lastName, callSign, journeyStatus, whyNow, displayName, updatedAt: Date.now() },
+        { merge: true }
+      );
       
       onRegister(data);
       toast({
