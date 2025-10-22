@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -32,13 +33,13 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Tent, Loader2, Camera } from 'lucide-react';
 import { useState, useEffect, useRef, useMemo } from 'react';
-import { useUser, useAuth, useDoc, useMemoFirebase, useStorage } from '@/firebase';
+import { useUser, useAuth, useDoc, useMemoFirebase } from '@/firebase';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { updateProfile } from 'firebase/auth';
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
-import { ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { ref, uploadBytesResumable, getDownloadURL, getStorage } from 'firebase/storage';
 import type { UserProfile } from '@/models/user-profile';
 
 const formSchema = z.object({
@@ -71,7 +72,7 @@ const MAX_FILE_SIZE_MB = 15;
 export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegistered }: RegistrationModalProps) {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
-  const storage = useStorage();
+  const storage = useMemo(() => auth ? getStorage(auth.app) : null, [auth]);
   const firestore = useMemo(() => auth ? getFirestore(auth.app) : null, [auth]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -125,7 +126,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!auth?.currentUser) {
+    if (!auth?.currentUser || !storage) {
         toast({
             variant: 'destructive',
             title: 'Authentication Error',
@@ -163,7 +164,6 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     uploadTask.on(
         'state_changed',
         (snapshot) => {
-            // This is the missing progress handler
             const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
             console.log('Upload is ' + progress + '% done');
         },
@@ -183,7 +183,6 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
                 const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                 await updateProfile(auth.currentUser!, { photoURL: downloadURL });
                 
-                // Also save it to the user's profile document in Firestore
                 if (firestore) {
                   const userDocRef = doc(firestore, 'users', uid);
                   await setDoc(userDocRef, { profilePicUrl: downloadURL }, { merge: true });
