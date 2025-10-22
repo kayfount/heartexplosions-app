@@ -33,7 +33,6 @@ export function UserNav() {
     router.push('/basecamp?register=true');
   };
 
-  const userImage = user?.photoURL || "https://picsum.photos/seed/avatar1/100/100";
   const userName = user?.displayName || "Trailblazer";
   const userEmail = user?.email || "user@example.com";
 
@@ -42,7 +41,6 @@ export function UserNav() {
       <DropdownMenuTrigger asChild>
         <Button variant="ghost" className="relative h-10 w-10 rounded-full">
           <Avatar className="h-10 w-10">
-            <AvatarImage src={userImage} alt={userName} data-ai-hint="person portrait" />
             <AvatarFallback>{userName.charAt(0)}</AvatarFallback>
           </Avatar>
         </Button>
