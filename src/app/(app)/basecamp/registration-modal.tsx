@@ -69,7 +69,7 @@ const journeyStatuses = [
 export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegistered }: RegistrationModalProps) {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
-  const firestore = auth ? getFirestore(auth.app) : null;
+  const firestore = useMemo(() => auth ? getFirestore(auth.app) : null, [auth]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
@@ -103,17 +103,20 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
         journeyStatus: userProfile.journeyStatus || '',
         whyNow: userProfile.whyNow || '',
       });
-    } else if (user) {
+    } else if (user && !isProfileLoading) {
        const nameParts = user.displayName?.split(' ') || ['', ''];
        form.reset({
           firstName: nameParts[0] || '',
           lastName: nameParts.slice(1).join(' ') || '',
+          callSign: '',
+          journeyStatus: '',
+          whyNow: '',
        });
     }
     if (user?.photoURL) {
       setPreviewUrl(user.photoURL);
     }
-  }, [user, userProfile, form]);
+  }, [user, userProfile, form, isProfileLoading]);
   
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

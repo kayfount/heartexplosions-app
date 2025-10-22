@@ -129,8 +129,8 @@ export async function updateProfileAction(input: UpdateProfileActionInput) {
         return { success: true, photoURL: updates.photoURL || user.photoURL };
     } catch (error) {
         console.error('Error updating profile:', error);
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-        return { success: false, error: `Failed to update profile: ${errorMessage}` };
+        const errorMessage = error instanceof Error ? error.message : 'An unexpected response was received from the server.';
+        return { success: false, error: errorMessage };
     }
 }
 
