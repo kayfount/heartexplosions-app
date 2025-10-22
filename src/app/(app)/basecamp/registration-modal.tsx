@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useForm } from 'react-hook-form';
@@ -72,7 +71,6 @@ const MAX_FILE_SIZE_MB = 15;
 export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegistered }: RegistrationModalProps) {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
-  const storage = useMemo(() => auth ? getStorage(auth.app) : null, [auth]);
   const firestore = useMemo(() => auth ? getFirestore(auth.app) : null, [auth]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -126,7 +124,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (!auth?.currentUser || !storage) {
+    if (!auth?.currentUser) {
         toast({
             variant: 'destructive',
             title: 'Authentication Error',
@@ -157,59 +155,67 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     const localPreviewUrl = URL.createObjectURL(file);
     setPreviewUrl(localPreviewUrl);
 
-    const uid = auth.currentUser.uid;
-    const storageRef = ref(storage, `users/${uid}/profile.jpg`);
-    const uploadTask = uploadBytesResumable(storageRef, file, { contentType: file.type });
+    try {
+        const uid = auth.currentUser.uid;
+        // Ensure storage is initialized with the correct app instance from auth
+        const storage = getStorage(auth.app);
+        const storageRef = ref(storage, `users/${uid}/profile.jpg`);
+        const uploadTask = uploadBytesResumable(storageRef, file, { contentType: file.type });
 
-    uploadTask.on(
-        'state_changed',
-        (snapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            console.log('Upload is ' + progress + '% done');
-        },
-        (error) => {
-            console.error("Upload error:", error);
-            setIsUploading(false);
-            setPreviewUrl(user?.photoURL || null); // Revert on failure
-            toast({
-                variant: 'destructive',
-                title: 'Upload Failed',
-                description: `Error: ${error.code} - ${error.message}`,
-            });
-            if(localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
-        },
-        async () => {
-            try {
-                const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-                await updateProfile(auth.currentUser!, { photoURL: downloadURL });
-                
-                if (firestore) {
-                  const userDocRef = doc(firestore, 'users', uid);
-                  await setDoc(userDocRef, { profilePicUrl: downloadURL }, { merge: true });
-                }
-                
-                setPreviewUrl(downloadURL);
-                toast({
-                    title: 'Profile Picture Updated',
-                    description: 'Your new picture has been saved.',
-                });
-            } catch (error: any) {
-                console.error("Profile update error:", error);
-                 toast({
-                    variant: 'destructive',
-                    title: 'Update Failed',
-                    description: `Error: ${error.code || 'Could not finalize profile update.'}`,
-                });
-                setPreviewUrl(user?.photoURL || null); // Revert on failure
-            } finally {
-                setIsUploading(false);
-                if(localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
-                 if (fileInputRef.current) {
-                    fileInputRef.current.value = '';
+        uploadTask.on(
+            'state_changed',
+            (snapshot) => {
+                // Progress tracking can be implemented here if needed in the future
+            },
+            (error) => {
+                console.error("Upload error:", error);
+                throw error; // Rethrow to be caught by the outer catch block
+            },
+            async () => {
+                try {
+                    const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
+                    await updateProfile(auth.currentUser!, { photoURL: downloadURL });
+                    
+                    if (firestore) {
+                      const userDocRef = doc(firestore, 'users', uid);
+                      await setDoc(userDocRef, { profilePicUrl: downloadURL }, { merge: true });
+                    }
+                    
+                    setPreviewUrl(downloadURL);
+                    toast({
+                        title: 'Profile Picture Updated',
+                        description: 'Your new picture has been saved.',
+                    });
+                } catch (error: any) {
+                     console.error("Profile update error:", error);
+                     toast({
+                        variant: 'destructive',
+                        title: 'Update Failed',
+                        description: `Error: ${error.code || 'Could not finalize profile update.'}`,
+                    });
+                     setPreviewUrl(user?.photoURL || null); // Revert on failure
+                } finally {
+                    setIsUploading(false);
+                    if(localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+                     if (fileInputRef.current) {
+                        fileInputRef.current.value = '';
+                    }
                 }
             }
+        );
+    } catch (error: any) {
+        setIsUploading(false);
+        setPreviewUrl(user?.photoURL || null); // Revert on failure
+        if(localPreviewUrl) URL.revokeObjectURL(localPreviewUrl);
+        toast({
+            variant: 'destructive',
+            title: 'Upload Failed',
+            description: `Error: ${error.code || 'An unknown error occurred during upload.'}`,
+        });
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
         }
-    );
+    }
   };
 
 
@@ -221,10 +227,12 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
       const { firstName, lastName, callSign, journeyStatus, whyNow } = data;
       const displayName = `${firstName} ${lastName}`.trim();
       
+      // This part only updates the user's display name in Auth if it has changed.
       if (displayName && displayName !== user.displayName) {
          await updateProfile(auth.currentUser, { displayName });
       }
 
+      // This is the primary data-saving operation, now on the client.
       await setDoc(
         doc(firestore, 'users', user.uid),
         { firstName, lastName, callSign, journeyStatus, whyNow, displayName, updatedAt: Date.now() },
@@ -250,7 +258,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
   };
 
   const userImage = previewUrl || userProfile?.profilePicUrl || user?.photoURL;
-  const userInitial = user?.displayName?.charAt(0) || form.getValues('firstName')?.charAt(0) || 'U';
+  const userInitial = form.getValues('firstName')?.charAt(0) || user?.displayName?.charAt(0) || 'U';
 
   const isLoading = isUserLoading || isProfileLoading;
 
@@ -394,5 +402,3 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     </Dialog>
   );
 }
-
-    
