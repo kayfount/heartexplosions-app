@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import * as React from 'react';
 import { ExternalLink, ArrowLeft, ArrowRight, ArrowBigRight, Loader2, Save } from 'lucide-react';
 import Link from 'next/link';
+import _ from 'lodash';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -113,6 +114,25 @@ export function DriverForm() {
     mode: 'onChange'
   });
   
+  const watchedValues = useWatch({ control: form.control });
+  
+  const debouncedSave = useCallback(_.debounce(async (data) => {
+    if (!user) return;
+    setIsSaving(true);
+    await saveUserProfile({ uid: user.uid, profileData: data });
+    setIsSaving(false);
+    toast({ title: 'Progress saved!', description: 'Your driver details have been updated.' });
+  }, 1000), [user, toast]);
+
+  useEffect(() => {
+    const subscription = form.watch((value, { name, type }) => {
+      if (type === 'change') {
+        debouncedSave(value);
+      }
+    });
+    return () => subscription.unsubscribe();
+  }, [form.watch, debouncedSave]);
+
   useEffect(() => {
     if (userProfile) {
         form.reset({
@@ -125,7 +145,6 @@ export function DriverForm() {
     }
   }, [userProfile, form]);
 
-  const watchedValues = useWatch({ control: form.control });
   const selectedEnneagramType = useWatch({ control: form.control, name: 'enneagramType' });
 
   const purposeArchetype = useMemo(() => {
@@ -151,6 +170,8 @@ export function DriverForm() {
   
   const handleNext = async () => {
     if (!user) return;
+    // Ensure the latest data is saved before navigating
+    debouncedSave.flush(); 
     setIsSaving(true);
     try {
       await saveUserProfile({ uid: user.uid, profileData: form.getValues() });

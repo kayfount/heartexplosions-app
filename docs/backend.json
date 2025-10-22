@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -101,6 +102,12 @@
           "type": "array",
           "items": {
             "type": "string"
+          }
+        },
+        "quizAnswers": {
+          "type": "array",
+          "items": {
+            "type": "number"
           }
         }
       },
@@ -214,3 +221,5 @@
     ]
   }
 }
+
+    

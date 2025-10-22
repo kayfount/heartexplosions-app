@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Dialog,
@@ -14,9 +14,12 @@ import {
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { Flame, ArrowRight, ArrowLeft, X, User } from 'lucide-react';
-import { useUser } from '@/firebase';
+import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
+import { doc, getFirestore } from 'firebase/firestore';
+import type { UserProfile } from '@/models/user-profile';
+import _ from 'lodash';
 
 const quizQuestions = [
   { topic: 'Purpose', statement: 'I feel a deep sense of meaning and calling in the role I currently play.' },
@@ -43,10 +46,26 @@ interface SatisfactionQuizModalProps {
 export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: SatisfactionQuizModalProps) {
   const [stage, setStage] = useState<QuizStage>('intro');
   const [currentQuestion, setCurrentQuestion] = useState(0);
-  const [answers, setAnswers] = useState<number[]>([]);
+  const [answers, setAnswers] = useState<number[]>(Array(quizQuestions.length).fill(5));
   const [sliderValue, setSliderValue] = useState(5);
   const { user } = useUser();
   const { toast } = useToast();
+  const firestore = useMemo(() => getFirestore(), []);
+  
+  const userProfileRef = useMemoFirebase(() => {
+    if (!user?.uid || !firestore) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [user?.uid, firestore]);
+  const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
+
+  useEffect(() => {
+    if (isOpen && userProfile?.quizAnswers && userProfile.quizAnswers.length === quizQuestions.length) {
+      setAnswers(userProfile.quizAnswers);
+      setSliderValue(userProfile.quizAnswers[currentQuestion] ?? 5);
+    } else {
+      setAnswers(Array(quizQuestions.length).fill(5));
+    }
+  }, [isOpen, userProfile, currentQuestion]);
 
   const totalQuestions = quizQuestions.length;
   
@@ -55,49 +74,61 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
     return answers.reduce((sum, val) => sum + val, 0);
   }, [answers, totalQuestions]);
 
-  const handleNextQuestion = () => {
+  const saveAnswers = useMemo(() =>
+    _.debounce(async (newAnswers: number[]) => {
+      if (user) {
+        await saveUserProfile({ uid: user.uid, profileData: { quizAnswers: newAnswers } });
+      }
+    }, 500), [user]);
+
+  const handleNextQuestion = async () => {
     const newAnswers = [...answers];
     newAnswers[currentQuestion] = sliderValue;
     setAnswers(newAnswers);
+    await saveAnswers(newAnswers);
 
     if (currentQuestion < totalQuestions - 1) {
       setCurrentQuestion(prev => prev + 1);
       setSliderValue(newAnswers[currentQuestion + 1] ?? 5);
     } else {
-      const totalScore = newAnswers.reduce((sum, val) => sum + val, 0);
-      onQuizComplete(totalScore);
+      await handleFinish(newAnswers);
       setStage('results');
     }
   };
 
-  const handlePreviousQuestion = () => {
+  const handlePreviousQuestion = async () => {
     if (currentQuestion > 0) {
         const newAnswers = [...answers];
         newAnswers[currentQuestion] = sliderValue;
         setAnswers(newAnswers);
+        await saveAnswers(newAnswers);
+
         setCurrentQuestion(prev => prev - 1);
         setSliderValue(newAnswers[currentQuestion - 1] ?? 5);
     }
   };
   
   const handleStart = () => {
-    setAnswers(Array(totalQuestions).fill(5));
+    const initialAnswers = userProfile?.quizAnswers || Array(totalQuestions).fill(5);
+    setAnswers(initialAnswers);
     setCurrentQuestion(0);
-    setSliderValue(5);
+    setSliderValue(initialAnswers[0] ?? 5);
     setStage('quiz');
   };
 
   const handleClose = () => {
     setStage('intro');
+    setCurrentQuestion(0);
     onOpenChange(false);
   };
   
-  const handleFinish = async () => {
-    const percentage = Math.round((finalScore / (totalQuestions * 10)) * 100)
+  const handleFinish = async (finalAnswers: number[]) => {
+    const totalScore = finalAnswers.reduce((sum, val) => sum + val, 0);
+    const percentage = Math.round((totalScore / (totalQuestions * 10)) * 100)
     
     if (user) {
       try {
-        await saveUserProfile({ uid: user.uid, profileData: { roleClarityScore: percentage } });
+        await saveUserProfile({ uid: user.uid, profileData: { roleClarityScore: percentage, quizAnswers: finalAnswers } });
         toast({
           title: "Score Saved",
           description: "Your Role Clarity Score has been saved to your profile.",
@@ -111,8 +142,8 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
       }
     }
 
-    onQuizComplete(finalScore);
-    handleClose();
+    onQuizComplete(totalScore);
+    // Don't close, just show results
   }
 
   const renderContent = () => {
@@ -165,7 +196,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
             </div>
 
             <div className="flex justify-between w-full">
-                <Button onClick={handlePreviousQuestion} variant="outline" disabled={currentQuestion === 0} className="disabled:opacity-100">
+                <Button onClick={handlePreviousQuestion} variant="outline" disabled={currentQuestion === 0}>
                     <ArrowLeft className="mr-2"/> Previous
                 </Button>
                 <Button onClick={handleNextQuestion} className="bg-destructive hover:bg-destructive/80 text-destructive-foreground">
@@ -184,7 +215,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
                  </div>
                  <p className="text-foreground/80 mb-6">This score is a snapshot of your current alignment. It's a starting point for your journey, not a final judgment.</p>
                  <DialogFooter>
-                     <Button onClick={handleFinish} className="w-full bg-primary-gradient text-primary-foreground font-bold">Done & Save Score</Button>
+                     <Button onClick={handleClose} className="w-full bg-primary-gradient text-primary-foreground font-bold">Done</Button>
                  </DialogFooter>
              </div>
         )
@@ -216,3 +247,5 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
     </Dialog>
   );
 }
+
+    

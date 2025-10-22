@@ -7,6 +7,7 @@ export interface UserProfile {
     journeyStatus?: string;
     whyNow?: string;
     roleClarityScore?: number;
+    quizAnswers?: number[];
     
     // The Driver
     enneagramType?: string;
@@ -27,3 +28,5 @@ export interface UserProfile {
     timeline?: string;
     routePlanId?: string; // Ref to a 'reports' collection
 }
+
+    
