@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { LogOut, User as UserIcon, Camera } from 'lucide-react';
+import { LogOut, User as UserIcon, Camera, Loader2 } from 'lucide-react';
 import { useAuth, useUser } from '@/firebase';
 import { initiateSignOut } from '@/firebase/non-blocking-login';
 import { useRouter } from 'next/navigation';
@@ -38,7 +38,7 @@ export function UserNav() {
 
   return (
     <ProfilePictureUploader>
-      {({ openFilePicker }) => (
+      {({ openFilePicker, isUploading }) => (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-full">
@@ -63,9 +63,13 @@ export function UserNav() {
                   <UserIcon className="mr-2 h-4 w-4" />
                   <span>Edit Profile</span>
                 </DropdownMenuItem>
-                <DropdownMenuItem onSelect={openFilePicker}>
-                  <Camera className="mr-2 h-4 w-4" />
-                  <span>Change Picture</span>
+                <DropdownMenuItem onSelect={openFilePicker} disabled={isUploading}>
+                  {isUploading ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Camera className="mr-2 h-4 w-4" />
+                  )}
+                  <span>{isUploading ? 'Uploading...' : 'Change Picture'}</span>
                 </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />

@@ -18,18 +18,15 @@ import {
   ClipboardCheck,
   Download,
   Music,
-  UploadCloud,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RegistrationModal } from './registration-modal';
 import { SatisfactionQuizModal } from './satisfaction-quiz-modal';
-import { useUser, useDoc, useMemoFirebase, useStorage } from '@/firebase';
+import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { quotes } from '@/lib/quotes';
 import { doc, getFirestore } from 'firebase/firestore';
 import type { UserProfile } from '@/models/user-profile';
 import { useMemo } from 'react';
-import { ref, uploadBytesResumable, type UploadTaskSnapshot } from 'firebase/storage';
-import { useToast } from '@/hooks/use-toast';
 
 // Mock data and state for demonstration purposes
 const initialTasks = {
@@ -55,8 +52,6 @@ export default function BasecampDashboardPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user } = useUser();
-  const storage = useStorage();
-  const { toast } = useToast();
   const firestore = useMemo(() => getFirestore(), []);
   
   const userProfileRef = useMemoFirebase(() => {
@@ -106,66 +101,6 @@ export default function BasecampDashboardPage() {
     setTasks(prev => ({...prev, quizTaken: true}));
     setQuizOpen(false);
   }
-
-  const handleTestUpload = async () => {
-    if (!user || !storage) {
-        toast({
-            variant: "destructive",
-            title: "Authentication Error",
-            description: "You must be logged in to perform a test upload.",
-        });
-        return;
-    }
-
-    // A simple 1x1 transparent PNG as a base64 data URL
-    const transparentPixel = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=';
-    const storageRef = ref(storage, `users/${user.uid}/test-upload/profile.png`);
-
-    toast({
-        title: "Starting Test Upload",
-        description: "Attempting to upload a test file to Storage...",
-    });
-
-    try {
-        const response = await fetch(transparentPixel);
-        const blob = await response.blob();
-        
-        const uploadTask = uploadBytesResumable(storageRef, blob);
-
-        uploadTask.on('state_changed', 
-          (snapshot: UploadTaskSnapshot) => {
-            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-            if (snapshot.bytesTransferred > 0 && progress < 100) {
-              toast({
-                title: "Confirmation: Upload In Progress",
-                description: `Uploading: ${Math.round(progress)}% complete. Bytes transferred: ${snapshot.bytesTransferred}`,
-              });
-            }
-          }, 
-          (error) => {
-            console.error("Test upload failed:", error);
-            toast({
-                variant: "destructive",
-                title: "Test Upload Failed",
-                description: `Error: ${error.code} - ${error.message}`,
-            });
-          }, 
-          () => {
-            toast({
-                title: "Test Upload Successful!",
-                description: `File uploaded to: users/${user.uid}/test-upload/profile.png`,
-            });
-          }
-        );
-    } catch (error: any) {
-        console.error("Test upload preparation failed:", error);
-        toast({
-            variant: "destructive",
-            title: "Test Upload Failed",
-            description: `Error: ${error.message}`,
-        });
-    }
-  };
 
   const getFocusText = () => {
     if (tasks.registered) {
@@ -262,7 +197,7 @@ export default function BasecampDashboardPage() {
                                 onClick={() => {}} // The parent `a` tag handles the action
                             />
                         </a>
-                         <a href="https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=4df18c5c76db4bd3" target="_blank" rel="noopener noreferrer" onClick={() => setTasks(prev => ({...prev, playlistAdded: true}))}>
+                         <a href="https://open.spotify.com/playlist/6CbgYjp9ZB49TYGPHOqkX?si=4df18c5c76db4bd3" target="_blank" rel="noopener noreferrer" onClick={() => setTasks(prev => ({...prev, playlistAdded: true}))}>
                             <StatusCard
                                 icon={<Music className="size-5 text-primary-foreground" />}
                                 isComplete={tasks.playlistAdded}
@@ -328,25 +263,6 @@ export default function BasecampDashboardPage() {
                 </CardContent>
             </Card>
           </div>
-
-          {/* Temporary Test Upload Button */}
-            <div className="mt-8">
-                <h3 className="text-2xl font-bold font-headline mb-4">Developer Tools</h3>
-                <Card>
-                    <CardContent className="p-6">
-                        <div className="flex items-center justify-between">
-                            <div>
-                                <p className="font-bold">Test Firebase Storage Upload</p>
-                                <p className="text-sm text-muted-foreground">This will attempt to upload a small test file to your Storage bucket.</p>
-                            </div>
-                            <Button onClick={handleTestUpload} variant="outline">
-                                <UploadCloud className="mr-2" />
-                                Run Test
-                            </Button>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
         </div>
       </div>
     </>
@@ -364,7 +280,7 @@ interface StatusCardProps {
 }
 
 function StatusCard({ icon, isComplete, incompleteText, completeText, description, onClick }: StatusCardProps) {
-    // The component might be wrapped in an `<a>` tag, so stop propagation on the click
+    // The component might be wrapped in an `a` tag, so stop propagation on the click
     // to prevent potential double-event firing.
     const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (onClick) {

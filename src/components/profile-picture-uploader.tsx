@@ -1,13 +1,13 @@
 'use client';
 
-import { useState, useRef, ReactNode } from 'react';
+import { useState, useRef, ReactNode, useEffect } from 'react';
 import { useAuth, useUser } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { updateProfile } from 'firebase/auth';
-import { getStorage, ref, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
+import { updateProfileAction } from '@/app/actions';
+import { Loader2 } from 'lucide-react';
 
 interface ProfilePictureUploaderProps {
-  children: (props: { openFilePicker: () => void }) => ReactNode;
+  children: (props: { openFilePicker: () => void, isUploading: boolean }) => ReactNode;
 }
 
 const ALLOWED_MIME_TYPES = [
@@ -21,18 +21,20 @@ const ALLOWED_MIME_TYPES = [
 const MAX_FILE_SIZE_MB = 15;
 
 export function ProfilePictureUploader({ children }: ProfilePictureUploaderProps) {
-  const { user } = useUser();
+  const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleFileChange = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    // --- Pre-Upload Checks ---
+    if (isUploading) return;
     if (!auth || !user) {
       toast({ variant: 'destructive', title: 'Authentication Error', description: 'You must be logged in to upload a photo.' });
       return;
     }
-    if (isUploading) return;
 
     const file = event.target.files?.[0];
     if (!file) return;
@@ -48,55 +50,45 @@ export function ProfilePictureUploader({ children }: ProfilePictureUploaderProps
     }
 
     setIsUploading(true);
-    const uploadToast = toast({ title: 'Uploading...', description: 'Your new profile picture is being uploaded.' });
+    
+    // Optimistic Preview
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setPreviewUrl(reader.result as string);
+    };
+    reader.readAsDataURL(file);
 
-    const storage = getStorage(auth.app);
-    const fileExtension = file.type.split('/')[1] || 'png';
-    const storageRef = ref(storage, `profile-pictures/${user.uid}/avatar.${fileExtension}`);
-    const uploadTask = uploadBytesResumable(storageRef, file);
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('uid', user.uid);
 
-    const timeout = setTimeout(() => {
-      uploadTask.cancel();
-      setIsUploading(false);
-      uploadToast.dismiss();
-      toast({ variant: 'destructive', title: 'Upload Timed Out', description: 'The upload took too long. Please check your connection and try again.' });
-    }, 20000); // 20-second timeout
+    const result = await updateProfileAction(formData);
 
-    uploadTask.on('state_changed',
-      null, // No need for progress updates in this UI
-      (error) => {
-        clearTimeout(timeout);
-        setIsUploading(false);
-        uploadToast.dismiss();
-        
-        // Specifically ignore user-initiated cancellation or timeout cancellation
-        if (error.code !== 'storage/canceled') {
-          toast({
-            variant: 'destructive',
-            title: 'Upload Failed',
-            description: error.message || 'An unknown error occurred.',
-          });
-        }
-      },
-      async () => {
-        clearTimeout(timeout);
-        try {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-          await updateProfile(user, { photoURL: downloadURL });
-          
-          uploadToast.dismiss();
-          toast({ title: 'Success!', description: 'Your profile picture has been updated.' });
-        } catch (error: any) {
-          uploadToast.dismiss();
-          toast({ variant: 'destructive', title: 'Update Failed', description: error.message || 'Could not update your profile.' });
-        } finally {
-          setIsUploading(false);
-        }
-      }
-    );
+    setIsUploading(false);
+    setPreviewUrl(null); // Clear preview after operation
+
+    if (result.success) {
+      toast({ title: 'Success!', description: 'Your profile picture has been updated.' });
+    } else {
+      toast({
+        variant: 'destructive',
+        title: 'Upload Failed',
+        description: result.error || 'An unknown error occurred.',
+      });
+    }
+
+     // Reset the file input so the same file can be selected again
+    if (fileInputRef.current) {
+      fileInputRef.current.value = '';
+    }
   };
 
   const openFilePicker = () => {
+     // Ensure user is loaded before allowing picker to open
+    if (isUserLoading || !user) {
+        toast({ title: "Please wait", description: "Authentication is still loading."});
+        return;
+    }
     fileInputRef.current?.click();
   };
 
@@ -108,9 +100,9 @@ export function ProfilePictureUploader({ children }: ProfilePictureUploaderProps
         onChange={handleFileChange}
         className="hidden"
         accept={ALLOWED_MIME_TYPES.join(',')}
-        disabled={isUploading}
+        disabled={isUploading || isUserLoading}
       />
-      {children({ openFilePicker })}
+      {children({ openFilePicker, isUploading })}
     </>
   );
 }

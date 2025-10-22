@@ -38,6 +38,7 @@ import { useToast } from '@/hooks/use-toast';
 import { updateProfile } from 'firebase/auth';
 import { doc, getFirestore, setDoc } from 'firebase/firestore';
 import type { UserProfile } from '@/models/user-profile';
+import { saveUserProfile } from '@/app/actions';
 
 const formSchema = z.object({
   firstName: z.string().min(1, 'First name is required.'),
@@ -66,7 +67,7 @@ const journeyStatuses = [
 export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegistered }: RegistrationModalProps) {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
-  const firestore = useMemo(() => auth ? getFirestore(auth.app) : null, [auth]);
+  const firestore = useMemo(() => getFirestore(), [auth]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
@@ -89,46 +90,38 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
   });
 
   useEffect(() => {
+    if (isUserLoading || isProfileLoading) return;
+
     const name = user?.displayName || '';
     const [firstName, ...lastNameParts] = name.split(' ');
     const lastName = lastNameParts.join(' ');
     
-    if (userProfile) {
-      form.reset({
-        firstName: userProfile.firstName || firstName || '',
-        lastName: userProfile.lastName || lastName || '',
-        callSign: userProfile.callSign || '',
-        journeyStatus: userProfile.journeyStatus || '',
-        whyNow: userProfile.whyNow || '',
-      });
-    } else if (user) {
-        form.reset({
-            firstName: firstName || '',
-            lastName: lastName || '',
-            callSign: '',
-            journeyStatus: '',
-            whyNow: '',
-        });
-    }
-  }, [user, userProfile, form]);
+    // Set form values from user profile if available, otherwise from auth, otherwise empty.
+    form.reset({
+      firstName: userProfile?.firstName || firstName || '',
+      lastName: userProfile?.lastName || lastName || '',
+      callSign: userProfile?.callSign || '',
+      journeyStatus: userProfile?.journeyStatus || '',
+      whyNow: userProfile?.whyNow || '',
+    });
+  }, [user, userProfile, form, isUserLoading, isProfileLoading, isOpen]);
   
   const onSubmit = async (data: RegistrationFormValues) => {
-    if (!user || !auth?.currentUser || !firestore || isSubmitting) return;
+    if (!user || isSubmitting) return;
     setIsSubmitting(true);
     
     try {
-      const { firstName, lastName, callSign, journeyStatus, whyNow } = data;
+      const { firstName, lastName, ...profileData } = data;
       const displayName = `${firstName} ${lastName}`.trim();
       
-      if (displayName && displayName !== user.displayName) {
-         await updateProfile(auth.currentUser, { displayName });
-      }
+      const payload = {
+        firstName,
+        lastName,
+        displayName,
+        ...profileData
+      };
 
-      await setDoc(
-        doc(firestore, 'users', user.uid),
-        { firstName, lastName, callSign, journeyStatus, whyNow, displayName, updatedAt: new Date().toISOString() },
-        { merge: true }
-      );
+      await saveUserProfile({ uid: user.uid, profileData: payload });
       
       onRegister(data);
       toast({
