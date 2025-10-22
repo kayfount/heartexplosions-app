@@ -163,7 +163,9 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     uploadTask.on(
         'state_changed',
         (snapshot) => {
-            // Optional: handle progress
+            // This is the missing progress handler
+            const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+            console.log('Upload is ' + progress + '% done');
         },
         (error) => {
             console.error("Upload error:", error);
@@ -180,6 +182,13 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
             try {
                 const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
                 await updateProfile(auth.currentUser!, { photoURL: downloadURL });
+                
+                // Also save it to the user's profile document in Firestore
+                if (firestore) {
+                  const userDocRef = doc(firestore, 'users', uid);
+                  await setDoc(userDocRef, { profilePicUrl: downloadURL }, { merge: true });
+                }
+                
                 setPreviewUrl(downloadURL);
                 toast({
                     title: 'Profile Picture Updated',
