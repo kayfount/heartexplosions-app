@@ -294,9 +294,9 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
             <CardContent className="p-6 flex items-center gap-4">
                  <div className={cn(
                      "flex items-center justify-center size-10 rounded-full transition-transform duration-300 group-hover:animate-shiver",
-                     isComplete ? "bg-accent/20" : "bg-foreground"
+                     isComplete ? "bg-primary" : "bg-foreground"
                  )}>
-                  {isComplete ? <CheckCircle2 className="size-6 text-accent" /> : icon}
+                  {isComplete ? <CheckCircle2 className="size-6 text-primary-foreground" /> : icon}
                 </div>
                 <div>
                     <p className="font-bold">{isComplete ? completeText : incompleteText}</p>
