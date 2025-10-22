@@ -59,13 +59,17 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
   const { data: userProfile } = useDoc<UserProfile>(userProfileRef);
 
   useEffect(() => {
-    if (isOpen && userProfile?.quizAnswers && userProfile.quizAnswers.length === quizQuestions.length) {
-      setAnswers(userProfile.quizAnswers);
-      setSliderValue(userProfile.quizAnswers[currentQuestion] ?? 5);
-    } else {
-      setAnswers(Array(quizQuestions.length).fill(5));
+    if (isOpen) {
+        if (userProfile?.quizAnswers && userProfile.quizAnswers.length === quizQuestions.length) {
+          setAnswers(userProfile.quizAnswers);
+          setSliderValue(userProfile.quizAnswers[currentQuestion] ?? 5);
+        } else {
+          const defaultAnswers = Array(quizQuestions.length).fill(5);
+          setAnswers(defaultAnswers);
+          setSliderValue(defaultAnswers[0]);
+        }
     }
-  }, [isOpen, userProfile, currentQuestion]);
+  }, [isOpen, userProfile]);
 
   const totalQuestions = quizQuestions.length;
   
@@ -74,10 +78,21 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
     return answers.reduce((sum, val) => sum + val, 0);
   }, [answers, totalQuestions]);
 
+  const finalPercentage = useMemo(() => {
+    const totalPossibleScore = totalQuestions * 10;
+    if (totalPossibleScore === 0) return 0;
+    return Math.round((finalScore / totalPossibleScore) * 100);
+  }, [finalScore, totalQuestions]);
+
   const saveAnswers = useMemo(() =>
     _.debounce(async (newAnswers: number[]) => {
       if (user) {
-        await saveUserProfile({ uid: user.uid, profileData: { quizAnswers: newAnswers } });
+        try {
+            await saveUserProfile({ uid: user.uid, profileData: { quizAnswers: newAnswers } });
+        } catch(e) {
+            console.error("Failed to save quiz answers", e);
+            // Optionally show a toast, but might be too noisy.
+        }
       }
     }, 500), [user]);
 
@@ -85,14 +100,13 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
     const newAnswers = [...answers];
     newAnswers[currentQuestion] = sliderValue;
     setAnswers(newAnswers);
-    await saveAnswers(newAnswers);
+    saveAnswers(newAnswers);
 
     if (currentQuestion < totalQuestions - 1) {
       setCurrentQuestion(prev => prev + 1);
       setSliderValue(newAnswers[currentQuestion + 1] ?? 5);
     } else {
       await handleFinish(newAnswers);
-      setStage('results');
     }
   };
 
@@ -101,7 +115,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
         const newAnswers = [...answers];
         newAnswers[currentQuestion] = sliderValue;
         setAnswers(newAnswers);
-        await saveAnswers(newAnswers);
+        saveAnswers(newAnswers);
 
         setCurrentQuestion(prev => prev - 1);
         setSliderValue(newAnswers[currentQuestion - 1] ?? 5);
@@ -124,7 +138,8 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
   
   const handleFinish = async (finalAnswers: number[]) => {
     const totalScore = finalAnswers.reduce((sum, val) => sum + val, 0);
-    const percentage = Math.round((totalScore / (totalQuestions * 10)) * 100)
+    const totalPossibleScore = totalQuestions * 10;
+    const percentage = totalPossibleScore > 0 ? Math.round((totalScore / totalPossibleScore) * 100) : 0;
     
     if (user) {
       try {
@@ -141,9 +156,9 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
         });
       }
     }
-
+    
+    setStage('results');
     onQuizComplete(totalScore);
-    // Don't close, just show results
   }
 
   const renderContent = () => {
@@ -211,7 +226,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
              <div className="text-center">
                  <DialogTitle className="text-2xl font-bold font-headline text-foreground mb-2">Your Role Clarity Score</DialogTitle>
                  <div className="my-6">
-                    <p className="text-7xl font-bold text-accent">{Math.round((finalScore / (totalQuestions * 10)) * 100)}%</p>
+                    <p className="text-7xl font-bold text-accent">{finalPercentage}%</p>
                  </div>
                  <p className="text-foreground/80 mb-6">This score is a snapshot of your current alignment. It's a starting point for your journey, not a final judgment.</p>
                  <DialogFooter>
@@ -247,5 +262,3 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
     </Dialog>
   );
 }
-
-    
