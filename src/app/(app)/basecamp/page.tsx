@@ -15,7 +15,6 @@ import {
   Tent,
   CheckCircle2,
   ClipboardPen,
-  ClipboardCheck,
   Download,
   Music,
 } from 'lucide-react';
@@ -99,7 +98,7 @@ export default function BasecampDashboardPage() {
     const percentage = Math.round((score / totalPossibleScore) * 100);
     setRoleClarityScore(percentage);
     setTasks(prev => ({...prev, quizTaken: true}));
-    setQuizOpen(false);
+    // Do not close the quiz modal here, let the modal handle its state
   }
 
   const getFocusText = () => {
@@ -173,7 +172,7 @@ export default function BasecampDashboardPage() {
                             onClick={() => setRegistrationOpen(true)}
                         />
                         <StatusCard
-                            icon={<ClipboardCheck className="size-5 text-primary-foreground" />}
+                            icon={<ClipboardPen className="size-5 text-primary-foreground" />}
                             isComplete={tasks.quizTaken}
                             incompleteText="Take the Role Satisfaction Quiz"
                             completeText="Retake Role Satisfaction Quiz"
@@ -306,3 +305,4 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
 }
 
     
+

@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Dialog,
@@ -50,6 +50,11 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
 
   const totalQuestions = quizQuestions.length;
   
+  const finalScore = useMemo(() => {
+    if (answers.length !== totalQuestions) return 0;
+    return answers.reduce((sum, val) => sum + val, 0);
+  }, [answers, totalQuestions]);
+
   const handleNextQuestion = () => {
     const newAnswers = [...answers];
     newAnswers[currentQuestion] = sliderValue;
@@ -88,8 +93,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
   };
   
   const handleFinish = async () => {
-    const totalScore = answers.reduce((sum, val) => sum + val, 0);
-    const percentage = Math.round((totalScore / (totalQuestions * 10)) * 100)
+    const percentage = Math.round((finalScore / (totalQuestions * 10)) * 100)
     
     if (user) {
       try {
@@ -107,7 +111,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
       }
     }
 
-    onQuizComplete(totalScore);
+    onQuizComplete(finalScore);
     handleClose();
   }
 
@@ -172,7 +176,6 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
         );
       
       case 'results':
-          const finalScore = answers.reduce((sum, val) => sum + val, 0);
         return (
              <div className="text-center">
                  <DialogTitle className="text-2xl font-bold font-headline text-foreground mb-2">Your Role Clarity Score</DialogTitle>
