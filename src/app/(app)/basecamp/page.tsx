@@ -98,7 +98,6 @@ export default function BasecampDashboardPage() {
     const percentage = Math.round((score / totalPossibleScore) * 100);
     setRoleClarityScore(percentage);
     setTasks(prev => ({...prev, quizTaken: true}));
-    // Do not close the quiz modal here, let the modal handle its state
   }
 
   const getFocusText = () => {
@@ -294,7 +293,7 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
             <CardContent className="p-6 flex items-center gap-4">
                  <div className={cn(
                      "flex items-center justify-center size-10 rounded-full transition-transform duration-300 group-hover:animate-shiver",
-                     isComplete ? "bg-primary" : "bg-foreground"
+                     isComplete ? "bg-[#BEBE1C]" : "bg-foreground"
                  )}>
                   {isComplete ? <CheckCircle2 className="size-6 text-primary-foreground" /> : icon}
                 </div>
