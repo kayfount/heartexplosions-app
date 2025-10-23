@@ -17,6 +17,7 @@ import {
   Download,
   Music,
   Lock,
+  Book,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RegistrationModal } from './registration-modal';
@@ -107,19 +108,14 @@ export default function BasecampDashboardPage() {
   const userName = userProfile?.callSign || userProfile?.firstName || user?.displayName || 'Keke';
   
   const handleTaskCompletion = async (task: 'guideDownloaded' | 'playlistAdded') => {
-    if (!user || tasks[task]) {
-        if (task === 'guideDownloaded') {
-            window.open('/guide.pdf', '_blank');
-        } else if (task === 'playlistAdded') {
-            window.open('https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=554ea16099804f4a', '_blank', 'noopener,noreferrer');
-        }
-        return;
-    } 
-
     if (task === 'guideDownloaded') {
         window.open('/guide.pdf', '_blank');
     } else if (task === 'playlistAdded') {
         window.open('https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=554ea16099804f4a', '_blank', 'noopener,noreferrer');
+    }
+
+    if (!user || tasks[task]) {
+        return;
     }
     
     try {
@@ -281,13 +277,11 @@ export default function BasecampDashboardPage() {
                 </div>
 
                 {/* Wisdom Widget */}
-                <div className="lg:mt-11">
-                    <div className="flex items-start gap-3 pt-[0.3%] pl-8">
-                      <h3 className="text-2xl font-bold font-headline mb-4">
-                        Wisdom from The Wilderness
-                      </h3>
-                    </div>
-                    <p className="text-lg italic text-muted-foreground pl-12">"{quote}"</p>
+                <div className="lg:mt-11 pt-[0.3%] pl-12">
+                  <h3 className="text-2xl font-bold font-headline mb-4">
+                    Wisdom from The Wilderness
+                  </h3>
+                  <p className="text-lg italic text-muted-foreground">"{quote}"</p>
                 </div>
             </div>
           
@@ -332,7 +326,7 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
                 "flex items-center justify-center size-10 rounded-full transition-colors duration-300 group-hover:animate-shiver",
                 isComplete ? "bg-accent" : "bg-foreground"
             )}>
-                {isComplete ? <CheckCircle2 className="size-6 text-primary-foreground" /> : icon}
+                {isComplete ? <CheckCircle2 className="size-6 text-accent-foreground" /> : icon}
             </div>
             <div>
                 <p className="font-bold">{isComplete ? completeText : incompleteText}</p>
@@ -344,8 +338,9 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
     const commonClass = "group cursor-pointer transition-all duration-300 hover:border-primary/50 hover:scale-105";
 
     return (
-        <Card onClick={onClick} className={commonClass}>
+        <Card onClick={onClick} className={cn(commonClass, isComplete && "border-accent/50")}>
             {content}
         </Card>
     );
 }
+
