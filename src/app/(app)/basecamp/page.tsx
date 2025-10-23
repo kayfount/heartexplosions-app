@@ -260,7 +260,7 @@ export default function BasecampDashboardPage() {
 
                 {/* Wisdom Widget */}
                 <div>
-                    <h3 className="text-2xl font-bold font-headline mb-4 flex items-start gap-2">
+                    <h3 className="text-2xl font-bold font-headline mb-4 flex items-center gap-2">
                         <BookOpen className="text-accent" /> From The Wilderness
                     </h3>
                     <p className="text-lg italic text-muted-foreground">"{quote}"</p>
@@ -325,3 +325,5 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
         </Card>
     );
 }
+
+    
