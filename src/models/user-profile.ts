@@ -19,16 +19,19 @@ export interface UserProfile {
     trifix?: string;
     coreValues?: string[];
     lifePurposeReportId?: string; // This would be a reference to a 'reports' collection
+    driverCompleted?: boolean;
     
     // The Destination
     focusArea?: 'career' | 'contribution' | 'calling';
     purposeProfileId?: string; // Ref to a 'reports' collection
+    destinationCompleted?: boolean;
     
     // The Route
     availableHours?: number;
     commitments?: string;
     timeline?: string;
     routePlanId?: string; // Ref to a 'reports' collection
+    routeCompleted?: boolean;
 }
 
     

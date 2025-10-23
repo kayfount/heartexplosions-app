@@ -16,6 +16,7 @@ import {
   ClipboardPen,
   Download,
   Music,
+  Lock,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RegistrationModal } from './registration-modal';
@@ -28,11 +29,16 @@ import { useMemo } from 'react';
 import { saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 
-const expeditionStages = [
-  { id: 'driver', title: '01 The Driver', icon: <Car className="text-accent" />, completed: false, href: '/driver' },
-  { id: 'destination', title: '02 The Destination', icon: <Target className="text-accent" />, completed: false, href: '/destination' },
-  { id: 'route', title: '03 The Route', icon: <RouteIcon className="text-accent" />, completed: false, href: '/route' },
-];
+type StageStatus = 'locked' | 'active' | 'completed';
+
+interface ExpeditionStage {
+  id: 'driver' | 'destination' | 'route';
+  title: string;
+  icon: React.ReactNode;
+  href: string;
+  status: StageStatus;
+}
+
 
 export default function BasecampDashboardPage() {
   const [isReturningUser, setIsReturningUser] = useState(true);
@@ -59,6 +65,35 @@ export default function BasecampDashboardPage() {
     guideDownloaded: false,
     playlistAdded: false,
   });
+  
+  const allSetupTasksCompleted = Object.values(tasks).every(Boolean);
+
+  const expeditionStages: ExpeditionStage[] = useMemo(() => {
+    const driverCompleted = !!userProfile?.driverCompleted;
+    const destinationCompleted = !!userProfile?.destinationCompleted;
+    const routeCompleted = !!userProfile?.routeCompleted;
+
+    let driverStatus: StageStatus = 'locked';
+    if (allSetupTasksCompleted) {
+        driverStatus = driverCompleted ? 'completed' : 'active';
+    }
+
+    let destinationStatus: StageStatus = 'locked';
+    if (driverCompleted) {
+        destinationStatus = destinationCompleted ? 'completed' : 'active';
+    }
+    
+    let routeStatus: StageStatus = 'locked';
+    if (destinationCompleted) {
+        routeStatus = routeCompleted ? 'completed' : 'active';
+    }
+
+    return [
+      { id: 'driver', title: '01 The Driver', icon: <Car />, href: '/driver', status: driverStatus },
+      { id: 'destination', title: '02 The Destination', icon: <Target />, href: '/destination', status: destinationStatus },
+      { id: 'route', title: '03 The Route', icon: <RouteIcon />, href: '/route', status: routeStatus },
+    ];
+  }, [userProfile, allSetupTasksCompleted]);
 
   useEffect(() => {
     if (userProfile) {
@@ -85,7 +120,6 @@ export default function BasecampDashboardPage() {
   }, [searchParams, router]);
 
   const userName = userProfile?.callSign || userProfile?.firstName || user?.displayName || 'Keke';
-  const allSetupTasksCompleted = Object.values(tasks).every(Boolean);
   
   const handleRegistration = (data: any) => {
     setTasks(prev => ({...prev, registered: true}));
@@ -121,6 +155,9 @@ export default function BasecampDashboardPage() {
   }
 
   const getFocusText = () => {
+    if (allSetupTasksCompleted) {
+      return "Excellent work! You've completed all essential setup tasks. You're ready to begin your expedition. Start with 01 The Driver.";
+    }
     if (tasks.registered) {
       const incompleteTasks = [];
       if (!tasks.quizTaken) incompleteTasks.push("take the Role Satisfaction Quiz");
@@ -167,7 +204,7 @@ export default function BasecampDashboardPage() {
                 {allSetupTasksCompleted && (
                      <Button asChild className="mt-6 bg-primary-gradient text-primary-foreground font-bold">
                         <Link href="/driver">
-                            Continue to The Driver <ArrowRight className="ml-2"/>
+                            Start Stage 01: The Driver <ArrowRight className="ml-2"/>
                         </Link>
                     </Button>
                 )}
@@ -232,16 +269,29 @@ export default function BasecampDashboardPage() {
                     <div className="space-y-4">
                         {expeditionStages.map(stage => (
                             <div key={stage.id}>
-                                <Link href={stage.href} className="block">
-                                    <Card className="hover:border-primary/50 transition-colors flex items-center p-4">
+                                <Link href={stage.status !== 'locked' ? stage.href : '#'} className={cn(stage.status === 'locked' && 'pointer-events-none')}>
+                                    <Card className={cn(
+                                        "transition-all flex items-center p-4",
+                                        stage.status === 'locked' && 'bg-muted/30 text-muted-foreground',
+                                        stage.status === 'active' && 'border-primary/50 ring-2 ring-primary/50 animate-pulse',
+                                        stage.status === 'completed' && 'bg-secondary/50',
+                                        stage.status !== 'locked' && 'hover:border-primary/50'
+                                    )}>
                                     <div className="flex items-center gap-4">
-                                            <div className="p-2 bg-secondary rounded-md text-accent">
+                                            <div className={cn(
+                                                "p-2 rounded-md",
+                                                stage.status === 'locked' && 'bg-muted/50',
+                                                stage.status === 'active' && 'bg-primary text-primary-foreground',
+                                                stage.status === 'completed' && 'bg-accent text-accent-foreground',
+                                            )}>
                                                 {stage.icon}
                                             </div>
                                             <p className="font-bold text-lg">{stage.title}</p>
                                     </div>
                                     <div className="ml-auto">
-                                        {stage.completed ? <CheckCircle2 className="text-accent"/> : <ArrowRight className="text-muted-foreground"/>}
+                                        {stage.status === 'completed' && <CheckCircle2 className="text-accent"/>}
+                                        {stage.status === 'active' && <ArrowRight />}
+                                        {stage.status === 'locked' && <Lock />}
                                     </div>
                                     </Card>
                                 </Link>
@@ -251,11 +301,11 @@ export default function BasecampDashboardPage() {
                 </div>
 
                 {/* Wisdom Widget */}
-                <div className="mt-11 pt-[0.6%] pl-4">
-                    <h3 className="text-2xl font-bold font-headline mb-4">
+                <div className="lg:mt-11">
+                    <h3 className="text-2xl font-bold font-headline mb-4 pt-[0.3%]">
                         Wisdom from The Wilderness
                     </h3>
-                    <p className="text-lg italic text-muted-foreground">"{quote}"</p>
+                    <p className="text-lg italic text-muted-foreground pl-4">"{quote}"</p>
                 </div>
             </div>
           
@@ -317,3 +367,4 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
         </Card>
     );
 }
+
