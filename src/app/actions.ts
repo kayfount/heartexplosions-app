@@ -51,6 +51,16 @@ export async function generateReportAction(input: GenerateReportActionInput) {
 export async function synthesizeProfileAction(input: SynthesizePurposeProfileInput) {
   try {
     const result = await synthesizePurposeProfile(input);
+    
+    // In a real app, you would save this synthesized profile and mark the destination stage as complete.
+    // For now, we just return the result.
+    // Example of what saving might look like:
+    // const db = getFirestore(getFirebaseAdminApp());
+    // const userProfileRef = db.collection('users').doc(uid);
+    // await userProfileRef.set({ destinationCompleted: true, purposeProfile: result }, { merge: true });
+    // revalidatePath('/basecamp');
+    // revalidatePath('/insights');
+
     return { success: true, data: result };
   } catch (error) {
     console.error(error);
@@ -61,6 +71,15 @@ export async function synthesizeProfileAction(input: SynthesizePurposeProfileInp
 export async function createRoutePlanAction(input: RoutePlanInput) {
   try {
     const result = await createRealisticRoutePlan(input);
+    
+    // Similarly, you'd save this and mark the route stage complete.
+    // Example:
+    // const db = getFirestore(getFirebaseAdminApp());
+    // const userProfileRef = db.collection('users').doc(uid);
+    // await userProfileRef.set({ routeCompleted: true, routePlan: result }, { merge: true });
+    // revalidatePath('/basecamp');
+    // revalidatePath('/insights');
+
     return { success: true, data: result };
   } catch (error) {
     console.error(error);
@@ -85,7 +104,7 @@ interface SaveUserProfileInput {
 
 export async function saveUserProfile({ uid, profileData }: SaveUserProfileInput) {
     if (!uid) {
-        return { success: false, error: 'User ID is missing.' };
+        throw new Error('User ID is missing.');
     }
     
     try {
@@ -102,18 +121,17 @@ export async function saveUserProfile({ uid, profileData }: SaveUserProfileInput
         
         await userProfileRef.set(updates, { merge: true });
         
-        revalidatePath('/basecamp');
-        revalidatePath('/driver');
-        revalidatePath('/driver/report');
-        revalidatePath('/driver/core-values');
-        revalidatePath('/destination');
-        revalidatePath('/route');
-        revalidatePath('/insights');
+        // Revalidate all paths that might show user data
+        revalidatePath('/basecamp', 'page');
+        revalidatePath('/driver', 'layout');
+        revalidatePath('/destination', 'page');
+        revalidatePath('/route', 'page');
+        revalidatePath('/insights', 'page');
         
         return { success: true };
     } catch (error) {
         console.error('Error saving user profile:', error);
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-        return { success: false, error: `Failed to save user profile: ${errorMessage}` };
+        throw new Error(`Failed to save user profile: ${errorMessage}`);
     }
 }

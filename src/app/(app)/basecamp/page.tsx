@@ -18,6 +18,7 @@ import {
   Download,
   Music,
   Flame,
+  Lock,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RegistrationModal } from './registration-modal';
@@ -240,7 +241,11 @@ export default function BasecampDashboardPage() {
                         {expeditionStages.map(stage => (
                             <div key={stage.id}>
                                 <Link href={stage.href} className={cn("block", stage.status === 'locked' && "pointer-events-none")}>
-                                    <Card className={cn("transition-colors flex items-center p-4", stage.status === 'locked' ? 'bg-muted/30' : 'hover:border-primary/50')}>
+                                    <Card className={cn(
+                                        "transition-all duration-300 flex items-center p-4", 
+                                        stage.status === 'locked' ? 'bg-muted/30 border-muted/50' : 'hover:border-primary/50',
+                                        stage.status === 'active' && 'border-accent border-2 shadow-lg shadow-accent/20'
+                                    )}>
                                         <div className="flex items-center gap-4">
                                             <div className={cn("p-2 rounded-md", stage.status === 'locked' ? 'bg-muted/50 text-muted-foreground' : 'bg-secondary text-accent')}>
                                                 {stage.icon}
@@ -260,6 +265,7 @@ export default function BasecampDashboardPage() {
                                                      <ArrowRight className="text-accent"/>
                                                 </motion.div>
                                             }
+                                            {stage.status === 'locked' && <Lock className="text-muted-foreground" />}
                                         </div>
                                     </Card>
                                 </Link>
