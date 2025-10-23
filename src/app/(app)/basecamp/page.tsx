@@ -29,14 +29,6 @@ import { useMemo } from 'react';
 import { saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 
-// Mock data and state for demonstration purposes
-const initialTasks = {
-  registered: false,
-  quizTaken: false,
-  guideDownloaded: false,
-  playlistAdded: false,
-};
-
 const expeditionStages = [
   { id: 'driver', title: '01 The Driver', icon: <Car className="text-accent" />, completed: false, href: '/driver' },
   { id: 'destination', title: '02 The Destination', icon: <Target className="text-accent" />, completed: false, href: '/destination' },
@@ -44,7 +36,6 @@ const expeditionStages = [
 ];
 
 export default function BasecampDashboardPage() {
-  const [tasks, setTasks] = useState(initialTasks);
   const [isReturningUser, setIsReturningUser] = useState(true);
   const [quote, setQuote] = useState('');
   const [isRegistrationOpen, setRegistrationOpen] = useState(false);
@@ -60,32 +51,36 @@ export default function BasecampDashboardPage() {
     if (!user?.uid || !firestore) return null;
     return doc(firestore, 'users', user.uid);
   }, [user?.uid, firestore]);
+
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+
+  const [tasks, setTasks] = useState({
+    registered: false,
+    quizTaken: false,
+    guideDownloaded: false,
+    playlistAdded: false,
+  });
 
   useEffect(() => {
     if (userProfile) {
-      setTasks(prev => ({
-        ...prev,
+      setTasks({
         registered: !!(userProfile.firstName && userProfile.journeyStatus),
         quizTaken: typeof userProfile.roleClarityScore === 'number',
         guideDownloaded: !!userProfile.guideDownloaded,
         playlistAdded: !!userProfile.playlistAdded,
-      }));
-       if(typeof userProfile.roleClarityScore === 'number') {
+      });
+      if (typeof userProfile.roleClarityScore === 'number') {
         setRoleClarityScore(userProfile.roleClarityScore);
-       }
+      }
     }
   }, [userProfile]);
 
   useEffect(() => {
-    // Moved quote selection into useEffect to prevent hydration errors.
-    // This ensures Math.random() is only called on the client.
     const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
     setQuote(randomQuote.quote);
 
     if (searchParams.get('register') === 'true') {
       setRegistrationOpen(true);
-      // Remove the query param from the URL without reloading the page
       router.replace('/basecamp', {scroll: false});
     }
   }, [searchParams, router]);
@@ -94,18 +89,20 @@ export default function BasecampDashboardPage() {
   const allSetupTasksCompleted = Object.values(tasks).every(Boolean);
   
   const handleRegistration = (data: any) => {
-    console.log("Registration data:", data);
     setTasks(prev => ({...prev, registered: true}));
   };
 
   const handleQuizComplete = (score: number) => {
-    setRoleClarityScore(score);
+    const totalPossibleScore = 100; // 10 questions * 10 points
+    const percentage = totalPossibleScore > 0 ? Math.round((score / totalPossibleScore) * 100) : 0;
+    setRoleClarityScore(percentage);
     setTasks(prev => ({...prev, quizTaken: true}));
   }
 
   const handleTaskCompletion = async (task: 'guideDownloaded' | 'playlistAdded') => {
-    if (!user || tasks[task]) return; // Don't run if user is not logged in or task is already complete
+    if (!user || tasks[task]) return; 
     setTasks(prev => ({...prev, [task]: true}));
+    
     try {
         if (task === 'guideDownloaded') {
             window.open('/guide.pdf', '_blank');
@@ -120,7 +117,6 @@ export default function BasecampDashboardPage() {
             title: 'Update Failed',
             description: `Could not save your progress for ${task}.`,
         });
-        // Revert UI state on failure
         setTasks(prev => ({...prev, [task]: false}));
     }
   }
@@ -256,7 +252,7 @@ export default function BasecampDashboardPage() {
                 </div>
 
                 {/* Wisdom Widget */}
-                <div className="mt-8">
+                <div className="mt-10">
                     <h3 className="text-2xl font-bold font-headline mb-4 flex items-center gap-2">
                         <BookOpen className="text-accent" /> From The Wilderness
                     </h3>
