@@ -103,11 +103,12 @@ export default function BasecampDashboardPage() {
 
 
   const handleRegistration = () => {
-    // The revalidation is handled by the server action
+    // The revalidation is handled by the server action, which triggers useDoc to refetch
   };
 
   const handleQuizComplete = () => {
     // The revalidation is handled by the server action
+    setLocalTasks(prev => ({ ...prev, quizTaken: true }));
   }
   
   const handleMarkAsComplete = async (task: 'guideDownloaded' | 'playlistAdded') => {

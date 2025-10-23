@@ -37,7 +37,7 @@ type QuizStage = 'intro' | 'quiz' | 'results';
 interface SatisfactionQuizModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onQuizComplete: (score: number) => void;
+  onQuizComplete: () => void;
 }
 
 export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: SatisfactionQuizModalProps) {
@@ -64,8 +64,6 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
       setCurrentQuestion(prev => prev + 1);
       setSliderValue(newAnswers[currentQuestion + 1] ?? 5);
     } else {
-      const totalScore = newAnswers.reduce((sum, val) => sum + val, 0);
-      onQuizComplete(totalScore);
       setStage('results');
     }
   };
@@ -102,6 +100,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
           title: "Score Saved",
           description: "Your Role Clarity Score has been saved to your profile.",
         });
+        onQuizComplete();
       } catch (error) {
          toast({
           variant: "destructive",
@@ -110,8 +109,6 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
         });
       }
     }
-
-    onQuizComplete(finalScore);
     handleClose();
   }
 
