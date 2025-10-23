@@ -99,14 +99,16 @@ export default function BasecampDashboardPage() {
 
   const handleTaskCompletion = async (task: 'guideDownloaded' | 'playlistAdded') => {
     if (!user || tasks[task]) return; 
+
+    if (task === 'guideDownloaded') {
+        window.open('/guide.pdf', '_blank');
+    } else if (task === 'playlistAdded') {
+        window.open('https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=554ea16099804f4a', '_blank', 'noopener,noreferrer');
+    }
+
     setTasks(prev => ({...prev, [task]: true}));
     
     try {
-        if (task === 'guideDownloaded') {
-            window.open('/guide.pdf', '_blank');
-        } else if (task === 'playlistAdded') {
-            window.open('https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=554ea16099804f4a', '_blank', 'noopener,noreferrer');
-        }
         await saveUserProfile({ uid: user.uid, profileData: { [task]: true }});
     } catch(e) {
         console.error(`Failed to save ${task} status`, e);
@@ -250,8 +252,8 @@ export default function BasecampDashboardPage() {
                 </div>
 
                 {/* Wisdom Widget */}
-                <div className="mt-11 pt-px">
-                    <h3 className="text-2xl font-bold font-headline mb-4 flex items-center gap-2">
+                <div className="mt-11 pt-[0.3%]">
+                    <h3 className="text-2xl font-bold font-headline mb-4 flex items-start gap-2">
                         <BookOpen className="text-accent" /> Wisdom from The Wilderness
                     </h3>
                     <p className="text-lg italic text-muted-foreground">"{quote}"</p>
@@ -317,4 +319,3 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
     );
 }
 
-    
