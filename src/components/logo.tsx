@@ -4,9 +4,10 @@ import { Heart } from "lucide-react";
 
 type LogoProps = {
   className?: string;
+  isCompact?: boolean;
 };
 
-export function Logo({ className }: LogoProps) {
+export function Logo({ className, isCompact = false }: LogoProps) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <div className="relative">
@@ -32,11 +33,11 @@ export function Logo({ className }: LogoProps) {
           </svg>
         </div>
       </div>
-      <span className="hidden md:inline text-xl font-bold tracking-tight font-headline text-gradient-logo">
-        Heart Explosions
-      </span>
+      {!isCompact && (
+        <span className="hidden md:inline text-xl font-bold tracking-tight font-headline text-gradient-logo">
+            Heart Explosions
+        </span>
+      )}
     </div>
   );
 }
-
-    
