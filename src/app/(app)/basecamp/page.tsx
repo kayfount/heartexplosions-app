@@ -11,7 +11,6 @@ import {
   Car,
   Target,
   Route as RouteIcon,
-  BookOpen,
   Tent,
   CheckCircle2,
   ClipboardPen,
@@ -252,7 +251,7 @@ export default function BasecampDashboardPage() {
                 </div>
 
                 {/* Wisdom Widget */}
-                <div className="mt-11 pt-[0.3%]">
+                <div className="mt-11 pt-[0.6%] pl-4">
                     <h3 className="text-2xl font-bold font-headline mb-4">
                         Wisdom from The Wilderness
                     </h3>
@@ -318,5 +317,3 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
         </Card>
     );
 }
-
-    
