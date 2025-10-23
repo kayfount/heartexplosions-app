@@ -17,7 +17,7 @@ import {
   ClipboardPen,
   Download,
   Music,
-  Heart,
+  Flame,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RegistrationModal } from './registration-modal';
@@ -178,7 +178,7 @@ export default function BasecampDashboardPage() {
                             onClick={() => setRegistrationOpen(true)}
                         />
                         <StatusCard
-                            icon={<Heart className="size-5 text-primary-foreground" />}
+                            icon={<Flame className="size-5 text-primary-foreground" />}
                             isComplete={tasks.quizTaken}
                             incompleteText="Take the Role Satisfaction Quiz"
                             completeText="Retake Role Satisfaction Quiz"
