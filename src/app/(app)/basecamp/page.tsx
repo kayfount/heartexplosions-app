@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, type ReactNode, useMemo } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -17,6 +17,7 @@ import {
   ClipboardPen,
   Download,
   Music,
+  Heart,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RegistrationModal } from './registration-modal';
@@ -25,11 +26,12 @@ import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { quotes } from '@/lib/quotes';
 import { doc, getFirestore } from 'firebase/firestore';
 import type { UserProfile } from '@/models/user-profile';
-import { useMemo } from 'react';
 import { saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
+import { motion } from 'framer-motion';
 
-// Mock data and state for demonstration purposes
+type StageStatus = 'locked' | 'active' | 'completed';
+
 const initialTasks = {
   registered: false,
   quizTaken: false,
@@ -37,19 +39,12 @@ const initialTasks = {
   playlistAdded: false,
 };
 
-const expeditionStages = [
-  { id: 'driver', title: '01 The Driver', icon: <Car className="text-accent" />, completed: false, href: '/driver' },
-  { id: 'destination', title: '02 The Destination', icon: <Target className="text-accent" />, completed: false, href: '/destination' },
-  { id: 'route', title: '03 The Route', icon: <RouteIcon className="text-accent" />, completed: false, href: '/route' },
-];
-
 export default function BasecampDashboardPage() {
-  const [tasks, setTasks] = useState(initialTasks);
   const [isReturningUser, setIsReturningUser] = useState(true);
   const [quote, setQuote] = useState('');
   const [isRegistrationOpen, setRegistrationOpen] = useState(false);
   const [isQuizOpen, setQuizOpen] = useState(false);
-  const [roleClarityScore, setRoleClarityScore] = useState<number | null>(null);
+  
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user } = useUser();
@@ -60,51 +55,60 @@ export default function BasecampDashboardPage() {
     if (!user?.uid || !firestore) return null;
     return doc(firestore, 'users', user.uid);
   }, [user?.uid, firestore]);
-  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
 
-  useEffect(() => {
-    if (userProfile) {
-      setTasks(prev => ({
-        ...prev,
-        registered: !!(userProfile.firstName && userProfile.journeyStatus),
-        quizTaken: typeof userProfile.roleClarityScore === 'number',
-        guideDownloaded: !!userProfile.guideDownloaded,
-        playlistAdded: !!userProfile.playlistAdded,
-      }));
-       if(userProfile.roleClarityScore) {
-        setRoleClarityScore(userProfile.roleClarityScore);
-       }
-    }
+  const { data: userProfile, isLoading: isProfileLoading, mutate } = useDoc<UserProfile>(userProfileRef);
+
+  const tasks = useMemo(() => {
+    if (!userProfile) return initialTasks;
+    return {
+      registered: !!(userProfile.firstName && userProfile.journeyStatus),
+      quizTaken: typeof userProfile.roleClarityScore === 'number',
+      guideDownloaded: !!userProfile.guideDownloaded,
+      playlistAdded: !!userProfile.playlistAdded,
+    };
   }, [userProfile]);
 
+  const allSetupTasksCompleted = Object.values(tasks).every(Boolean);
+
+  const expeditionStages = useMemo(() => [
+      { id: 'driver', title: '01 The Driver', icon: <Car />, href: '/driver', status: allSetupTasksCompleted ? 'active' : 'locked' as StageStatus, description: "Uncover your core motivations and natural genius with our purpose report." },
+      { id: 'destination', title: '02 The Destination', icon: <MapPin />, href: '/destination', status: 'locked' as StageStatus, description: "Choose your focus area and create a personalized Purpose Profile." },
+      { id: 'route', title: '03 The Route', icon: <RouteIcon />, href: '/route', status: 'locked' as StageStatus, description: "Build a sustainable, realistic roadmap with actionable weekly steps." },
+  ], [allSetupTasksCompleted]);
+
   useEffect(() => {
-    // Moved quote selection into useEffect to prevent hydration errors.
-    // This ensures Math.random() is only called on the client.
     const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
     setQuote(randomQuote.quote);
 
     if (searchParams.get('register') === 'true') {
       setRegistrationOpen(true);
-      // Remove the query param from the URL without reloading the page
       router.replace('/basecamp', {scroll: false});
     }
   }, [searchParams, router]);
 
-  const userName = userProfile?.callSign || userProfile?.firstName || user?.displayName || 'Keke';
-  const allSetupTasksCompleted = Object.values(tasks).every(Boolean);
-  
-  const handleRegistration = (data: any) => {
-    console.log("Registration data:", data);
-    setTasks(prev => ({...prev, registered: true}));
+  const handleRegistration = () => {
+    mutate(); // Re-fetch user profile to update status
   };
 
-  const handleQuizComplete = (score: number) => {
-    const totalPossibleScore = 10 * 10; // 10 questions, max score of 10
-    const percentage = Math.round((score / totalPossibleScore) * 100);
-    setRoleClarityScore(percentage);
-    setTasks(prev => ({...prev, quizTaken: true}));
-    // Do not close the quiz modal here, let the modal handle its state
+  const handleQuizComplete = () => {
+    mutate(); // Re-fetch user profile to update status
   }
+  
+  const handleMarkAsComplete = async (task: 'guideDownloaded' | 'playlistAdded') => {
+    if (!user) return;
+    try {
+      await saveUserProfile({ uid: user.uid, profileData: { [task]: true }});
+      mutate();
+    } catch (e) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not save your progress.',
+      })
+    }
+  };
+
+  const userName = userProfile?.callSign || userProfile?.firstName || user?.displayName || 'Keke';
 
   const getFocusText = () => {
     if (tasks.registered) {
@@ -120,20 +124,6 @@ export default function BasecampDashboardPage() {
     }
     return "Let's get you set up for the journey. Your first step is to register for the expedition.";
   }
-
-  const handleMarkAsComplete = async (task: 'guideDownloaded' | 'playlistAdded') => {
-    if (!user) return;
-    try {
-      await saveUserProfile({ uid: user.uid, profileData: { [task]: true }});
-      setTasks(prev => ({ ...prev, [task]: true }));
-    } catch (e) {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: 'Could not save your progress.',
-      })
-    }
-  };
   
   return (
     <>
@@ -156,7 +146,6 @@ export default function BasecampDashboardPage() {
             </h1>
           </div>
         
-          {/* Welcome Box */}
           <Card className="w-full bg-card/80 border-border shadow-lg">
             <CardContent className="p-8 text-center">
                 <Tent className="mx-auto size-12 text-accent mb-4"/>
@@ -176,9 +165,7 @@ export default function BasecampDashboardPage() {
         </div>
 
         <div className="max-w-5xl mx-auto space-y-8">
-            {/* Registration & Essentials Section */}
             <div className="space-y-8">
-                {/* Registration Section */}
                 <div>
                     <h3 className="text-2xl font-bold font-headline mb-4">Register for the Expedition</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -191,7 +178,7 @@ export default function BasecampDashboardPage() {
                             onClick={() => setRegistrationOpen(true)}
                         />
                         <StatusCard
-                            icon={<ClipboardPen className="size-5 text-primary-foreground" />}
+                            icon={<Heart className="size-5 text-primary-foreground" />}
                             isComplete={tasks.quizTaken}
                             incompleteText="Take the Role Satisfaction Quiz"
                             completeText="Retake Role Satisfaction Quiz"
@@ -201,18 +188,17 @@ export default function BasecampDashboardPage() {
                     </div>
                 </div>
 
-                {/* Essentials Section */}
                 <div>
                     <h3 className="text-2xl font-bold font-headline mb-4">Pick Up Your Essentials</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <a href="/guide.pdf" download onClick={() => handleMarkAsComplete('guideDownloaded')}>
+                        <a href="https://www.canva.com/design/DAGZDvGfwkc/ptwWB6lPjTmt4j-sAslcWQ/view?utm_content=DAGZDvGfwkc&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hac7d68a9e2" target="_blank" rel="noopener noreferrer" onClick={() => handleMarkAsComplete('guideDownloaded')}>
                             <StatusCard
                                 icon={<Download className="size-5 text-primary-foreground" />}
                                 isComplete={tasks.guideDownloaded}
                                 incompleteText="Download Your Guide"
                                 completeText="Guide Downloaded"
                                 description="Your expedition guide is ready!"
-                                onClick={() => {}} // The parent `a` tag handles the action
+                                onClick={() => {}} 
                             />
                         </a>
                          <a href="https://open.spotify.com/playlist/6CbgYjp9ZB49TYGPHOqkX?si=3872886ff0374df2" target="_blank" rel="noopener noreferrer" onClick={() => handleMarkAsComplete('playlistAdded')}>
@@ -230,23 +216,33 @@ export default function BasecampDashboardPage() {
             </div>
             
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                {/* Expedition Prep Section */}
                 <div className="lg:col-span-2">
                     <h3 className="text-2xl font-bold font-headline mb-4">Expedition Prep</h3>
                     <div className="space-y-4">
                         {expeditionStages.map(stage => (
                             <div key={stage.id}>
-                                <Link href={stage.href} className="block">
-                                    <Card className="hover:border-primary/50 transition-colors flex items-center p-4">
-                                    <div className="flex items-center gap-4">
-                                            <div className="p-2 bg-secondary rounded-md text-accent">
+                                <Link href={stage.href} className={cn("block", stage.status === 'locked' && "pointer-events-none")}>
+                                    <Card className={cn("transition-colors flex items-center p-4", stage.status === 'locked' ? 'bg-muted/30' : 'hover:border-primary/50')}>
+                                        <div className="flex items-center gap-4">
+                                            <div className={cn("p-2 rounded-md", stage.status === 'locked' ? 'bg-muted/50 text-muted-foreground' : 'bg-secondary text-accent')}>
                                                 {stage.icon}
                                             </div>
-                                            <p className="font-bold text-lg">{stage.title}</p>
-                                    </div>
-                                    <div className="ml-auto">
-                                        {stage.completed ? <CheckCircle2 className="text-accent"/> : <ArrowRight className="text-muted-foreground"/>}
-                                    </div>
+                                            <div>
+                                                <p className={cn("font-bold text-lg", stage.status === 'locked' && 'text-muted-foreground')}>{stage.title}</p>
+                                                <p className="text-sm text-muted-foreground">{stage.description}</p>
+                                            </div>
+                                        </div>
+                                        <div className="ml-auto">
+                                            {stage.status === 'completed' && <CheckCircle2 className="text-accent"/>}
+                                            {stage.status === 'active' && 
+                                                <motion.div
+                                                    animate={{ opacity: [0.5, 1, 0.5] }}
+                                                    transition={{ duration: 1.5, repeat: Infinity, repeatType: "loop", ease: "easeInOut" }}
+                                                >
+                                                     <ArrowRight className="text-accent"/>
+                                                </motion.div>
+                                            }
+                                        </div>
                                     </Card>
                                 </Link>
                              </div>
@@ -254,7 +250,6 @@ export default function BasecampDashboardPage() {
                     </div>
                 </div>
 
-                {/* Wisdom Widget */}
                 <div>
                     <h3 className="text-2xl font-bold font-headline mb-4 flex items-center gap-2 pt-7">
                         <BookOpen className="text-accent" /> Wisdom From The Wilderness
@@ -263,14 +258,13 @@ export default function BasecampDashboardPage() {
                 </div>
             </div>
           
-          {/* Check Your Expedition Status */}
           <div>
             <h3 className="text-2xl font-bold font-headline mb-4">Check Your Expedition Status</h3>
             <Card>
                 <CardContent className="p-6">
                     <div className="grid grid-cols-2 gap-8 text-center">
                         <div>
-                            <p className="text-4xl font-bold text-accent">{roleClarityScore !== null ? `${roleClarityScore}%` : '--'}</p>
+                            <p className="text-4xl font-bold text-accent">{userProfile?.roleClarityScore !== undefined ? `${userProfile.roleClarityScore}%` : '--'}</p>
                             <p className="text-sm text-muted-foreground">Role Clarity Score</p>
                         </div>
                          <div>
@@ -287,7 +281,6 @@ export default function BasecampDashboardPage() {
   );
 }
 
-// Helper component for status cards
 interface StatusCardProps {
     icon: ReactNode;
     isComplete: boolean;
@@ -298,27 +291,25 @@ interface StatusCardProps {
 }
 
 function StatusCard({ icon, isComplete, incompleteText, completeText, description, onClick }: StatusCardProps) {
-    // The component might be wrapped in an `a` tag, so stop propagation on the click
-    // to prevent potential double-event firing.
     const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (onClick) {
-            e.preventDefault(); // prevent navigation if it's inside an anchor
+            e.preventDefault(); 
             e.stopPropagation();
             onClick();
         }
     }
 
     return (
-        <Card onClick={handleClick} className={cn("group cursor-pointer transition-all duration-300 hover:border-primary/50 hover:scale-105")}>
+        <Card onClick={handleClick} className={cn("group cursor-pointer transition-all duration-300 hover:border-primary/50 hover:scale-[1.02]")}>
             <CardContent className="p-6 flex items-center gap-4">
                  <div className={cn(
-                    "flex items-center justify-center size-10 rounded-full transition-all duration-300 group-hover:animate-shiver",
+                    "flex items-center justify-center size-10 rounded-full transition-all duration-300",
                     isComplete ? "bg-accent" : "bg-foreground"
                  )}>
                   {isComplete ? <CheckCircle2 className="size-5 text-primary-foreground" /> : icon}
                 </div>
                 <div>
-                    <p className="font-bold">{isComplete ? completeText : incompleteText}</p>
+                    <p className="font-bold text-lg">{isComplete ? completeText : incompleteText}</p>
                     <p className="text-sm text-muted-foreground">{description}</p>
                 </div>
             </CardContent>
@@ -327,5 +318,3 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
 }
 
     
-
-
