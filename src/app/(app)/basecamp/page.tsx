@@ -124,12 +124,13 @@ export default function BasecampDashboardPage() {
         description: 'Your essentials checklist has been updated.',
       });
     } catch (e: any) {
+      console.error("Failed to save profile:", e);
       // Revert UI on error
       setLocalTasks(prev => ({ ...prev, [task]: false }));
       toast({
         variant: 'destructive',
-        title: 'Error',
-        description: e.message || 'Could not save your progress.',
+        title: 'Error Saving Progress',
+        description: e.message || 'Could not save your progress due to a server issue.',
       })
     }
   };
