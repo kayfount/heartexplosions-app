@@ -8,16 +8,11 @@ export function getFirebaseAdminApp(): App {
   if (getApps().length) {
     return getApp();
   }
-  
-  const projectId = process.env.GCLOUD_PROJECT || "studio-3233859570-d7bfa";
-  const bucketName = `${projectId}.appspot.com`;
 
-  // This will use the service account credentials from the environment to initialize the Admin SDK.
-  // This is the standard way to initialize the Admin SDK in a secure server environment.
+  // When running in a Google Cloud environment like Firebase App Hosting, 
+  // initializeApp() with no arguments will automatically use the environment's
+  // service account credentials.
+  // This is the standard and recommended way to initialize the Admin SDK in a secure server environment.
   // https://firebase.google.com/docs/admin/setup#initialize-sdk
-  return initializeApp({
-    credential: credential.applicationDefault(),
-    projectId: projectId,
-    storageBucket: bucketName
-  });
+  return initializeApp();
 }
