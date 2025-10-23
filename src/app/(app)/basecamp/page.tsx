@@ -99,10 +99,7 @@ export default function BasecampDashboardPage() {
   };
 
   const handleQuizComplete = (score: number) => {
-    const totalQuestions = 10;
-    const maxScore = totalQuestions * 10;
-    const percentage = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
-    setRoleClarityScore(percentage);
+    setRoleClarityScore(score);
     setTasks(prev => ({...prev, quizTaken: true}));
   }
 
@@ -259,7 +256,7 @@ export default function BasecampDashboardPage() {
                 </div>
 
                 {/* Wisdom Widget */}
-                <div className="mt-12">
+                <div className="mt-8">
                     <h3 className="text-2xl font-bold font-headline mb-4 flex items-center gap-2">
                         <BookOpen className="text-accent" /> From The Wilderness
                     </h3>
@@ -325,5 +322,3 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
         </Card>
     );
 }
-
-    
