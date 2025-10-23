@@ -70,21 +70,29 @@ export default function BasecampDashboardPage() {
 
   const allSetupTasksCompleted = Object.values(tasks).every(Boolean);
 
-  const expeditionStages = useMemo(() => [
-      { id: 'driver', title: '01 The Driver', icon: <Car />, href: '/driver', status: allSetupTasksCompleted ? 'active' : 'locked' as StageStatus, description: "Uncover your core motivations and natural genius with our purpose report." },
-      { id: 'destination', title: '02 The Destination', icon: <MapPin />, href: '/destination', status: 'locked' as StageStatus, description: "Choose your focus area and create a personalized Purpose Profile." },
-      { id: 'route', title: '03 The Route', icon: <RouteIcon />, href: '/route', status: 'locked' as StageStatus, description: "Build a sustainable, realistic roadmap with actionable weekly steps." },
-  ], [allSetupTasksCompleted]);
+  const expeditionStages = useMemo(() => {
+    const driverStatus: StageStatus = userProfile?.driverCompleted ? 'completed' : allSetupTasksCompleted ? 'active' : 'locked';
+    const destinationStatus: StageStatus = userProfile?.destinationCompleted ? 'completed' : driverStatus === 'completed' ? 'active' : 'locked';
+    const routeStatus: StageStatus = userProfile?.routeCompleted ? 'completed' : destinationStatus === 'completed' ? 'active' : 'locked';
+      
+    return [
+      { id: 'driver', title: '01 The Driver', icon: <Car />, href: '/driver', status: driverStatus, description: "Uncover your core motivations and natural genius with our purpose report." },
+      { id: 'destination', title: '02 The Destination', icon: <MapPin />, href: '/destination', status: destinationStatus, description: "Choose your focus area and create a personalized Purpose Profile." },
+      { id: 'route', title: '03 The Route', icon: <RouteIcon />, href: '/route', status: routeStatus, description: "Build a sustainable, realistic roadmap with actionable weekly steps." },
+    ]
+  }, [allSetupTasksCompleted, userProfile]);
 
   useEffect(() => {
     const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
     setQuote(randomQuote.quote);
 
-    if (searchParams.get('register') === 'true') {
+    const showRegistration = searchParams.get('register') === 'true';
+    if (showRegistration && !isRegistrationOpen) {
       setRegistrationOpen(true);
       router.replace('/basecamp', {scroll: false});
     }
-  }, [searchParams, router]);
+  }, [searchParams, router, isRegistrationOpen]);
+
 
   const handleRegistration = () => {
     mutate(); // Re-fetch user profile to update status
@@ -98,6 +106,10 @@ export default function BasecampDashboardPage() {
     if (!user) return;
     try {
       await saveUserProfile({ uid: user.uid, profileData: { [task]: true }});
+      toast({
+        title: 'Progress Saved!',
+        description: 'Your essentials checklist has been updated.',
+      });
       mutate();
     } catch (e) {
       toast({
@@ -156,7 +168,7 @@ export default function BasecampDashboardPage() {
                 {allSetupTasksCompleted && (
                      <Button asChild className="mt-6 bg-primary-gradient text-primary-foreground font-bold">
                         <Link href="/driver">
-                            Continue to The Driver <ArrowRight className="ml-2"/>
+                            You're ready to begin. Start with Phase 01 - The Driver <ArrowRight className="ml-2"/>
                         </Link>
                     </Button>
                 )}
@@ -198,7 +210,7 @@ export default function BasecampDashboardPage() {
                                 incompleteText="Download Your Guide"
                                 completeText="Guide Downloaded"
                                 description="Your expedition guide is ready!"
-                                onClick={() => {}} 
+                                onClick={() => {}} // onClick is handled by the anchor tag
                             />
                         </a>
                          <a href="https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=3872886ff0374df2" target="_blank" rel="noopener noreferrer" onClick={() => handleMarkAsComplete('playlistAdded')}>
@@ -208,7 +220,7 @@ export default function BasecampDashboardPage() {
                                 incompleteText="Add The Playlist"
                                 completeText="Playlist Added"
                                 description="Your soundtrack is ready!"
-                                onClick={() => {}}
+                                onClick={() => {}} // onClick is handled by the anchor tag
                             />
                         </a>
                     </div>

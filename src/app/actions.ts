@@ -34,10 +34,11 @@ export async function generateReportAction(input: GenerateReportActionInput) {
 
     // Update the user's profile with the new report ID
     const userProfileRef = db.collection('users').doc(uid);
-    await userProfileRef.set({ lifePurposeReportId: reportRef.id }, { merge: true });
+    await userProfileRef.set({ lifePurposeReportId: reportRef.id, driverCompleted: true }, { merge: true });
 
     revalidatePath('/insights');
     revalidatePath('/driver/report');
+    revalidatePath('/basecamp');
 
     return { success: true, data: result };
   } catch (error) {
