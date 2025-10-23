@@ -93,9 +93,7 @@ export default function BasecampDashboardPage() {
   };
 
   const handleQuizComplete = (score: number) => {
-    const totalPossibleScore = 100; // 10 questions * 10 points
-    const percentage = totalPossibleScore > 0 ? Math.round((score / totalPossibleScore) * 100) : 0;
-    setRoleClarityScore(percentage);
+    setRoleClarityScore(score);
     setTasks(prev => ({...prev, quizTaken: true}));
   }
 
@@ -252,9 +250,9 @@ export default function BasecampDashboardPage() {
                 </div>
 
                 {/* Wisdom Widget */}
-                <div className="mt-10">
+                <div className="mt-11 pt-px">
                     <h3 className="text-2xl font-bold font-headline mb-4 flex items-center gap-2">
-                        <BookOpen className="text-accent" /> From The Wilderness
+                        <BookOpen className="text-accent" /> Wisdom from The Wilderness
                     </h3>
                     <p className="text-lg italic text-muted-foreground">"{quote}"</p>
                 </div>
@@ -299,7 +297,7 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
         <CardContent className="p-6 flex items-center gap-4">
             <div className={cn(
                 "flex items-center justify-center size-10 rounded-full transition-colors duration-300 group-hover:animate-shiver",
-                isComplete ? "bg-[#BEBE1C]" : "bg-foreground"
+                isComplete ? "bg-accent" : "bg-foreground"
             )}>
                 {isComplete ? <CheckCircle2 className="size-6 text-primary-foreground" /> : icon}
             </div>
@@ -318,3 +316,5 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
         </Card>
     );
 }
+
+    
