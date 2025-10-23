@@ -13,7 +13,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
-import { Flame, ArrowRight, ArrowLeft, X, User } from 'lucide-react';
+import { Flame, ArrowRight, ArrowLeft, X, User, Loader2 } from 'lucide-react';
 import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -48,6 +48,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
   const [currentQuestion, setCurrentQuestion] = useState(0);
   const [answers, setAnswers] = useState<number[]>(Array(quizQuestions.length).fill(5));
   const [sliderValue, setSliderValue] = useState(5);
+  const [isFinishing, setIsFinishing] = useState(false);
   const { user } = useUser();
   const { toast } = useToast();
   const firestore = useMemo(() => getFirestore(), []);
@@ -137,6 +138,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
   };
   
   const handleFinish = async (finalAnswers: number[]) => {
+    setIsFinishing(true);
     const totalScore = finalAnswers.reduce((sum, val) => sum + val, 0);
     const totalPossibleScore = totalQuestions * 10;
     const percentage = totalPossibleScore > 0 ? Math.round((totalScore / totalPossibleScore) * 100) : 0;
@@ -157,8 +159,9 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
       }
     }
     
-    setStage('results');
     onQuizComplete(totalScore);
+    setIsFinishing(false);
+    setStage('results');
   }
 
   const renderContent = () => {
@@ -214,8 +217,14 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
                 <Button onClick={handlePreviousQuestion} variant="outline" disabled={currentQuestion === 0}>
                     <ArrowLeft className="mr-2"/> Previous
                 </Button>
-                <Button onClick={handleNextQuestion} className="bg-destructive hover:bg-destructive/80 text-destructive-foreground">
-                    {currentQuestion < totalQuestions - 1 ? 'Next' : 'See My Score'} <ArrowRight className="ml-2"/>
+                <Button onClick={handleNextQuestion} disabled={isFinishing} className="bg-destructive hover:bg-destructive/80 text-destructive-foreground">
+                    {isFinishing ? (
+                        <><Loader2 className="mr-2 animate-spin"/> Scoring...</>
+                    ) : (
+                        <>
+                            {currentQuestion < totalQuestions - 1 ? 'Next' : 'See My Score'} <ArrowRight className="ml-2"/>
+                        </>
+                    )}
                 </Button>
             </div>
           </div>
