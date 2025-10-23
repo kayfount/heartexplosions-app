@@ -110,6 +110,11 @@ export default function BasecampDashboardPage() {
     if (!user || tasks[task]) return; // Don't run if user is not logged in or task is already complete
     setTasks(prev => ({...prev, [task]: true}));
     try {
+        if (task === 'guideDownloaded') {
+            window.open('/guide.pdf', '_blank');
+        } else if (task === 'playlistAdded') {
+            window.open('https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=554ea16099804f4a', '_blank', 'noopener,noreferrer');
+        }
         await saveUserProfile({ uid: user.uid, profileData: { [task]: true }});
     } catch(e) {
         console.error(`Failed to save ${task} status`, e);
@@ -214,10 +219,7 @@ export default function BasecampDashboardPage() {
                             incompleteText="Download Your Guide"
                             completeText="Guide Downloaded"
                             description="Your expedition guide is ready!"
-                            onClick={() => {
-                                handleTaskCompletion('guideDownloaded');
-                                window.open('/guide.pdf', '_blank');
-                            }}
+                            onClick={() => handleTaskCompletion('guideDownloaded')}
                         />
                          <StatusCard
                             icon={<Music className="size-5 text-primary-foreground" />}
@@ -225,10 +227,7 @@ export default function BasecampDashboardPage() {
                             incompleteText="Add The Playlist"
                             completeText="Playlist Added"
                             description="Your soundtrack is ready!"
-                             onClick={() => {
-                                handleTaskCompletion('playlistAdded');
-                                window.open('https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=554ea16099804f4a', '_blank', 'noopener,noreferrer');
-                            }}
+                             onClick={() => handleTaskCompletion('playlistAdded')}
                         />
                     </div>
                 </div>
@@ -262,7 +261,7 @@ export default function BasecampDashboardPage() {
                 {/* Wisdom Widget */}
                 <div>
                     <h3 className="text-2xl font-bold font-headline mb-4 flex items-start gap-2">
-                        <BookOpen className="text-accent" /> <span className="pt-[5px]">Wisdom From The Wilderness</span>
+                        <BookOpen className="text-accent" /> From The Wilderness
                     </h3>
                     <p className="text-lg italic text-muted-foreground">"{quote}"</p>
                 </div>
@@ -300,10 +299,9 @@ interface StatusCardProps {
     completeText: string;
     description: string;
     onClick?: () => void;
-    href?: string;
 }
 
-function StatusCard({ icon, isComplete, incompleteText, completeText, description, onClick, href }: StatusCardProps) {
+function StatusCard({ icon, isComplete, incompleteText, completeText, description, onClick }: StatusCardProps) {
     const content = (
         <CardContent className="p-6 flex items-center gap-4">
             <div className={cn(
@@ -321,21 +319,9 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
 
     const commonClass = "group cursor-pointer transition-all duration-300 hover:border-primary/50 hover:scale-105";
 
-    if (href) {
-        return (
-            <Link href={href} passHref>
-                <Card as="a" onClick={onClick} className={commonClass}>
-                    {content}
-                </Card>
-            </Link>
-        )
-    }
-
     return (
         <Card onClick={onClick} className={commonClass}>
             {content}
         </Card>
     );
 }
-
-    
