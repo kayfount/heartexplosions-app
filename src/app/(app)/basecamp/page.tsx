@@ -99,7 +99,10 @@ export default function BasecampDashboardPage() {
   };
 
   const handleQuizComplete = (score: number) => {
-    setRoleClarityScore(score);
+    const totalQuestions = 10;
+    const maxScore = totalQuestions * 10;
+    const percentage = maxScore > 0 ? Math.round((score / maxScore) * 100) : 0;
+    setRoleClarityScore(percentage);
     setTasks(prev => ({...prev, quizTaken: true}));
   }
 
@@ -205,7 +208,7 @@ export default function BasecampDashboardPage() {
                 <div>
                     <h3 className="text-2xl font-bold font-headline mb-4">Pick Up Your Essentials</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <StatusCard
+                       <StatusCard
                             icon={<Download className="size-5 text-primary-foreground" />}
                             isComplete={tasks.guideDownloaded}
                             incompleteText="Download Your Guide"
@@ -222,7 +225,7 @@ export default function BasecampDashboardPage() {
                             incompleteText="Add The Playlist"
                             completeText="Playlist Added"
                             description="Your soundtrack is ready!"
-                            onClick={() => {
+                             onClick={() => {
                                 handleTaskCompletion('playlistAdded');
                                 window.open('https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=554ea16099804f4a', '_blank', 'noopener,noreferrer');
                             }}
@@ -258,8 +261,8 @@ export default function BasecampDashboardPage() {
 
                 {/* Wisdom Widget */}
                 <div>
-                    <h3 className="text-2xl font-bold font-headline mb-4 flex items-start gap-2 pt-7">
-                        <BookOpen className="text-accent" /> <span className="pt-px">Wisdom From The Wilderness</span>
+                    <h3 className="text-2xl font-bold font-headline mb-4 flex items-start gap-2">
+                        <BookOpen className="text-accent" /> <span className="pt-[5px]">Wisdom From The Wilderness</span>
                     </h3>
                     <p className="text-lg italic text-muted-foreground">"{quote}"</p>
                 </div>
@@ -296,30 +299,43 @@ interface StatusCardProps {
     incompleteText: string;
     completeText: string;
     description: string;
-    onClick: () => void;
+    onClick?: () => void;
+    href?: string;
 }
 
-function StatusCard({ icon, isComplete, incompleteText, completeText, description, onClick }: StatusCardProps) {
-    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (onClick) {
-            onClick();
-        }
+function StatusCard({ icon, isComplete, incompleteText, completeText, description, onClick, href }: StatusCardProps) {
+    const content = (
+        <CardContent className="p-6 flex items-center gap-4">
+            <div className={cn(
+                "flex items-center justify-center size-10 rounded-full transition-colors duration-300 group-hover:animate-shiver",
+                isComplete ? "bg-[#BEBE1C]" : "bg-foreground"
+            )}>
+                {isComplete ? <CheckCircle2 className="size-6 text-primary-foreground" /> : icon}
+            </div>
+            <div>
+                <p className="font-bold">{isComplete ? completeText : incompleteText}</p>
+                <p className="text-sm text-muted-foreground">{description}</p>
+            </div>
+        </CardContent>
+    );
+
+    const commonClass = "group cursor-pointer transition-all duration-300 hover:border-primary/50 hover:scale-105";
+
+    if (href) {
+        return (
+            <Link href={href} passHref>
+                <Card as="a" onClick={onClick} className={commonClass}>
+                    {content}
+                </Card>
+            </Link>
+        )
     }
 
     return (
-        <Card onClick={handleClick} className={cn("group cursor-pointer transition-all duration-300 hover:border-primary/50 hover:scale-105")}>
-            <CardContent className="p-6 flex items-center gap-4">
-                 <div className={cn(
-                     "flex items-center justify-center size-10 rounded-full transition-transform duration-300 group-hover:animate-shiver",
-                     isComplete ? "bg-[#BEBE1C]" : "bg-foreground"
-                 )}>
-                  {isComplete ? <CheckCircle2 className="size-6 text-primary-foreground" /> : icon}
-                </div>
-                <div>
-                    <p className="font-bold">{isComplete ? completeText : incompleteText}</p>
-                    <p className="text-sm text-muted-foreground">{description}</p>
-                </div>
-            </CardContent>
+        <Card onClick={onClick} className={commonClass}>
+            {content}
         </Card>
-    )
+    );
 }
+
+    
