@@ -208,26 +208,28 @@ export default function BasecampDashboardPage() {
                 <div>
                     <h3 className="text-2xl font-bold font-headline mb-4">Pick Up Your Essentials</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <a href="/guide.pdf" download>
-                            <StatusCard
-                                icon={<Download className="size-5 text-primary-foreground" />}
-                                isComplete={tasks.guideDownloaded}
-                                incompleteText="Download Your Guide"
-                                completeText="Guide Downloaded"
-                                description="Your expedition guide is ready!"
-                                onClick={() => handleTaskCompletion('guideDownloaded')}
-                            />
-                        </a>
-                         <a href="https://open.spotify.com/playlist/6CbgYjp9ZB49TYGPHOqkX?si=4df18c5c76db4bd3" target="_blank" rel="noopener noreferrer">
-                            <StatusCard
-                                icon={<Music className="size-5 text-primary-foreground" />}
-                                isComplete={tasks.playlistAdded}
-                                incompleteText="Add The Playlist"
-                                completeText="Playlist Added"
-                                description="Your soundtrack is ready!"
-                                onClick={() => handleTaskCompletion('playlistAdded')}
-                            />
-                        </a>
+                        <StatusCard
+                            icon={<Download className="size-5 text-primary-foreground" />}
+                            isComplete={tasks.guideDownloaded}
+                            incompleteText="Download Your Guide"
+                            completeText="Guide Downloaded"
+                            description="Your expedition guide is ready!"
+                            onClick={() => {
+                                handleTaskCompletion('guideDownloaded');
+                                window.open('/guide.pdf', '_blank');
+                            }}
+                        />
+                         <StatusCard
+                            icon={<Music className="size-5 text-primary-foreground" />}
+                            isComplete={tasks.playlistAdded}
+                            incompleteText="Add The Playlist"
+                            completeText="Playlist Added"
+                            description="Your soundtrack is ready!"
+                            onClick={() => {
+                                handleTaskCompletion('playlistAdded');
+                                window.open('https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=554ea16099804f4a', '_blank', 'noopener,noreferrer');
+                            }}
+                        />
                     </div>
                 </div>
             </div>
@@ -301,12 +303,8 @@ interface StatusCardProps {
 }
 
 function StatusCard({ icon, isComplete, incompleteText, completeText, description, onClick }: StatusCardProps) {
-    // The component might be wrapped in an `a` tag, so stop propagation on the click
-    // to prevent potential double-event firing.
     const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if (onClick) {
-            e.preventDefault(); // prevent navigation if it's inside an anchor
-            e.stopPropagation();
             onClick();
         }
     }
