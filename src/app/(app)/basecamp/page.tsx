@@ -9,7 +9,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import {
   ArrowRight,
   Car,
-  Target,
+  MapPin,
   Route as RouteIcon,
   BookOpen,
   Tent,
@@ -201,7 +201,7 @@ export default function BasecampDashboardPage() {
                                 onClick={() => {}} 
                             />
                         </a>
-                         <a href="https://open.spotify.com/playlist/6CbgYjp9ZB49TYGPHOqkX?si=3872886ff0374df2" target="_blank" rel="noopener noreferrer" onClick={() => handleMarkAsComplete('playlistAdded')}>
+                         <a href="https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=3872886ff0374df2" target="_blank" rel="noopener noreferrer" onClick={() => handleMarkAsComplete('playlistAdded')}>
                             <StatusCard
                                 icon={<Music className="size-5 text-primary-foreground" />}
                                 isComplete={tasks.playlistAdded}
@@ -316,5 +316,3 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
         </Card>
     )
 }
-
-    
