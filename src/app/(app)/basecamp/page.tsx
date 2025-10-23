@@ -56,7 +56,7 @@ export default function BasecampDashboardPage() {
     return doc(firestore, 'users', user.uid);
   }, [user?.uid, firestore]);
 
-  const { data: userProfile, isLoading: isProfileLoading, mutate } = useDoc<UserProfile>(userProfileRef);
+  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
 
   const tasks = useMemo(() => {
     if (!userProfile) return initialTasks;
@@ -95,11 +95,11 @@ export default function BasecampDashboardPage() {
 
 
   const handleRegistration = () => {
-    mutate(); // Re-fetch user profile to update status
+    // The revalidation is handled by the server action
   };
 
   const handleQuizComplete = () => {
-    mutate(); // Re-fetch user profile to update status
+    // The revalidation is handled by the server action
   }
   
   const handleMarkAsComplete = async (task: 'guideDownloaded' | 'playlistAdded') => {
@@ -110,7 +110,6 @@ export default function BasecampDashboardPage() {
         title: 'Progress Saved!',
         description: 'Your essentials checklist has been updated.',
       });
-      mutate();
     } catch (e: any) {
       toast({
         variant: 'destructive',
@@ -203,22 +202,24 @@ export default function BasecampDashboardPage() {
                 <div>
                     <h3 className="text-2xl font-bold font-headline mb-4">Pick Up Your Essentials</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <a href="https://www.canva.com/design/DAGZDvGfwkc/ptwWB6lPjTmt4j-sAslcWQ/view?utm_content=DAGZDvGfwkc&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hac7d68a9e2" target="_blank" rel="noopener noreferrer" onClick={() => handleMarkAsComplete('guideDownloaded')}>
+                        <a href="https://www.canva.com/design/DAGZDvGfwkc/ptwWB6lPjTmt4j-sAslcWQ/view?utm_content=DAGZDvGfwkc&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hac7d68a9e2" target="_blank" rel="noopener noreferrer">
                             <StatusCard
                                 icon={<Download className="size-5 text-primary-foreground" />}
                                 isComplete={tasks.guideDownloaded}
                                 incompleteText="Download Your Guide"
                                 completeText="Guide Downloaded"
                                 description="Your expedition guide is ready!"
+                                onClick={() => handleMarkAsComplete('guideDownloaded')}
                             />
                         </a>
-                         <a href="https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=3872886ff0374df2" target="_blank" rel="noopener noreferrer" onClick={() => handleMarkAsComplete('playlistAdded')}>
+                         <a href="https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=3872886ff0374df2" target="_blank" rel="noopener noreferrer">
                             <StatusCard
                                 icon={<Music className="size-5 text-primary-foreground" />}
                                 isComplete={tasks.playlistAdded}
                                 incompleteText="Add The Playlist"
                                 completeText="Playlist Added"
                                 description="Your soundtrack is ready!"
+                                onClick={() => handleMarkAsComplete('playlistAdded')}
                             />
                         </a>
                     </div>
