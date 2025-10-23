@@ -171,6 +171,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
 
       case 'quiz':
         const question = quizQuestions[currentQuestion];
+        if (!question) return null; // Prevent rendering if question is not found
         return (
           <div>
             <DialogHeader>
