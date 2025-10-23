@@ -49,6 +49,7 @@ export default function BasecampDashboardPage() {
   const [quote, setQuote] = useState('');
   const [isRegistrationOpen, setRegistrationOpen] = useState(false);
   const [isQuizOpen, setQuizOpen] = useState(false);
+  const [localTasks, setLocalTasks] = useState(initialTasks);
   
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -63,17 +64,19 @@ export default function BasecampDashboardPage() {
 
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
 
-  const tasks = useMemo(() => {
-    if (!userProfile) return initialTasks;
-    return {
-      registered: !!(userProfile.firstName && userProfile.journeyStatus),
-      quizTaken: typeof userProfile.roleClarityScore === 'number',
-      guideDownloaded: !!userProfile.guideDownloaded,
-      playlistAdded: !!userProfile.playlistAdded,
-    };
+  useEffect(() => {
+    if (userProfile) {
+      const newTasks = {
+        registered: !!(userProfile.firstName && userProfile.journeyStatus),
+        quizTaken: typeof userProfile.roleClarityScore === 'number',
+        guideDownloaded: !!userProfile.guideDownloaded,
+        playlistAdded: !!userProfile.playlistAdded,
+      };
+      setLocalTasks(newTasks);
+    }
   }, [userProfile]);
 
-  const allSetupTasksCompleted = Object.values(tasks).every(Boolean);
+  const allSetupTasksCompleted = Object.values(localTasks).every(Boolean);
 
   const expeditionStages = useMemo(() => {
     const driverStatus: StageStatus = userProfile?.driverCompleted ? 'completed' : allSetupTasksCompleted ? 'active' : 'locked';
@@ -109,6 +112,10 @@ export default function BasecampDashboardPage() {
   
   const handleMarkAsComplete = async (task: 'guideDownloaded' | 'playlistAdded') => {
     if (!user) return;
+    
+    // Optimistic UI update
+    setLocalTasks(prev => ({ ...prev, [task]: true }));
+
     try {
       await saveUserProfile({ uid: user.uid, profileData: { [task]: true }});
       toast({
@@ -116,6 +123,8 @@ export default function BasecampDashboardPage() {
         description: 'Your essentials checklist has been updated.',
       });
     } catch (e: any) {
+      // Revert UI on error
+      setLocalTasks(prev => ({ ...prev, [task]: false }));
       toast({
         variant: 'destructive',
         title: 'Error',
@@ -127,11 +136,11 @@ export default function BasecampDashboardPage() {
   const userName = userProfile?.callSign || userProfile?.firstName || user?.displayName || 'Keke';
 
   const getFocusText = () => {
-    if (tasks.registered) {
+    if (localTasks.registered) {
       const incompleteTasks = [];
-      if (!tasks.quizTaken) incompleteTasks.push("take the Role Satisfaction Quiz");
-      if (!tasks.guideDownloaded) incompleteTasks.push("download your guide");
-      if (!tasks.playlistAdded) incompleteTasks.push("add the playlist");
+      if (!localTasks.quizTaken) incompleteTasks.push("take the Role Satisfaction Quiz");
+      if (!localTasks.guideDownloaded) incompleteTasks.push("download your guide");
+      if (!localTasks.playlistAdded) incompleteTasks.push("add the playlist");
       
       if (incompleteTasks.length === 0) {
         return "Excellent work! You've completed all essential setup tasks. You're fully equipped and ready for the journey ahead.";
@@ -154,7 +163,7 @@ export default function BasecampDashboardPage() {
         isOpen={isRegistrationOpen} 
         onOpenChange={setRegistrationOpen}
         onRegister={handleRegistration}
-        isRegistered={tasks.registered}
+        isRegistered={localTasks.registered}
       />
       <SatisfactionQuizModal
         isOpen={isQuizOpen}
@@ -194,18 +203,18 @@ export default function BasecampDashboardPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <StatusCard
                             icon={<ClipboardPen className="size-5 text-primary-foreground" />}
-                            isComplete={tasks.registered}
+                            isComplete={localTasks.registered}
                             incompleteText="Register for your Expedition"
                             completeText="Edit Your Expedition Details"
-                            description={tasks.registered ? "Update your profile anytime" : "Your journey is official!"}
+                            description={localTasks.registered ? "Update your profile anytime" : "Your journey is official!"}
                             onClick={() => setRegistrationOpen(true)}
                         />
                         <StatusCard
                             icon={<Flame className="size-5 text-primary-foreground" />}
-                            isComplete={tasks.quizTaken}
+                            isComplete={localTasks.quizTaken}
                             incompleteText="Take the Role Satisfaction Quiz"
                             completeText="Retake Role Satisfaction Quiz"
-                            description={tasks.quizTaken ? "Measure your new alignment" : "Get your starting score"}
+                            description={localTasks.quizTaken ? "Measure your new alignment" : "Get your starting score"}
                             onClick={() => setQuizOpen(true)}
                         />
                     </div>
@@ -216,7 +225,7 @@ export default function BasecampDashboardPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <StatusCard
                             icon={<Download className="size-5 text-primary-foreground" />}
-                            isComplete={tasks.guideDownloaded}
+                            isComplete={localTasks.guideDownloaded}
                             incompleteText="Download Your Guide"
                             completeText="Guide Downloaded"
                             description="Your expedition guide is ready!"
@@ -224,7 +233,7 @@ export default function BasecampDashboardPage() {
                         />
                         <StatusCard
                             icon={<Music className="size-5 text-primary-foreground" />}
-                            isComplete={tasks.playlistAdded}
+                            isComplete={localTasks.playlistAdded}
                             incompleteText="Add The Playlist"
                             completeText="Playlist Added"
                             description="Your soundtrack is ready!"
