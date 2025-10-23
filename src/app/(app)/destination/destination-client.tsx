@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -38,7 +39,7 @@ export function DestinationClient() {
     if (!user?.uid || !firestore) return null;
     return doc(firestore, 'users', user.uid);
   }, [user?.uid, firestore]);
-  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+  const { data: userProfile, isLoading: isProfileLoading, mutate } = useDoc<UserProfile>(userProfileRef);
 
   const lifePurposeReportRef = useMemoFirebase(() => {
     if (!userProfile?.lifePurposeReportId || !firestore) return null;
@@ -48,7 +49,19 @@ export function DestinationClient() {
 
   useEffect(() => {
     if (userProfile?.focusArea) {
-      handleSelectArea(userProfile.focusArea, true);
+      setSelectedArea(userProfile.focusArea);
+      if (userProfile.purposeProfile) {
+        // If profile is already saved, just display it
+        setProfile({
+            purposeProfile: userProfile.purposeProfile,
+            // The other fields are not stored, so we'll leave them blank or provide default text
+            alignedPath: userProfile.alignedPath || '',
+            edgeOfChoosingPrompts: userProfile.edgeOfChoosingPrompts || '',
+            quickWins: userProfile.quickWins || '',
+        });
+      } else {
+        handleSelectArea(userProfile.focusArea, true);
+      }
     }
   }, [userProfile, lifePurposeReport]);
 
@@ -92,6 +105,22 @@ export function DestinationClient() {
 
     if (result.success && result.data) {
       setProfile(result.data);
+       if (user) {
+         try {
+            await saveUserProfile({ 
+                uid: user.uid, 
+                profileData: { 
+                    purposeProfile: result.data.purposeProfile,
+                    alignedPath: result.data.alignedPath,
+                    edgeOfChoosingPrompts: result.data.edgeOfChoosingPrompts,
+                    quickWins: result.data.quickWins,
+                } 
+            });
+            mutate(); // re-fetch data
+         } catch(e) {
+             toast({ variant: 'destructive', title: 'Error Saving Profile', description: 'Could not save the generated profile.'});
+         }
+       }
        if (!isInitialLoad) {
         toast({
             title: 'Profile Synthesized!',

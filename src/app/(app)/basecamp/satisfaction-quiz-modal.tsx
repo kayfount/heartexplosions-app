@@ -129,12 +129,18 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
     
     if (user) {
       try {
-        await saveUserProfile({ uid: user.uid, profileData: { roleClarityScore: percentage, quizAnswers: finalAnswers } });
+        await saveUserProfile({ 
+            uid: user.uid, 
+            profileData: { 
+                roleClarityScore: percentage, 
+                quizAnswers: finalAnswers 
+            } 
+        });
         toast({
           title: "Score Saved",
           description: "Your Role Clarity Score has been saved to your profile.",
         });
-        onQuizComplete(); // This will trigger the revalidation on the parent page
+        onQuizComplete();
       } catch (error) {
          toast({
           variant: "destructive",

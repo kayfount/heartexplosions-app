@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, type ReactNode, useCallback } from 'react';
+import { useState, useEffect, type ReactNode, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -25,9 +25,9 @@ import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { quotes } from '@/lib/quotes';
 import { doc, getFirestore } from 'firebase/firestore';
 import type { UserProfile } from '@/models/user-profile';
-import { useMemo } from 'react';
 import { saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
+
 
 type StageStatus = 'locked' | 'active' | 'completed';
 
@@ -119,17 +119,17 @@ export default function BasecampDashboardPage() {
     
     try {
         await saveUserProfile({ uid: user.uid, profileData: { [task]: true }});
-        mutate();
+        mutate(); // Re-fetch user profile
         toast({
             title: 'Progress Saved!',
-            description: `Your progress for ${task} has been saved.`,
+            description: `Your progress has been saved.`,
         });
     } catch(e) {
         console.error(`Failed to save ${task} status`, e);
         toast({
             variant: 'destructive',
             title: 'Update Failed',
-            description: `Could not save your progress for ${task}.`,
+            description: `Could not save your progress.`,
         });
     }
   }
@@ -216,7 +216,7 @@ export default function BasecampDashboardPage() {
                             isComplete={tasks.quizTaken}
                             incompleteText="Take the Role Satisfaction Quiz"
                             completeText="Retake Role Satisfaction Quiz"
-                            description={tasks.quizTaken ? "Measure your new alignment" : "Get your starting score"}
+                            description={tasks.quizTaken ? `Your score: ${userProfile?.roleClarityScore}%` : "Get your starting score"}
                             onClick={() => setQuizOpen(true)}
                         />
                     </div>

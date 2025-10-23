@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -55,7 +56,7 @@ export function RouteForm() {
     return doc(firestore, 'users', user.uid);
   }, [user?.uid, firestore]);
 
-  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+  const { data: userProfile, isLoading: isProfileLoading, mutate } = useDoc<UserProfile>(userProfileRef);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -73,12 +74,13 @@ export function RouteForm() {
             commitments: userProfile.commitments || '',
             timeline: userProfile.timeline || '3 Months',
         });
-        if (userProfile.availableHours && userProfile.commitments && userProfile.timeline) {
-            onSubmit({
-                availableHours: userProfile.availableHours,
-                commitments: userProfile.commitments,
-                timeline: userProfile.timeline,
-            }, true);
+        if (userProfile.routePlan) {
+            setPlan({ routePlan: userProfile.routePlan });
+            const savedTasks = userProfile.routePlan
+              .split('\n')
+              .filter(line => line.trim().startsWith('-') || line.trim().startsWith('*'))
+              .map((line, index) => ({ id: `task-${index}`, text: line.trim().substring(1).trim(), completed: false }));
+            setTasks(savedTasks);
         }
     }
   }, [userProfile]);
@@ -110,6 +112,14 @@ export function RouteForm() {
 
     if (result.success && result.data) {
       setPlan(result.data);
+      if (user) {
+          try {
+              await saveUserProfile({ uid: user.uid, profileData: { routePlan: result.data.routePlan }});
+              mutate();
+          } catch(e) {
+              toast({ variant: 'destructive', title: 'Error saving plan', description: 'Could not save the generated route plan.'})
+          }
+      }
       // Rudimentary parsing of the plan into tasks
       const generatedTasks = result.data.routePlan
         .split('\n')

@@ -111,10 +111,27 @@
           }
         },
         "guideDownloaded": {
-            "type": "boolean"
+          "type": "boolean"
         },
         "playlistAdded": {
-            "type": "boolean"
+          "type": "boolean"
+        },
+        "purposeProfile": {
+          "type": "string",
+          "description": "The synthesized Purpose Profile text."
+        },
+        "routePlan": {
+            "type": "string",
+            "description": "The AI-generated route plan text."
+        },
+        "alignedPath": {
+          "type": "string"
+        },
+        "edgeOfChoosingPrompts": {
+          "type": "string"
+        },
+        "quickWins": {
+          "type": "string"
         }
       },
       "required": [
@@ -227,5 +244,3 @@
     ]
   }
 }
-
-    

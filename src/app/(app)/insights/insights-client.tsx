@@ -109,7 +109,7 @@ export function InsightsClient() {
                  <InsightCard
                     title="Your Purpose Profile"
                     description="Your aligned path, decision-making prompts, and quick wins."
-                    content={"This is where the synthesized Purpose Profile content will appear once the data is saved."}
+                    content={userProfile.purposeProfile || "No purpose profile generated yet. Complete 'The Destination' step to create it."}
                     isAccordion
                 />
             </div>
@@ -126,7 +126,7 @@ export function InsightsClient() {
             <InsightCard
                 title="Your Sustainable Roadmap"
                 description="A realistic, AI-generated plan with milestones and weekly action steps."
-                content={userProfile.availableHours ? "Your personalized route plan will appear here." : "No route plan created yet."}
+                content={userProfile.routePlan || "No route plan created yet. Complete 'The Route' step to create it."}
                 isAccordion
             />
         </section>
@@ -189,7 +189,7 @@ function InsightCard({ title, description, content, isAccordion }: InsightCardPr
                 {renderContent()}
             </CardContent>
             <div className="p-6 pt-0 flex justify-end gap-2">
-                {isAccordion && (
+                {isAccordion && content && (
                     <Button variant="outline" onClick={handleDownload}>
                         <Download className="mr-2"/> Download PDF
                     </Button>

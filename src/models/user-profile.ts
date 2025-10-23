@@ -23,15 +23,16 @@ export interface UserProfile {
     
     // The Destination
     focusArea?: 'career' | 'contribution' | 'calling';
-    purposeProfileId?: string; // Ref to a 'reports' collection
+    purposeProfile?: string;
+    alignedPath?: string;
+    edgeOfChoosingPrompts?: string;
+    quickWins?: string;
     destinationCompleted?: boolean;
     
     // The Route
     availableHours?: number;
     commitments?: string;
     timeline?: string;
-    routePlanId?: string; // Ref to a 'reports' collection
+    routePlan?: string;
     routeCompleted?: boolean;
 }
-
-    
