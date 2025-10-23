@@ -113,13 +113,17 @@ export default function BasecampDashboardPage() {
         window.open('https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=554ea16099804f4a', '_blank', 'noopener,noreferrer');
     }
 
-    if (!user || tasks[task]) {
+    if (!user || (tasks as any)[task]) {
         return;
     }
     
     try {
         await saveUserProfile({ uid: user.uid, profileData: { [task]: true }});
         mutate();
+        toast({
+            title: 'Progress Saved!',
+            description: `Your progress for ${task} has been saved.`,
+        });
     } catch(e) {
         console.error(`Failed to save ${task} status`, e);
         toast({
@@ -281,7 +285,7 @@ export default function BasecampDashboardPage() {
                 </div>
 
                 {/* Wisdom Widget */}
-                <div className="lg:mt-11">
+                <div className="lg:mt-11 pl-4">
                     <h3 className="text-2xl font-bold font-headline mb-4 items-start">
                     Wisdom from The Wilderness
                   </h3>
