@@ -39,6 +39,10 @@ const initialTasks = {
   playlistAdded: false,
 };
 
+const guideUrl = "https://www.canva.com/design/DAGZDvGfwkc/ptwWB6lPjTmt4j-sAslcWQ/view?utm_content=DAGZDvGfwkc&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hac7d68a9e2";
+const playlistUrl = "https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=3872886ff0374df2";
+
+
 export default function BasecampDashboardPage() {
   const [isReturningUser, setIsReturningUser] = useState(true);
   const [quote, setQuote] = useState('');
@@ -136,6 +140,13 @@ export default function BasecampDashboardPage() {
     return "Let's get you set up for the journey. Your first step is to register for the expedition.";
   }
   
+  const handleExternalLinkClick = (url: string, task?: 'guideDownloaded' | 'playlistAdded') => {
+    window.open(url, '_blank', 'noopener,noreferrer');
+    if (task) {
+      handleMarkAsComplete(task);
+    }
+  };
+
   return (
     <>
       <RegistrationModal 
@@ -202,26 +213,22 @@ export default function BasecampDashboardPage() {
                 <div>
                     <h3 className="text-2xl font-bold font-headline mb-4">Pick Up Your Essentials</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <a href="https://www.canva.com/design/DAGZDvGfwkc/ptwWB6lPjTmt4j-sAslcWQ/view?utm_content=DAGZDvGfwkc&utm_campaign=designshare&utm_medium=link2&utm_source=uniquelinks&utlId=hac7d68a9e2" target="_blank" rel="noopener noreferrer">
-                            <StatusCard
-                                icon={<Download className="size-5 text-primary-foreground" />}
-                                isComplete={tasks.guideDownloaded}
-                                incompleteText="Download Your Guide"
-                                completeText="Guide Downloaded"
-                                description="Your expedition guide is ready!"
-                                onClick={() => handleMarkAsComplete('guideDownloaded')}
-                            />
-                        </a>
-                         <a href="https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=3872886ff0374df2" target="_blank" rel="noopener noreferrer">
-                            <StatusCard
-                                icon={<Music className="size-5 text-primary-foreground" />}
-                                isComplete={tasks.playlistAdded}
-                                incompleteText="Add The Playlist"
-                                completeText="Playlist Added"
-                                description="Your soundtrack is ready!"
-                                onClick={() => handleMarkAsComplete('playlistAdded')}
-                            />
-                        </a>
+                        <StatusCard
+                            icon={<Download className="size-5 text-primary-foreground" />}
+                            isComplete={tasks.guideDownloaded}
+                            incompleteText="Download Your Guide"
+                            completeText="Guide Downloaded"
+                            description="Your expedition guide is ready!"
+                            onClick={() => handleExternalLinkClick(guideUrl, 'guideDownloaded')}
+                        />
+                        <StatusCard
+                            icon={<Music className="size-5 text-primary-foreground" />}
+                            isComplete={tasks.playlistAdded}
+                            incompleteText="Add The Playlist"
+                            completeText="Playlist Added"
+                            description="Your soundtrack is ready!"
+                            onClick={() => handleExternalLinkClick(playlistUrl, 'playlistAdded')}
+                        />
                     </div>
                 </div>
             </div>
