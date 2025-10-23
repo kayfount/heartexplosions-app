@@ -111,11 +111,11 @@ export default function BasecampDashboardPage() {
         description: 'Your essentials checklist has been updated.',
       });
       mutate();
-    } catch (e) {
+    } catch (e: any) {
       toast({
         variant: 'destructive',
         title: 'Error',
-        description: 'Could not save your progress.',
+        description: e.message || 'Could not save your progress.',
       })
     }
   };
