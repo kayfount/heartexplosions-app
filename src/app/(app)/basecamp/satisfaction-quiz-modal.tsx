@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useCallback } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import {
   Dialog,
@@ -40,7 +40,7 @@ type QuizStage = 'intro' | 'quiz' | 'results';
 interface SatisfactionQuizModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onQuizComplete: (score: number) => void;
+  onQuizComplete: () => void;
 }
 
 export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: SatisfactionQuizModalProps) {
@@ -61,62 +61,57 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
 
   useEffect(() => {
     if (isOpen) {
-        if (userProfile?.quizAnswers && userProfile.quizAnswers.length === quizQuestions.length) {
-          setAnswers(userProfile.quizAnswers);
-          setSliderValue(userProfile.quizAnswers[currentQuestion] ?? 5);
-        } else {
-          const defaultAnswers = Array(quizQuestions.length).fill(5);
-          setAnswers(defaultAnswers);
-          setSliderValue(defaultAnswers[0]);
-        }
+        const initialAnswers = userProfile?.quizAnswers?.length === quizQuestions.length
+          ? userProfile.quizAnswers
+          : Array(quizQuestions.length).fill(5);
+        
+        setAnswers(initialAnswers);
+        setSliderValue(initialAnswers[currentQuestion] ?? 5);
+        setStage('intro');
     }
   }, [isOpen, userProfile]);
 
   const totalQuestions = quizQuestions.length;
   
-  const finalScore = useMemo(() => {
-    if (answers.length !== totalQuestions) return 0;
-    return answers.reduce((sum, val) => sum + val, 0);
-  }, [answers, totalQuestions]);
-
   const finalPercentage = useMemo(() => {
+    if (answers.length !== totalQuestions) return 0;
+    const totalScore = answers.reduce((sum, val) => sum + val, 0);
     const totalPossibleScore = totalQuestions * 10;
     if (totalPossibleScore === 0) return 0;
-    return Math.round((finalScore / totalPossibleScore) * 100);
-  }, [finalScore, totalQuestions]);
+    return Math.round((totalScore / totalPossibleScore) * 100);
+  }, [answers, totalQuestions]);
 
-  const saveAnswers = useMemo(() =>
-    _.debounce(async (newAnswers: number[]) => {
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const debouncedSave = useCallback(_.debounce(async (newAnswers: number[]) => {
       if (user) {
         try {
             await saveUserProfile({ uid: user.uid, profileData: { quizAnswers: newAnswers } });
         } catch(e) {
             console.error("Failed to save quiz answers", e);
-            // Optionally show a toast, but might be too noisy.
         }
       }
     }, 500), [user]);
 
-  const handleNextQuestion = async () => {
+  const handleNextQuestion = () => {
     const newAnswers = [...answers];
     newAnswers[currentQuestion] = sliderValue;
     setAnswers(newAnswers);
-    saveAnswers(newAnswers);
+    debouncedSave(newAnswers);
 
     if (currentQuestion < totalQuestions - 1) {
       setCurrentQuestion(prev => prev + 1);
       setSliderValue(newAnswers[currentQuestion + 1] ?? 5);
     } else {
-      await handleFinish(newAnswers);
+      handleFinish(newAnswers);
     }
   };
 
-  const handlePreviousQuestion = async () => {
+  const handlePreviousQuestion = () => {
     if (currentQuestion > 0) {
         const newAnswers = [...answers];
         newAnswers[currentQuestion] = sliderValue;
         setAnswers(newAnswers);
-        saveAnswers(newAnswers);
+        debouncedSave(newAnswers);
 
         setCurrentQuestion(prev => prev - 1);
         setSliderValue(newAnswers[currentQuestion - 1] ?? 5);
@@ -124,7 +119,9 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
   };
   
   const handleStart = () => {
-    const initialAnswers = userProfile?.quizAnswers || Array(totalQuestions).fill(5);
+    const initialAnswers = userProfile?.quizAnswers?.length === quizQuestions.length
+      ? userProfile.quizAnswers
+      : Array(totalQuestions).fill(5);
     setAnswers(initialAnswers);
     setCurrentQuestion(0);
     setSliderValue(initialAnswers[0] ?? 5);
@@ -139,6 +136,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
   
   const handleFinish = async (finalAnswers: number[]) => {
     setIsFinishing(true);
+    
     const totalScore = finalAnswers.reduce((sum, val) => sum + val, 0);
     const totalPossibleScore = totalQuestions * 10;
     const percentage = totalPossibleScore > 0 ? Math.round((totalScore / totalPossibleScore) * 100) : 0;
@@ -159,7 +157,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
       }
     }
     
-    onQuizComplete(totalScore);
+    onQuizComplete();
     setIsFinishing(false);
     setStage('results');
   }
@@ -250,7 +248,9 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
     <Dialog open={isOpen} onOpenChange={onOpenChange}>
       <DialogContent 
         className="sm:max-w-md bg-card border-foreground/20"
-        onInteractOutside={(e) => e.preventDefault()}
+        onInteractOutside={(e) => {
+          if (stage === 'quiz') e.preventDefault();
+        }}
       >
         <AnimatePresence mode="wait">
           <motion.div
@@ -263,10 +263,12 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
             {renderContent()}
           </motion.div>
         </AnimatePresence>
-         <button onClick={handleClose} className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-        </button>
+        {stage !== 'intro' && (
+             <button onClick={handleClose} className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+            </button>
+        )}
       </DialogContent>
     </Dialog>
   );

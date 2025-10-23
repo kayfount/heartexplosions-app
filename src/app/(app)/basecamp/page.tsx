@@ -41,11 +41,10 @@ interface ExpeditionStage {
 
 
 export default function BasecampDashboardPage() {
-  const [isReturningUser, setIsReturningUser] = useState(true);
   const [quote, setQuote] = useState('');
   const [isRegistrationOpen, setRegistrationOpen] = useState(false);
   const [isQuizOpen, setQuizOpen] = useState(false);
-  const [roleClarityScore, setRoleClarityScore] = useState<number | null>(null);
+  
   const searchParams = useSearchParams();
   const router = useRouter();
   const { user } = useUser();
@@ -59,13 +58,13 @@ export default function BasecampDashboardPage() {
 
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
 
-  const [tasks, setTasks] = useState({
-    registered: false,
-    quizTaken: false,
-    guideDownloaded: false,
-    playlistAdded: false,
-  });
-  
+  const tasks = useMemo(() => ({
+    registered: !!(userProfile?.firstName && userProfile.journeyStatus),
+    quizTaken: typeof userProfile?.roleClarityScore === 'number',
+    guideDownloaded: !!userProfile?.guideDownloaded,
+    playlistAdded: !!userProfile?.playlistAdded,
+  }), [userProfile]);
+
   const allSetupTasksCompleted = Object.values(tasks).every(Boolean);
 
   const expeditionStages: ExpeditionStage[] = useMemo(() => {
@@ -96,50 +95,32 @@ export default function BasecampDashboardPage() {
   }, [userProfile, allSetupTasksCompleted]);
 
   useEffect(() => {
-    if (userProfile) {
-      setTasks({
-        registered: !!(userProfile.firstName && userProfile.journeyStatus),
-        quizTaken: typeof userProfile.roleClarityScore === 'number',
-        guideDownloaded: !!userProfile.guideDownloaded,
-        playlistAdded: !!userProfile.playlistAdded,
-      });
-      if (typeof userProfile.roleClarityScore === 'number') {
-        setRoleClarityScore(userProfile.roleClarityScore);
-      }
-    }
-  }, [userProfile]);
-
-  useEffect(() => {
     const randomQuote = quotes[Math.floor(Math.random() * quotes.length)];
     setQuote(randomQuote.quote);
 
-    if (searchParams.get('register') === 'true') {
+    if (searchParams.get('register') === 'true' && !isRegistrationOpen) {
       setRegistrationOpen(true);
       router.replace('/basecamp', {scroll: false});
     }
-  }, [searchParams, router]);
+  }, [searchParams, router, isRegistrationOpen]);
 
   const userName = userProfile?.callSign || userProfile?.firstName || user?.displayName || 'Keke';
   
-  const handleRegistration = (data: any) => {
-    setTasks(prev => ({...prev, registered: true}));
-  };
-
-  const handleQuizComplete = (score: number) => {
-    setRoleClarityScore(score);
-    setTasks(prev => ({...prev, quizTaken: true}));
-  }
-
   const handleTaskCompletion = async (task: 'guideDownloaded' | 'playlistAdded') => {
-    if (!user || tasks[task]) return; 
+    if (!user || tasks[task]) {
+        if (task === 'guideDownloaded') {
+            window.open('/guide.pdf', '_blank');
+        } else if (task === 'playlistAdded') {
+            window.open('https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=554ea16099804f4a', '_blank', 'noopener,noreferrer');
+        }
+        return;
+    } 
 
     if (task === 'guideDownloaded') {
         window.open('/guide.pdf', '_blank');
     } else if (task === 'playlistAdded') {
         window.open('https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=554ea16099804f4a', '_blank', 'noopener,noreferrer');
     }
-
-    setTasks(prev => ({...prev, [task]: true}));
     
     try {
         await saveUserProfile({ uid: user.uid, profileData: { [task]: true }});
@@ -150,7 +131,6 @@ export default function BasecampDashboardPage() {
             title: 'Update Failed',
             description: `Could not save your progress for ${task}.`,
         });
-        setTasks(prev => ({...prev, [task]: false}));
     }
   }
 
@@ -177,13 +157,13 @@ export default function BasecampDashboardPage() {
       <RegistrationModal 
         isOpen={isRegistrationOpen} 
         onOpenChange={setRegistrationOpen}
-        onRegister={handleRegistration}
+        onRegister={() => {}}
         isRegistered={tasks.registered}
       />
       <SatisfactionQuizModal
         isOpen={isQuizOpen}
         onOpenChange={setQuizOpen}
-        onQuizComplete={handleQuizComplete}
+        onQuizComplete={() => {}}
       />
       <div className="flex-1 space-y-8 p-4 md:p-8 pt-6">
         <div className="max-w-5xl mx-auto">
@@ -197,7 +177,7 @@ export default function BasecampDashboardPage() {
           <Card className="w-full bg-card/80 border-border shadow-lg">
             <CardContent className="p-8 text-center">
                 <Tent className="mx-auto size-12 text-accent mb-4"/>
-                <h2 className="text-3xl font-bold font-headline mb-2">{isReturningUser ? "Welcome Back to Basecamp" : "Welcome to Basecamp!"}</h2>
+                <h2 className="text-3xl font-bold font-headline mb-2">Welcome Back to Basecamp</h2>
                 <p className="text-muted-foreground mb-6">This is your starting point, the place you return to between each stage of your journey.</p>
                 <p className="text-foreground/80 text-center"><b className="font-bold">Your Focus:</b> {getFocusText()}</p>
                 
@@ -302,10 +282,12 @@ export default function BasecampDashboardPage() {
 
                 {/* Wisdom Widget */}
                 <div className="lg:mt-11">
-                    <h3 className="text-2xl font-bold font-headline mb-4 pt-[0.3%]">
+                    <div className="flex items-start gap-3 pt-[0.3%] pl-8">
+                      <h3 className="text-2xl font-bold font-headline mb-4">
                         Wisdom from The Wilderness
-                    </h3>
-                    <p className="text-lg italic text-muted-foreground pl-4">"{quote}"</p>
+                      </h3>
+                    </div>
+                    <p className="text-lg italic text-muted-foreground pl-12">"{quote}"</p>
                 </div>
             </div>
           
@@ -316,7 +298,7 @@ export default function BasecampDashboardPage() {
                 <CardContent className="p-6">
                     <div className="grid grid-cols-2 gap-8 text-center">
                         <div>
-                            <p className="text-4xl font-bold text-accent">{roleClarityScore !== null ? `${roleClarityScore}%` : '--'}</p>
+                            <p className="text-4xl font-bold text-accent">{userProfile?.roleClarityScore !== undefined ? `${userProfile.roleClarityScore}%` : '--'}</p>
                             <p className="text-sm text-muted-foreground">Role Clarity Score</p>
                         </div>
                          <div>
@@ -367,5 +349,3 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
         </Card>
     );
 }
-
-    

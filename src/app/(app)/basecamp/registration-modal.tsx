@@ -35,8 +35,7 @@ import { Tent, Loader2 } from 'lucide-react';
 import { useState, useEffect, useMemo } from 'react';
 import { useUser, useAuth, useDoc, useMemoFirebase } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
-import { updateProfile } from 'firebase/auth';
-import { doc, getFirestore, setDoc } from 'firebase/firestore';
+import { doc, getFirestore } from 'firebase/firestore';
 import type { UserProfile } from '@/models/user-profile';
 import { saveUserProfile } from '@/app/actions';
 
@@ -66,8 +65,7 @@ const journeyStatuses = [
 
 export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegistered }: RegistrationModalProps) {
   const { user, isUserLoading } = useUser();
-  const auth = useAuth();
-  const firestore = useMemo(() => getFirestore(), [auth]);
+  const firestore = useMemo(() => getFirestore(), []);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
 
@@ -90,13 +88,12 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
   });
 
   useEffect(() => {
-    if (isUserLoading || isProfileLoading) return;
+    if (!isOpen || isUserLoading || isProfileLoading) return;
 
     const name = user?.displayName || '';
     const [firstName, ...lastNameParts] = name.split(' ');
     const lastName = lastNameParts.join(' ');
     
-    // Set form values from user profile if available, otherwise from auth, otherwise empty.
     form.reset({
       firstName: userProfile?.firstName || firstName || '',
       lastName: userProfile?.lastName || lastName || '',
@@ -121,14 +118,18 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
         ...profileData
       };
 
-      await saveUserProfile({ uid: user.uid, profileData: payload });
+      const result = await saveUserProfile({ uid: user.uid, profileData: payload });
       
-      onRegister(data);
-      toast({
-        title: isRegistered ? 'Profile Updated' : 'Registration Complete!',
-        description: 'Your expedition details have been saved.',
-      });
-      onOpenChange(false);
+      if (result.success) {
+          onRegister(data);
+          toast({
+            title: isRegistered ? 'Profile Updated' : 'Registration Complete!',
+            description: 'Your expedition details have been saved.',
+          });
+          onOpenChange(false);
+      } else {
+        throw new Error(result.error);
+      }
 
     } catch (error: any) {
        toast({

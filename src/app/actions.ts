@@ -95,16 +95,17 @@ export async function saveUserProfile({ uid, profileData }: SaveUserProfileInput
         
         const updates: any = { ...profileData };
 
+        // If displayName is part of the data, update Firebase Auth as well
         if (profileData.displayName) {
             await auth.updateUser(uid, { displayName: profileData.displayName });
+            // The displayName is already in 'updates', so no need to remove it for Firestore.
         }
         
         await userProfileRef.set(updates, { merge: true });
         
+        // Revalidate all paths where user profile data might be displayed
         revalidatePath('/basecamp');
-        revalidatePath('/driver');
-        revalidatePath('/driver/report');
-        revalidatePath('/driver/core-values');
+        revalidatePath('/driver', 'layout'); // Revalidate the whole layout for sub-pages
         revalidatePath('/destination');
         revalidatePath('/route');
         revalidatePath('/insights');
