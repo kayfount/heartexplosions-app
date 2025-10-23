@@ -19,7 +19,6 @@ import { saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import { doc, getFirestore } from 'firebase/firestore';
 import type { UserProfile } from '@/models/user-profile';
-import _ from 'lodash';
 
 const quizQuestions = [
   { topic: 'Purpose', statement: 'I feel a deep sense of meaning and calling in the role I currently play.' },
@@ -66,10 +65,11 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
           : Array(quizQuestions.length).fill(5);
         
         setAnswers(initialAnswers);
-        setSliderValue(initialAnswers[currentQuestion] ?? 5);
+        setSliderValue(initialAnswers[0] ?? 5);
         setStage('intro');
+        setCurrentQuestion(0);
     }
-  }, [isOpen, userProfile, currentQuestion]);
+  }, [isOpen, userProfile]);
 
   const totalQuestions = quizQuestions.length;
   
@@ -82,6 +82,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
   }, [answers, totalQuestions]);
 
   const handleNextQuestion = () => {
+    // Only update local state, no saving here
     const newAnswers = [...answers];
     newAnswers[currentQuestion] = sliderValue;
     setAnswers(newAnswers);
@@ -90,6 +91,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
       setCurrentQuestion(prev => prev + 1);
       setSliderValue(newAnswers[currentQuestion + 1] ?? 5);
     } else {
+      // This is the final step, so call the finish handler
       handleFinish(newAnswers);
     }
   };
@@ -116,11 +118,10 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
   };
 
   const handleClose = () => {
-    setStage('intro');
-    setCurrentQuestion(0);
     onOpenChange(false);
   };
   
+  // This function performs the one-time save at the end of the quiz
   const handleFinish = async (finalAnswers: number[]) => {
     setIsFinishing(true);
     
@@ -203,7 +204,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
                     <ArrowLeft className="mr-2"/> Previous
                 </Button>
                 <Button onClick={handleNextQuestion} disabled={isFinishing} className="bg-destructive hover:bg-destructive/80 text-destructive-foreground">
-                    {isFinishing ? (
+                    {isFinishing && currentQuestion === totalQuestions -1 ? (
                         <><Loader2 className="mr-2 animate-spin"/> Scoring...</>
                     ) : (
                         <>
@@ -232,7 +233,13 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={(open) => {
+        if (!open) {
+          handleClose();
+        } else {
+          onOpenChange(true);
+        }
+    }}>
       <DialogContent 
         className="sm:max-w-md bg-card border-foreground/20"
         onInteractOutside={(e) => {

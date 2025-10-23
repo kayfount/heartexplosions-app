@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
@@ -8,7 +9,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import * as React from 'react';
 import { ExternalLink, ArrowLeft, ArrowRight, ArrowBigRight, Loader2, Save } from 'lucide-react';
 import Link from 'next/link';
-import _ from 'lodash';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -164,6 +164,7 @@ export function DriverForm() {
     if (!user) return;
     setIsSaving(true);
     try {
+      // This is the single point of saving for this form/section.
       await saveUserProfile({ uid: user.uid, profileData: form.getValues() });
       toast({
         title: "Driver Details Saved",
