@@ -210,7 +210,6 @@ export default function BasecampDashboardPage() {
                                 incompleteText="Download Your Guide"
                                 completeText="Guide Downloaded"
                                 description="Your expedition guide is ready!"
-                                onClick={() => {}} // onClick is handled by the anchor tag
                             />
                         </a>
                          <a href="https://open.spotify.com/playlist/6CbgYjp9jZB49TYGPHOqkX?si=3872886ff0374df2" target="_blank" rel="noopener noreferrer" onClick={() => handleMarkAsComplete('playlistAdded')}>
@@ -220,7 +219,6 @@ export default function BasecampDashboardPage() {
                                 incompleteText="Add The Playlist"
                                 completeText="Playlist Added"
                                 description="Your soundtrack is ready!"
-                                onClick={() => {}} // onClick is handled by the anchor tag
                             />
                         </a>
                     </div>
@@ -299,20 +297,12 @@ interface StatusCardProps {
     incompleteText: string;
     completeText: string;
     description: string;
-    onClick: () => void;
+    onClick?: () => void;
 }
 
 function StatusCard({ icon, isComplete, incompleteText, completeText, description, onClick }: StatusCardProps) {
-    const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
-        if (onClick) {
-            e.preventDefault(); 
-            e.stopPropagation();
-            onClick();
-        }
-    }
-
     return (
-        <Card onClick={handleClick} className={cn("group cursor-pointer transition-all duration-300 hover:border-primary/50 hover:scale-[1.02]")}>
+        <Card onClick={onClick} className={cn("group cursor-pointer transition-all duration-300 hover:border-primary/50 hover:scale-[1.02]")}>
             <CardContent className="p-6 flex items-center gap-4">
                  <div className={cn(
                     "flex items-center justify-center size-10 rounded-full transition-all duration-300",
