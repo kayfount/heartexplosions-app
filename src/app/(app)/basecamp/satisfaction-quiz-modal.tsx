@@ -82,7 +82,6 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
   }, [answers, totalQuestions]);
 
   const handleNextQuestion = () => {
-    // Only update local state, no saving here
     const newAnswers = [...answers];
     newAnswers[currentQuestion] = sliderValue;
     setAnswers(newAnswers);
@@ -121,7 +120,6 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
     onOpenChange(false);
   };
   
-  // This function performs the one-time save at the end of the quiz
   const handleFinish = async (finalAnswers: number[]) => {
     setIsFinishing(true);
     
@@ -136,6 +134,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
           title: "Score Saved",
           description: "Your Role Clarity Score has been saved to your profile.",
         });
+        onQuizComplete(); // This will trigger the revalidation on the parent page
       } catch (error) {
          toast({
           variant: "destructive",
@@ -145,7 +144,6 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
       }
     }
     
-    onQuizComplete();
     setIsFinishing(false);
     setStage('results');
   }

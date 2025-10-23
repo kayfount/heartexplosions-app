@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect, type ReactNode } from 'react';
+import { useState, useEffect, type ReactNode, useCallback } from 'react';
 import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -17,7 +17,6 @@ import {
   Download,
   Music,
   Lock,
-  Book,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { RegistrationModal } from './registration-modal';
@@ -57,7 +56,7 @@ export default function BasecampDashboardPage() {
     return doc(firestore, 'users', user.uid);
   }, [user?.uid, firestore]);
 
-  const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
+  const { data: userProfile, isLoading: isProfileLoading, mutate } = useDoc<UserProfile>(userProfileRef);
 
   const tasks = useMemo(() => ({
     registered: !!(userProfile?.firstName && userProfile.journeyStatus),
@@ -120,6 +119,7 @@ export default function BasecampDashboardPage() {
     
     try {
         await saveUserProfile({ uid: user.uid, profileData: { [task]: true }});
+        mutate();
     } catch(e) {
         console.error(`Failed to save ${task} status`, e);
         toast({
@@ -129,6 +129,10 @@ export default function BasecampDashboardPage() {
         });
     }
   }
+
+  const handleMutation = useCallback(() => {
+      mutate();
+  }, [mutate]);
 
   const getFocusText = () => {
     if (allSetupTasksCompleted) {
@@ -153,13 +157,13 @@ export default function BasecampDashboardPage() {
       <RegistrationModal 
         isOpen={isRegistrationOpen} 
         onOpenChange={setRegistrationOpen}
-        onRegister={() => {}}
+        onRegister={handleMutation}
         isRegistered={tasks.registered}
       />
       <SatisfactionQuizModal
         isOpen={isQuizOpen}
         onOpenChange={setQuizOpen}
-        onQuizComplete={() => {}}
+        onQuizComplete={handleMutation}
       />
       <div className="flex-1 space-y-8 p-4 md:p-8 pt-6">
         <div className="max-w-5xl mx-auto">
@@ -343,4 +347,3 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
         </Card>
     );
 }
-

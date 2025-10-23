@@ -52,7 +52,7 @@ type RegistrationFormValues = z.infer<typeof formSchema>;
 interface RegistrationModalProps {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onRegister: (data: Partial<RegistrationFormValues>) => void;
+  onRegister: () => void;
   isRegistered: boolean;
 }
 
@@ -121,7 +121,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
       const result = await saveUserProfile({ uid: user.uid, profileData: payload });
       
       if (result.success) {
-          onRegister(data);
+          onRegister();
           toast({
             title: isRegistered ? 'Profile Updated' : 'Registration Complete!',
             description: 'Your expedition details have been saved.',
