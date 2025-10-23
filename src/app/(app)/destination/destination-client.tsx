@@ -42,11 +42,18 @@ export function DestinationClient() {
   useEffect(() => {
     if (userProfile?.focusArea) {
       setSelectedArea(userProfile.focusArea);
+      // If there's a focus area, we assume a profile might exist and try to synthesize it again to show the user
+      // A more robust implementation would save and fetch the synthesized profile itself.
+      if (user) {
+        handleSelectArea(userProfile.focusArea, true);
+      }
     }
   }, [userProfile]);
 
-  const handleSelectArea = async (area: FocusArea) => {
-    setSelectedArea(area);
+  const handleSelectArea = async (area: FocusArea, isPreload = false) => {
+    if(!isPreload) {
+      setSelectedArea(area);
+    }
     setIsLoading(true);
     setProfile(null);
 
@@ -70,11 +77,13 @@ export function DestinationClient() {
 
     if (result.success && result.data) {
       setProfile(result.data);
-      toast({
-        title: 'Profile Synthesized!',
-        description: 'Your Purpose Profile is ready.',
-      });
-    } else {
+       if(!isPreload) {
+         toast({
+          title: 'Profile Synthesized!',
+          description: 'Your Purpose Profile is ready.',
+        });
+      }
+    } else if(!isPreload) {
       toast({
         variant: 'destructive',
         title: 'Error',
@@ -161,4 +170,5 @@ export function DestinationClient() {
   );
 }
 
+    
     

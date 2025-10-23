@@ -1,12 +1,12 @@
+
 import { cn } from "@/lib/utils";
 import { Heart } from "lucide-react";
 
 type LogoProps = {
   className?: string;
-  iconOnly?: boolean;
 };
 
-export function Logo({ className, iconOnly = false }: LogoProps) {
+export function Logo({ className }: LogoProps) {
   return (
     <div className={cn("flex items-center gap-2", className)}>
       <div className="relative">
@@ -32,11 +32,11 @@ export function Logo({ className, iconOnly = false }: LogoProps) {
           </svg>
         </div>
       </div>
-      {!iconOnly && (
-        <span className="text-xl font-bold tracking-tight font-headline text-gradient-logo">
-          Heart Explosions
-        </span>
-      )}
+      <span className="hidden md:inline text-xl font-bold tracking-tight font-headline text-gradient-logo">
+        Heart Explosions
+      </span>
     </div>
   );
 }
+
+    
