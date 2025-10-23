@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -76,8 +75,11 @@ export function ValuesClient() {
                 currentTopValues.push('');
             }
             setTopValues(currentTopValues.slice(0, 5));
-            // Also add them to the general selected values list so they can be picked in the dropdowns
-            setSelectedValues(prev => [...new Set([...prev, ...userProfile.coreValues!])]);
+            
+            // Also add them to the general selected values list so they can be picked in the dropdowns.
+            // We use allCoreValues to make sure we don't add stale values if they were removed from the master list.
+            const validPersistedValues = userProfile.coreValues.filter(v => allCoreValues.includes(v));
+            setSelectedValues(validPersistedValues);
         }
     }, [userProfile]);
 
@@ -108,7 +110,7 @@ export function ValuesClient() {
     }
 
     const allTop5Selected = useMemo(() => {
-        return topValues.every(v => v !== '') && topValues.length === 5;
+        return topValues.every(v => v && v !== '') && topValues.length === 5;
     }, [topValues]);
 
     const handleSaveAndContinue = async () => {
@@ -182,7 +184,7 @@ export function ValuesClient() {
                 </CardContent>
             </Card>
             <AnimatePresence>
-                {selectedValues.length > 0 && (
+                {selectedValues.length >= 5 && (
                     <motion.div
                         initial={{ opacity: 0, y: -20 }}
                         animate={{ opacity: 1, y: 0 }}

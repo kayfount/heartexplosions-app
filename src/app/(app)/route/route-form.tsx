@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -19,7 +18,7 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Loader2, Sparkles, Check } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -74,15 +73,24 @@ export function RouteForm() {
             commitments: userProfile.commitments || '',
             timeline: userProfile.timeline || '3 Months',
         });
+        if (userProfile.availableHours && userProfile.commitments && userProfile.timeline) {
+            onSubmit({
+                availableHours: userProfile.availableHours,
+                commitments: userProfile.commitments,
+                timeline: userProfile.timeline,
+            }, true);
+        }
     }
-  }, [userProfile, form]);
+  }, [userProfile]);
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true);
+  async function onSubmit(values: z.infer<typeof formSchema>, isInitialLoad = false) {
+    if (!isInitialLoad) {
+        setIsLoading(true);
+    }
     setPlan(null);
     setTasks([]);
 
-    if (user) {
+    if (user && !isInitialLoad) {
         try {
             await saveUserProfile({ uid: user.uid, profileData: values });
         } catch (error) {
@@ -95,7 +103,10 @@ export function RouteForm() {
     }
 
     const result = await createRoutePlanAction(values);
-    setIsLoading(false);
+    
+    if (!isInitialLoad) {
+        setIsLoading(false);
+    }
 
     if (result.success && result.data) {
       setPlan(result.data);
@@ -106,11 +117,13 @@ export function RouteForm() {
         .map((line, index) => ({ id: `task-${index}`, text: line.trim().substring(1).trim(), completed: false }));
       setTasks(generatedTasks);
 
-      toast({
-        title: 'Route Plan Created!',
-        description: 'Your sustainable roadmap is ready.',
-      });
-    } else {
+      if (!isInitialLoad) {
+        toast({
+            title: 'Route Plan Created!',
+            description: 'Your sustainable roadmap is ready.',
+        });
+      }
+    } else if(!isInitialLoad) {
       toast({
         variant: 'destructive',
         title: 'Error',
@@ -146,7 +159,7 @@ export function RouteForm() {
         </CardHeader>
         <CardContent>
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+            <form onSubmit={form.handleSubmit((values) => onSubmit(values, false))} className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <FormField
                   control={form.control}
@@ -201,7 +214,7 @@ export function RouteForm() {
         </CardContent>
       </Card>
       <AnimatePresence>
-      {plan && (
+      {(isLoading || plan) && (
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -211,27 +224,33 @@ export function RouteForm() {
         <Card className="mt-8 border-primary/50">
           <CardHeader>
             <CardTitle>Your Route Plan</CardTitle>
-            <CardDescription>An interactive roadmap to keep you on track. Check off items as you complete them.</CardDescription>
+            {isLoading ? <p>Generating your personalized plan...</p> : <CardDescription>An interactive roadmap to keep you on track. Check off items as you complete them.</CardDescription> }
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center gap-4">
-                <Progress value={progress} className="h-3" />
-                <span className="text-sm font-medium">{Math.round(progress)}%</span>
-              </div>
-              {tasks.length > 0 ? (
-                <div className="space-y-3">
-                  {tasks.map(task => (
-                    <div key={task.id} className="flex items-center space-x-3 p-3 rounded-lg bg-background hover:bg-secondary/50 transition-colors">
-                      <Checkbox id={task.id} checked={task.completed} onCheckedChange={() => toggleTask(task.id)} className="confetti-button" />
-                      <label htmlFor={task.id} className={`flex-1 text-sm ${task.completed ? 'line-through text-muted-foreground' : ''}`}>{task.text}</label>
-                    </div>
-                  ))}
+            {isLoading ? (
+                <div className="flex justify-center items-center h-40">
+                    <Loader2 className="animate-spin size-8" />
                 </div>
-              ) : (
-                 <div className="prose max-w-none text-foreground/90 whitespace-pre-wrap font-body">{plan.routePlan}</div>
-              )}
-            </div>
+            ) : plan && (
+                <div className="space-y-4">
+                  <div className="flex items-center gap-4">
+                    <Progress value={progress} className="h-3" />
+                    <span className="text-sm font-medium">{Math.round(progress)}%</span>
+                  </div>
+                  {tasks.length > 0 ? (
+                    <div className="space-y-3">
+                      {tasks.map(task => (
+                        <div key={task.id} className="flex items-center space-x-3 p-3 rounded-lg bg-background hover:bg-secondary/50 transition-colors">
+                          <Checkbox id={task.id} checked={task.completed} onCheckedChange={() => toggleTask(task.id)} className="confetti-button" />
+                          <label htmlFor={task.id} className={`flex-1 text-sm ${task.completed ? 'line-through text-muted-foreground' : ''}`}>{task.text}</label>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                     <div className="prose max-w-none text-foreground/90 whitespace-pre-wrap font-body">{plan.routePlan}</div>
+                  )}
+                </div>
+            )}
           </CardContent>
         </Card>
         </motion.div>
@@ -240,5 +259,3 @@ export function RouteForm() {
     </>
   );
 }
-
-    

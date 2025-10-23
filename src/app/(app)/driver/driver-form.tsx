@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect, useCallback } from 'react';
@@ -152,6 +151,16 @@ export function DriverForm() {
   };
   
   const handleNext = async () => {
+    const isFormValid = await form.trigger();
+    if (!isFormValid) {
+        toast({
+            variant: "destructive",
+            title: "Incomplete Form",
+            description: "Please fill out all required fields before continuing.",
+        });
+        return;
+    }
+      
     if (!user) return;
     setIsSaving(true);
     try {
@@ -335,7 +344,7 @@ export function DriverForm() {
               <Button variant="outline" asChild>
                   <Link href="/basecamp"><ArrowLeft /> Previous</Link>
               </Button>
-              <Button onClick={handleNext} disabled={!form.formState.isValid || isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
+              <Button onClick={handleNext} disabled={isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
                   {isSaving ? <Save className="mr-2 animate-spin" /> : 'Next' }
                   {!isSaving && <ArrowRight />}
               </Button>

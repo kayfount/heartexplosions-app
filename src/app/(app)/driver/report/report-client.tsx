@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -39,7 +38,6 @@ export function ReportClient() {
         if (!userProfile) return null;
         const { enneagramType, wing, subtype, instinctualStacking, trifix } = userProfile;
         
-        // This is the corrected, robust check.
         if (enneagramType && wing && subtype && instinctualStacking && trifix) {
             const wingCode = wing.replace(enneagramType, '');
             const subtypeLabel = subtype.toUpperCase();
@@ -54,7 +52,7 @@ export function ReportClient() {
             toast({
                 variant: "destructive",
                 title: "Authentication Error",
-                description: "You must be logged in and have a complete driver profile.",
+                description: "You must be logged in to perform this action.",
             });
             return;
         }
@@ -66,6 +64,7 @@ export function ReportClient() {
                 title: "Incomplete Profile",
                 description: "Please complete your driver profile before generating a report.",
             });
+            router.push('/driver'); // Redirect to the form
             return;
         }
 

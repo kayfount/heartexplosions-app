@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -16,6 +15,8 @@ import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, getFirestore } from 'firebase/firestore';
 import type { UserProfile } from '@/models/user-profile';
 import { useMemo } from 'react';
+import type { LifePurposeReport } from '@/models/life-purpose-report';
+
 
 type FocusArea = 'career' | 'contribution' | 'calling';
 
@@ -39,21 +40,39 @@ export function DestinationClient() {
   }, [user?.uid, firestore]);
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
 
+  const lifePurposeReportRef = useMemoFirebase(() => {
+    if (!userProfile?.lifePurposeReportId || !firestore) return null;
+    return doc(firestore, 'reports', userProfile.lifePurposeReportId);
+  }, [userProfile?.lifePurposeReportId, firestore]);
+  const { data: lifePurposeReport, isLoading: isReportLoading } = useDoc<LifePurposeReport>(lifePurposeReportRef);
+
   useEffect(() => {
     if (userProfile?.focusArea) {
-      setSelectedArea(userProfile.focusArea);
+      handleSelectArea(userProfile.focusArea, true);
     }
-  }, [userProfile]);
+  }, [userProfile, lifePurposeReport]);
 
-  const handleSelectArea = async (area: FocusArea) => {
+  const handleSelectArea = async (area: FocusArea, isInitialLoad = false) => {
     setSelectedArea(area);
-    setIsLoading(true);
-    setProfile(null);
-
-    // In a real app, the driverReport would be fetched for the logged-in user.
-    const dummyDriverReport = "The user is a Type 9, driven by peace and harmony. They avoid conflict and seek to create a calm and stable environment. Their genius lies in mediation, empathy, and seeing multiple perspectives. Growth edge is in asserting their own needs and priorities.";
     
-    if (user) {
+    if (!isInitialLoad) {
+        setIsLoading(true);
+        setProfile(null);
+    }
+    
+    if (!lifePurposeReport?.report) {
+         if (!isInitialLoad) { // Only show toast on user action
+            toast({
+                variant: 'destructive',
+                title: 'Driver Report Missing',
+                description: 'Please complete the Driver stage to generate your Life Purpose Report first.',
+            });
+            setIsLoading(false);
+        }
+        return;
+    }
+    
+    if (user && !isInitialLoad) {
         try {
             await saveUserProfile({ uid: user.uid, profileData: { focusArea: area } });
         } catch (error) {
@@ -65,25 +84,32 @@ export function DestinationClient() {
         }
     }
 
-    const result = await synthesizeProfileAction({ focusArea: area, driverReport: dummyDriverReport });
-    setIsLoading(false);
+    const result = await synthesizeProfileAction({ focusArea: area, driverReport: lifePurposeReport.report });
+    
+    if (!isInitialLoad) {
+        setIsLoading(false);
+    }
 
     if (result.success && result.data) {
       setProfile(result.data);
-      toast({
-        title: 'Profile Synthesized!',
-        description: 'Your Purpose Profile is ready.',
-      });
+       if (!isInitialLoad) {
+        toast({
+            title: 'Profile Synthesized!',
+            description: 'Your Purpose Profile is ready.',
+        });
+       }
     } else {
-      toast({
-        variant: 'destructive',
-        title: 'Error',
-        description: result.error || 'Something went wrong.',
-      });
+       if (!isInitialLoad) {
+        toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: result.error || 'Something went wrong.',
+        });
+       }
     }
   }
 
-  if (isUserLoading || isProfileLoading) {
+  if (isUserLoading || isProfileLoading || isReportLoading) {
       return (
         <div className="flex justify-center items-center h-64">
             <Loader2 className="animate-spin size-8" />
@@ -160,5 +186,3 @@ export function DestinationClient() {
     </>
   );
 }
-
-    
