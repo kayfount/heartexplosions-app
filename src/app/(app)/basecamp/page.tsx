@@ -107,7 +107,7 @@ export default function BasecampDashboardPage() {
   }
 
   const handleTaskCompletion = async (task: 'guideDownloaded' | 'playlistAdded') => {
-    if (!user) return;
+    if (!user || tasks[task]) return; // Don't run if user is not logged in or task is already complete
     setTasks(prev => ({...prev, [task]: true}));
     try {
         await saveUserProfile({ uid: user.uid, profileData: { [task]: true }});
@@ -208,24 +208,24 @@ export default function BasecampDashboardPage() {
                 <div>
                     <h3 className="text-2xl font-bold font-headline mb-4">Pick Up Your Essentials</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <a href="/guide.pdf" download onClick={() => handleTaskCompletion('guideDownloaded')}>
+                        <a href="/guide.pdf" download>
                             <StatusCard
                                 icon={<Download className="size-5 text-primary-foreground" />}
                                 isComplete={tasks.guideDownloaded}
                                 incompleteText="Download Your Guide"
                                 completeText="Guide Downloaded"
                                 description="Your expedition guide is ready!"
-                                onClick={() => {}} // The parent `a` tag handles the action
+                                onClick={() => handleTaskCompletion('guideDownloaded')}
                             />
                         </a>
-                         <a href="https://open.spotify.com/playlist/6CbgYjp9ZB49TYGPHOqkX?si=4df18c5c76db4bd3" target="_blank" rel="noopener noreferrer" onClick={() => handleTaskCompletion('playlistAdded')}>
+                         <a href="https://open.spotify.com/playlist/6CbgYjp9ZB49TYGPHOqkX?si=4df18c5c76db4bd3" target="_blank" rel="noopener noreferrer">
                             <StatusCard
                                 icon={<Music className="size-5 text-primary-foreground" />}
                                 isComplete={tasks.playlistAdded}
                                 incompleteText="Add The Playlist"
                                 completeText="Playlist Added"
                                 description="Your soundtrack is ready!"
-                                onClick={() => {}}
+                                onClick={() => handleTaskCompletion('playlistAdded')}
                             />
                         </a>
                     </div>
