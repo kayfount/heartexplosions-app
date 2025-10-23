@@ -71,7 +71,7 @@ export default function BasecampDashboardPage() {
         guideDownloaded: !!userProfile.guideDownloaded,
         playlistAdded: !!userProfile.playlistAdded,
       }));
-       if(userProfile.roleClarityScore) {
+       if(typeof userProfile.roleClarityScore === 'number') {
         setRoleClarityScore(userProfile.roleClarityScore);
        }
     }
@@ -99,10 +99,7 @@ export default function BasecampDashboardPage() {
   };
 
   const handleQuizComplete = (score: number) => {
-    const totalPossibleScore = 10 * 10; // 10 questions, max score of 10
-    if (totalPossibleScore === 0) return;
-    const percentage = Math.round((score / totalPossibleScore) * 100);
-    setRoleClarityScore(percentage);
+    setRoleClarityScore(score);
     setTasks(prev => ({...prev, quizTaken: true}));
   }
 
@@ -261,8 +258,8 @@ export default function BasecampDashboardPage() {
 
                 {/* Wisdom Widget */}
                 <div>
-                    <h3 className="text-2xl font-bold font-headline mb-4 flex items-center gap-2 pt-7">
-                        <BookOpen className="text-accent" /> Wisdom From The Wilderness
+                    <h3 className="text-2xl font-bold font-headline mb-4 flex items-start gap-2 pt-7">
+                        <BookOpen className="text-accent" /> <span className="pt-px">Wisdom From The Wilderness</span>
                     </h3>
                     <p className="text-lg italic text-muted-foreground">"{quote}"</p>
                 </div>
