@@ -69,7 +69,7 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
         setSliderValue(initialAnswers[currentQuestion] ?? 5);
         setStage('intro');
     }
-  }, [isOpen, userProfile]);
+  }, [isOpen, userProfile, currentQuestion]);
 
   const totalQuestions = quizQuestions.length;
   
@@ -81,22 +81,10 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
     return Math.round((totalScore / totalPossibleScore) * 100);
   }, [answers, totalQuestions]);
 
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  const debouncedSave = useCallback(_.debounce(async (newAnswers: number[]) => {
-      if (user) {
-        try {
-            await saveUserProfile({ uid: user.uid, profileData: { quizAnswers: newAnswers } });
-        } catch(e) {
-            console.error("Failed to save quiz answers", e);
-        }
-      }
-    }, 500), [user]);
-
   const handleNextQuestion = () => {
     const newAnswers = [...answers];
     newAnswers[currentQuestion] = sliderValue;
     setAnswers(newAnswers);
-    debouncedSave(newAnswers);
 
     if (currentQuestion < totalQuestions - 1) {
       setCurrentQuestion(prev => prev + 1);
@@ -111,7 +99,6 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
         const newAnswers = [...answers];
         newAnswers[currentQuestion] = sliderValue;
         setAnswers(newAnswers);
-        debouncedSave(newAnswers);
 
         setCurrentQuestion(prev => prev - 1);
         setSliderValue(newAnswers[currentQuestion - 1] ?? 5);

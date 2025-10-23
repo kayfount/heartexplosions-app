@@ -92,7 +92,7 @@ export function ValuesClient() {
         });
     };
     
-    const handleTopValueChange = async (index: number, value: string) => {
+    const handleTopValueChange = (index: number, value: string) => {
         const newTopValues = [...topValues];
         // Prevent duplicate values
         if (newTopValues.includes(value) && value !== '') {
@@ -105,11 +105,6 @@ export function ValuesClient() {
         }
         newTopValues[index] = value;
         setTopValues(newTopValues);
-        
-        // Auto-save when a value changes
-        if (user) {
-            await saveUserProfile({ uid: user.uid, profileData: { coreValues: newTopValues.filter(v => v) }});
-        }
     }
 
     const allTop5Selected = useMemo(() => {
@@ -128,7 +123,6 @@ export function ValuesClient() {
 
         setIsSaving(true);
         try {
-            // The values are auto-saved, so just need to confirm before navigating
             await saveUserProfile({ uid: user.uid, profileData: { coreValues: topValues }});
             toast({ title: 'Success!', description: 'Your core values have been saved.'});
             router.push('/destination');

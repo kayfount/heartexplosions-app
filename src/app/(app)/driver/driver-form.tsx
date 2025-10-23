@@ -116,23 +116,6 @@ export function DriverForm() {
   
   const watchedValues = useWatch({ control: form.control });
   
-  const debouncedSave = useCallback(_.debounce(async (data) => {
-    if (!user) return;
-    setIsSaving(true);
-    await saveUserProfile({ uid: user.uid, profileData: data });
-    setIsSaving(false);
-    toast({ title: 'Progress saved!', description: 'Your driver details have been updated.' });
-  }, 1000), [user, toast]);
-
-  useEffect(() => {
-    const subscription = form.watch((value, { name, type }) => {
-      if (type === 'change') {
-        debouncedSave(value);
-      }
-    });
-    return () => subscription.unsubscribe();
-  }, [form.watch, debouncedSave]);
-
   useEffect(() => {
     if (userProfile) {
         form.reset({
@@ -170,8 +153,6 @@ export function DriverForm() {
   
   const handleNext = async () => {
     if (!user) return;
-    // Ensure the latest data is saved before navigating
-    debouncedSave.flush(); 
     setIsSaving(true);
     try {
       await saveUserProfile({ uid: user.uid, profileData: form.getValues() });
@@ -363,5 +344,3 @@ export function DriverForm() {
     </>
   );
 }
-
-    
