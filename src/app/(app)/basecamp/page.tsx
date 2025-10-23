@@ -259,7 +259,7 @@ export default function BasecampDashboardPage() {
                 </div>
 
                 {/* Wisdom Widget */}
-                <div>
+                <div className="mt-8">
                     <h3 className="text-2xl font-bold font-headline mb-4 flex items-center gap-2">
                         <BookOpen className="text-accent" /> From The Wilderness
                     </h3>
