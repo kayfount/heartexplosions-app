@@ -102,6 +102,12 @@
           "items": {
             "type": "string"
           }
+        },
+        "guideDownloaded": {
+          "type": "boolean"
+        },
+        "playlistAdded": {
+          "type": "boolean"
         }
       },
       "required": [

@@ -26,6 +26,8 @@ import { quotes } from '@/lib/quotes';
 import { doc, getFirestore } from 'firebase/firestore';
 import type { UserProfile } from '@/models/user-profile';
 import { useMemo } from 'react';
+import { saveUserProfile } from '@/app/actions';
+import { useToast } from '@/hooks/use-toast';
 
 // Mock data and state for demonstration purposes
 const initialTasks = {
@@ -52,6 +54,7 @@ export default function BasecampDashboardPage() {
   const router = useRouter();
   const { user } = useUser();
   const firestore = useMemo(() => getFirestore(), []);
+  const { toast } = useToast();
   
   const userProfileRef = useMemoFirebase(() => {
     if (!user?.uid || !firestore) return null;
@@ -64,7 +67,9 @@ export default function BasecampDashboardPage() {
       setTasks(prev => ({
         ...prev,
         registered: !!(userProfile.firstName && userProfile.journeyStatus),
-        quizTaken: typeof userProfile.roleClarityScore === 'number'
+        quizTaken: typeof userProfile.roleClarityScore === 'number',
+        guideDownloaded: !!userProfile.guideDownloaded,
+        playlistAdded: !!userProfile.playlistAdded,
       }));
        if(userProfile.roleClarityScore) {
         setRoleClarityScore(userProfile.roleClarityScore);
@@ -115,6 +120,20 @@ export default function BasecampDashboardPage() {
     }
     return "Let's get you set up for the journey. Your first step is to register for the expedition.";
   }
+
+  const handleMarkAsComplete = async (task: 'guideDownloaded' | 'playlistAdded') => {
+    if (!user) return;
+    try {
+      await saveUserProfile({ uid: user.uid, profileData: { [task]: true }});
+      setTasks(prev => ({ ...prev, [task]: true }));
+    } catch (e) {
+      toast({
+        variant: 'destructive',
+        title: 'Error',
+        description: 'Could not save your progress.',
+      })
+    }
+  };
   
   return (
     <>
@@ -186,7 +205,7 @@ export default function BasecampDashboardPage() {
                 <div>
                     <h3 className="text-2xl font-bold font-headline mb-4">Pick Up Your Essentials</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <a href="/guide.pdf" download onClick={() => setTasks(prev => ({...prev, guideDownloaded: true}))}>
+                        <a href="/guide.pdf" download onClick={() => handleMarkAsComplete('guideDownloaded')}>
                             <StatusCard
                                 icon={<Download className="size-5 text-primary-foreground" />}
                                 isComplete={tasks.guideDownloaded}
@@ -196,7 +215,7 @@ export default function BasecampDashboardPage() {
                                 onClick={() => {}} // The parent `a` tag handles the action
                             />
                         </a>
-                         <a href="https://open.spotify.com/playlist/6CbgYjp9ZB49TYGPHOqkX?si=4df18c5c76db4bd3" target="_blank" rel="noopener noreferrer" onClick={() => setTasks(prev => ({...prev, playlistAdded: true}))}>
+                         <a href="https://open.spotify.com/playlist/6CbgYjp9ZB49TYGPHOqkX?si=3872886ff0374df2" target="_blank" rel="noopener noreferrer" onClick={() => handleMarkAsComplete('playlistAdded')}>
                             <StatusCard
                                 icon={<Music className="size-5 text-primary-foreground" />}
                                 isComplete={tasks.playlistAdded}
@@ -292,8 +311,11 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
     return (
         <Card onClick={handleClick} className={cn("group cursor-pointer transition-all duration-300 hover:border-primary/50 hover:scale-105")}>
             <CardContent className="p-6 flex items-center gap-4">
-                 <div className={cn("flex items-center justify-center size-10 rounded-full transition-transform duration-300 group-hover:animate-shiver bg-foreground")}>
-                  {icon}
+                 <div className={cn(
+                    "flex items-center justify-center size-10 rounded-full transition-all duration-300 group-hover:animate-shiver",
+                    isComplete ? "bg-accent" : "bg-foreground"
+                 )}>
+                  {isComplete ? <CheckCircle2 className="size-5 text-primary-foreground" /> : icon}
                 </div>
                 <div>
                     <p className="font-bold">{isComplete ? completeText : incompleteText}</p>
@@ -305,4 +327,5 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
 }
 
     
+
 

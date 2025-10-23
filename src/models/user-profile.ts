@@ -7,6 +7,8 @@ export interface UserProfile {
     journeyStatus?: string;
     whyNow?: string;
     roleClarityScore?: number;
+    guideDownloaded?: boolean;
+    playlistAdded?: boolean;
     
     // The Driver
     enneagramType?: string;
