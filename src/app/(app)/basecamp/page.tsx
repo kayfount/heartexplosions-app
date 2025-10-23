@@ -281,7 +281,7 @@ export default function BasecampDashboardPage() {
                 </div>
 
                 {/* Wisdom Widget */}
-                <div className="lg:mt-11 pt-[0.3%] pl-12">
+                <div className="lg:mt-11">
                     <h3 className="text-2xl font-bold font-headline mb-4 items-start">
                     Wisdom from The Wilderness
                   </h3>
