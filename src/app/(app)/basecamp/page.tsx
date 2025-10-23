@@ -273,7 +273,7 @@ export default function BasecampDashboardPage() {
                                     <Card className={cn(
                                         "transition-all flex items-center p-4",
                                         stage.status === 'locked' && 'bg-muted/30 text-muted-foreground',
-                                        stage.status === 'active' && 'border-primary/50 ring-2 ring-primary/50 animate-pulse',
+                                        stage.status === 'active' && 'border-primary/50 ring-2 ring-primary/50 animate-blink-and-pause',
                                         stage.status === 'completed' && 'bg-secondary/50',
                                         stage.status !== 'locked' && 'hover:border-primary/50'
                                     )}>
@@ -368,3 +368,4 @@ function StatusCard({ icon, isComplete, incompleteText, completeText, descriptio
     );
 }
 
+    
