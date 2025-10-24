@@ -88,8 +88,8 @@ export async function saveUserProfile({ uid, profileData }: SaveUserProfileInput
     }
 
     try {
-        const db = getFirestore(getFirebaseAdminApp());
-        const auth = getAuth(getFirebaseAdminApp());
+        const app = getFirebaseAdminApp();
+        const db = getFirestore(app);
 
         const userProfileRef = db.collection('users').doc(uid);
 
@@ -97,8 +97,13 @@ export async function saveUserProfile({ uid, profileData }: SaveUserProfileInput
 
         // If displayName is part of the data, update Firebase Auth as well
         if (profileData.displayName) {
-            await auth.updateUser(uid, { displayName: profileData.displayName });
-            // The displayName is already in 'updates', so no need to remove it for Firestore.
+            try {
+                const auth = getAuth(app);
+                await auth.updateUser(uid, { displayName: profileData.displayName });
+            } catch (authError) {
+                console.error('Failed to update displayName in Auth, continuing with Firestore update:', authError);
+                // Continue even if auth update fails - the displayName will still be saved to Firestore
+            }
         }
 
         await userProfileRef.set(updates, { merge: true });
