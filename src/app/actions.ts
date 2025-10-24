@@ -34,11 +34,10 @@ export async function generateReportAction(input: GenerateReportActionInput) {
 
     // Update the user's profile with the new report ID
     const userProfileRef = db.collection('users').doc(uid);
-    await userProfileRef.set({ lifePurposeReportId: reportRef.id, driverCompleted: true }, { merge: true });
+    await userProfileRef.set({ lifePurposeReportId: reportRef.id }, { merge: true });
 
     revalidatePath('/insights');
     revalidatePath('/driver/report');
-    revalidatePath('/basecamp');
 
     return { success: true, data: result };
   } catch (error) {
@@ -51,16 +50,6 @@ export async function generateReportAction(input: GenerateReportActionInput) {
 export async function synthesizeProfileAction(input: SynthesizePurposeProfileInput) {
   try {
     const result = await synthesizePurposeProfile(input);
-    
-    // In a real app, you would save this synthesized profile and mark the destination stage as complete.
-    // For now, we just return the result.
-    // Example of what saving might look like:
-    // const db = getFirestore(getFirebaseAdminApp());
-    // const userProfileRef = db.collection('users').doc(uid);
-    // await userProfileRef.set({ destinationCompleted: true, purposeProfile: result }, { merge: true });
-    // revalidatePath('/basecamp');
-    // revalidatePath('/insights');
-
     return { success: true, data: result };
   } catch (error) {
     console.error(error);
@@ -71,15 +60,6 @@ export async function synthesizeProfileAction(input: SynthesizePurposeProfileInp
 export async function createRoutePlanAction(input: RoutePlanInput) {
   try {
     const result = await createRealisticRoutePlan(input);
-    
-    // Similarly, you'd save this and mark the route stage complete.
-    // Example:
-    // const db = getFirestore(getFirebaseAdminApp());
-    // const userProfileRef = db.collection('users').doc(uid);
-    // await userProfileRef.set({ routeCompleted: true, routePlan: result }, { merge: true });
-    // revalidatePath('/basecamp');
-    // revalidatePath('/insights');
-
     return { success: true, data: result };
   } catch (error) {
     console.error(error);
@@ -106,29 +86,30 @@ export async function saveUserProfile({ uid, profileData }: SaveUserProfileInput
     if (!uid) {
         throw new Error('User ID is missing.');
     }
-    
+
     try {
-        const adminApp = getFirebaseAdminApp();
-        const db = getFirestore(adminApp);
-        const auth = getAuth(adminApp);
+        const db = getFirestore(getFirebaseAdminApp());
+        const auth = getAuth(getFirebaseAdminApp());
 
         const userProfileRef = db.collection('users').doc(uid);
-        
+
         const updates: any = { ...profileData };
 
+        // If displayName is part of the data, update Firebase Auth as well
         if (profileData.displayName) {
             await auth.updateUser(uid, { displayName: profileData.displayName });
+            // The displayName is already in 'updates', so no need to remove it for Firestore.
         }
-        
+
         await userProfileRef.set(updates, { merge: true });
-        
-        // Revalidate all paths that might show user data
-        revalidatePath('/basecamp', 'page');
-        revalidatePath('/driver', 'layout');
-        revalidatePath('/destination', 'page');
-        revalidatePath('/route', 'page');
-        revalidatePath('/insights', 'page');
-        
+
+        // Revalidate all paths where user profile data might be displayed
+        revalidatePath('/basecamp');
+        revalidatePath('/driver', 'layout'); // Revalidate the whole layout for sub-pages
+        revalidatePath('/destination');
+        revalidatePath('/route');
+        revalidatePath('/insights');
+
         return { success: true };
     } catch (error) {
         console.error('Error saving user profile:', error);
