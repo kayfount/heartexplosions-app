@@ -84,15 +84,15 @@ interface SaveUserProfileInput {
 
 export async function saveUserProfile({ uid, profileData }: SaveUserProfileInput) {
     if (!uid) {
-        return { success: false, error: 'User ID is missing.' };
+        throw new Error('User ID is missing.');
     }
-    
+
     try {
         const db = getFirestore(getFirebaseAdminApp());
         const auth = getAuth(getFirebaseAdminApp());
 
         const userProfileRef = db.collection('users').doc(uid);
-        
+
         const updates: any = { ...profileData };
 
         // If displayName is part of the data, update Firebase Auth as well
@@ -100,20 +100,20 @@ export async function saveUserProfile({ uid, profileData }: SaveUserProfileInput
             await auth.updateUser(uid, { displayName: profileData.displayName });
             // The displayName is already in 'updates', so no need to remove it for Firestore.
         }
-        
+
         await userProfileRef.set(updates, { merge: true });
-        
+
         // Revalidate all paths where user profile data might be displayed
         revalidatePath('/basecamp');
         revalidatePath('/driver', 'layout'); // Revalidate the whole layout for sub-pages
         revalidatePath('/destination');
         revalidatePath('/route');
         revalidatePath('/insights');
-        
+
         return { success: true };
     } catch (error) {
         console.error('Error saving user profile:', error);
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-        return { success: false, error: `Failed to save user profile: ${errorMessage}` };
+        throw new Error(`Failed to save user profile: ${errorMessage}`);
     }
 }

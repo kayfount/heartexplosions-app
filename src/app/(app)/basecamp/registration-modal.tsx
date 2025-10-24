@@ -110,7 +110,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
     try {
       const { firstName, lastName, ...profileData } = data;
       const displayName = `${firstName} ${lastName}`.trim();
-      
+
       const payload = {
         firstName,
         lastName,
@@ -118,18 +118,14 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
         ...profileData
       };
 
-      const result = await saveUserProfile({ uid: user.uid, profileData: payload });
-      
-      if (result.success) {
-          onRegister();
-          toast({
-            title: isRegistered ? 'Profile Updated' : 'Registration Complete!',
-            description: 'Your expedition details have been saved.',
-          });
-          onOpenChange(false);
-      } else {
-        throw new Error(result.error);
-      }
+      await saveUserProfile({ uid: user.uid, profileData: payload });
+
+      onRegister();
+      toast({
+        title: isRegistered ? 'Profile Updated' : 'Registration Complete!',
+        description: 'Your expedition details have been saved.',
+      });
+      onOpenChange(false);
 
     } catch (error: any) {
        toast({
