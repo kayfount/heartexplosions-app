@@ -108,8 +108,9 @@ export async function saveUserProfile({ uid, profileData }: SaveUserProfileInput
     }
     
     try {
-        const db = getFirestore(getFirebaseAdminApp());
-        const auth = getAuth(getFirebaseAdminApp());
+        const adminApp = getFirebaseAdminApp();
+        const db = getFirestore(adminApp);
+        const auth = getAuth(adminApp);
 
         const userProfileRef = db.collection('users').doc(uid);
         
