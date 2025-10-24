@@ -10,9 +10,11 @@ export function getFirebaseAdminApp(): App {
   }
 
   // When running in a Google Cloud environment like Firebase App Hosting, 
-  // initializeApp() with no arguments will automatically use the environment's
+  // initializeApp() with applicationDefault() will automatically use the environment's
   // service account credentials.
   // This is the standard and recommended way to initialize the Admin SDK in a secure server environment.
   // https://firebase.google.com/docs/admin/setup#initialize-sdk
-  return initializeApp();
+  return initializeApp({
+    credential: credential.applicationDefault(),
+  });
 }
