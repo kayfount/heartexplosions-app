@@ -1,19 +1,28 @@
+'use server';
 
-import { initializeApp, getApp, getApps, App, credential } from 'firebase-admin/app';
+import { initializeApp, getApps, App, applicationDefault, credential } from 'firebase-admin/app';
 
-// IMPORTANT: Do not change this file. This is the only way to initialize the Firebase Admin SDK.
-// The service account credentials are automatically provided by the Firebase App Hosting environment.
+let adminApp: App | null = null;
+
+/**
+ * Retrieves the singleton instance of the Firebase Admin App.
+ * Initializes the app if it hasn't been already, using application default credentials.
+ * @returns The initialized Firebase Admin App instance.
+ */
 export function getFirebaseAdminApp(): App {
-  if (getApps().length) {
-    return getApp();
+  if (!adminApp) {
+    if (getApps().length > 0) {
+      adminApp = getApps()[0];
+    } else {
+      adminApp = initializeApp({
+        credential: applicationDefault(),
+      });
+    }
+  }
+  
+  if (!adminApp) {
+      throw new Error('Firebase Admin SDK has not been initialized. Please ensure initializeApp() is called before getFirebaseAdminApp().');
   }
 
-  // When running in a Google Cloud environment like Firebase App Hosting, 
-  // initializeApp() with applicationDefault() will automatically use the environment's
-  // service account credentials.
-  // This is the standard and recommended way to initialize the Admin SDK in a secure server environment.
-  // https://firebase.google.com/docs/admin/setup#initialize-sdk
-  return initializeApp({
-    credential: credential.applicationDefault(),
-  });
+  return adminApp;
 }

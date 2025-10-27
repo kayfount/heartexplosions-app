@@ -53,7 +53,7 @@ export function Header() {
         <div className="flex items-center justify-between h-16">
           <div className="flex-shrink-0">
             <Link href={showNav ? "/basecamp" : "/"}>
-              <Logo isCompact={isMobile && showNav} />
+              <Logo isCompact={isMobile && !!showNav} />
             </Link>
           </div>
           {showNav ? (
