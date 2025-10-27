@@ -1,6 +1,3 @@
-
-'use server';
-
 import { initializeApp, getApps, App, applicationDefault, credential } from 'firebase-admin/app';
 
 // This is a global cache for the admin app instance.
