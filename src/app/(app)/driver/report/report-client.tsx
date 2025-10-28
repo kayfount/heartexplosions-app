@@ -89,10 +89,15 @@ export function ReportClient() {
                 description: "Your Life Purpose Report is ready below."
             });
         } else {
+            const errorMsg = result.error || "Something went wrong.";
+            const isApiKeyError = errorMsg.includes("403") || errorMsg.includes("Forbidden") || errorMsg.includes("blocked");
+
             toast({
                 variant: "destructive",
                 title: "Error Generating Report",
-                description: result.error || "Something went wrong.",
+                description: isApiKeyError
+                    ? "API configuration error. Please check that you have a valid Gemini API key set up. Contact support for assistance."
+                    : errorMsg,
             });
         }
     };

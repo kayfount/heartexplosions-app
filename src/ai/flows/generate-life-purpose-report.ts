@@ -104,8 +104,8 @@ const prompt = ai.definePrompt({
 
   **Your Fears:**
   - **Core Fear of Type {{trifix.[0]}}:** (Outline the core fear)
-  - **Core Fear of Type {{trifix.[1].substring(0,1)}}:** (Outline the core fear)
-  - **Core Fear of Type {{trifix.[2].substring(0,1)}}:** (Outline the core fear)
+  - **Core Fear of Type {{trifix.[1]}}:** (Outline the core fear)
+  - **Core Fear of Type {{trifix.[2]}}:** (Outline the core fear)
 
   ---
 

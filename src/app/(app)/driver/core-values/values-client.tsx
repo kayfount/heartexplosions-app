@@ -123,7 +123,7 @@ export function ValuesClient() {
 
         setIsSaving(true);
         try {
-            await saveUserProfile({ uid: user.uid, profileData: { coreValues: topValues }});
+            await saveUserProfile({ uid: user.uid, profileData: { coreValues: topValues, driverCompleted: true }});
             toast({ title: 'Success!', description: 'Your core values have been saved.'});
             router.push('/destination');
         } catch (error) {
