@@ -147,6 +147,12 @@ export default {
           '0%, 100%': { transform: 'rotate(0deg)' },
           '25%': { transform: 'rotate(-8deg)' },
           '75%': { transform: 'rotate(8deg)' },
+        },
+        'blink-and-pause': {
+          '0%, 100%': { opacity: '1' },
+          '5%, 15%, 25%': { opacity: '0.6' },
+          '10%, 20%, 30%': { opacity: '1' },
+          '31%, 100%': { opacity: '1'},
         }
       },
       animation: {
@@ -154,8 +160,11 @@ export default {
         'accordion-up': 'accordion-up 0.2s ease-out',
         'star-float': 'star-float 3s ease-in-out infinite',
         'shiver': 'shiver 0.3s ease-in-out',
+        'blink-and-pause': 'blink-and-pause 6s infinite',
       },
     },
   },
   plugins: [require('tailwindcss-animate')],
 } satisfies Config;
+
+    
