@@ -82,7 +82,9 @@ interface SaveUserProfileInput {
     profileData: any;
 }
 
-export async function saveUserProfile({ uid, profileData }: SaveUserProfileInput) {
+export async function saveUserProfile(input: SaveUserProfileInput) {
+    const { uid, profileData } = input;
+
     if (!uid) {
         throw new Error('User ID is missing.');
     }

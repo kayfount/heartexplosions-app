@@ -92,24 +92,33 @@ export function SatisfactionQuizModal({ isOpen, onOpenChange, onQuizComplete }: 
   
   const handleFinish = async () => {
     const percentage = Math.round((finalScore / (totalQuestions * 10)) * 100)
-    
-    if (user) {
-      try {
-        await saveUserProfile({ uid: user.uid, profileData: { roleClarityScore: percentage } });
-        toast({
-          title: "Score Saved",
-          description: "Your Role Clarity Score has been saved to your profile.",
-        });
-        onQuizComplete();
-      } catch (error) {
-         toast({
-          variant: "destructive",
-          title: "Uh oh!",
-          description: "Could not save your score.",
-        });
-      }
+
+    if (!user) {
+      toast({
+        variant: "destructive",
+        title: "Not Authenticated",
+        description: "You must be logged in to save your score.",
+      });
+      return;
     }
-    handleClose();
+
+    try {
+      await saveUserProfile({ uid: user.uid, profileData: { roleClarityScore: percentage } });
+      toast({
+        title: "Score Saved",
+        description: "Your Role Clarity Score has been saved to your profile.",
+      });
+      onQuizComplete();
+      handleClose();
+    } catch (error: any) {
+      console.error("Failed to save quiz score:", error);
+      toast({
+        variant: "destructive",
+        title: "Error Saving Score",
+        description: error.message || "Could not save your score. Please try again.",
+      });
+      // Don't close the modal on error so user can retry
+    }
   }
 
   const renderContent = () => {
