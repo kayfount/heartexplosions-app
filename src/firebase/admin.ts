@@ -1,5 +1,5 @@
 
-import { initializeApp, getApps, App, cert, credential } from 'firebase-admin/app';
+import { initializeApp, getApps, App, credential } from 'firebase-admin/app';
 
 // This is a global cache for the admin app instance.
 let adminApp: App | null = null;
