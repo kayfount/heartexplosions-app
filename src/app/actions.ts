@@ -1,19 +1,13 @@
-
 'use server';
 
 import { generateLifePurposeReport, type LifePurposeReportInput } from '@/ai/flows/generate-life-purpose-report';
 import { synthesizePurposeProfile, type SynthesizePurposeProfileInput } from '@/ai/flows/synthesize-purpose-profile';
 import { createRealisticRoutePlan, type RoutePlanInput } from '@/ai/flows/create-realistic-route-plan';
 import { interactWithAiCoach, type InteractWithAiCoachInput } from '@/ai/flows/interact-with-ai-coach';
-import {
-  saveReportClient,
-  savePurposeProfileClient,
-  saveRoutePlanClient,
-  toggleRoutePlanTaskClient
-} from '@/firebase/firestore-client';
-import { revalidatePath } from 'next/cache';
-import { getFirebaseAdminApp } from '@/firebase/admin';
+import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
+import { getFirebaseAdminApp } from '@/firebase/admin';
+import { revalidatePath } from 'next/cache';
 
 interface GenerateReportActionInput extends LifePurposeReportInput {
     uid: string;
@@ -28,9 +22,18 @@ export async function generateReportAction(input: GenerateReportActionInput) {
   try {
     const result = await generateLifePurposeReport(reportInput);
 
-    // This action still uses a client-side helper, which is fine if it works for report generation logic.
-    // We are only fixing saveUserProfile for now.
-    await saveReportClient(uid, reportInput, result.report);
+    // Save the report to Firestore
+    const db = getFirestore(getFirebaseAdminApp());
+    const reportRef = db.collection('reports').doc(); // Create a new report with a unique ID
+    await reportRef.set({
+      ...reportInput,
+      report: result.report,
+      createdAt: new Date().toISOString(),
+    });
+
+    // Update the user's profile with the new report ID
+    const userProfileRef = db.collection('users').doc(uid);
+    await userProfileRef.set({ lifePurposeReportId: reportRef.id }, { merge: true });
 
     revalidatePath('/insights');
     revalidatePath('/driver/report');
@@ -43,52 +46,23 @@ export async function generateReportAction(input: GenerateReportActionInput) {
   }
 }
 
-interface SynthesizeProfileActionInput extends SynthesizePurposeProfileInput {
-    uid: string;
-}
-
-export async function synthesizeProfileAction(input: SynthesizeProfileActionInput) {
-  const { uid, ...profileInput } = input;
-  if (!uid) {
-    return { success: false, error: 'User not authenticated.' };
-  }
-
+export async function synthesizeProfileAction(input: SynthesizePurposeProfileInput) {
   try {
-    const result = await synthesizePurposeProfile(profileInput);
-    await savePurposeProfileClient(uid, profileInput, result);
-    revalidatePath('/destination');
-    revalidatePath('/insights');
+    const result = await synthesizePurposeProfile(input);
     return { success: true, data: result };
   } catch (error) {
     console.error(error);
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-    return { success: false, error: `Failed to synthesize profile. ${errorMessage}` };
+    return { success: false, error: 'Failed to synthesize profile.' };
   }
 }
 
-
-interface CreateRoutePlanActionInput extends RoutePlanInput {
-    uid: string;
-}
-
-export async function createRoutePlanAction(input: CreateRoutePlanActionInput) {
-  const { uid, ...planInput } = input;
-  if (!uid) {
-    return { success: false, error: 'User not authenticated.' };
-  }
-
+export async function createRoutePlanAction(input: RoutePlanInput) {
   try {
-    const result = await createRealisticRoutePlan(planInput);
-    const routePlanId = await saveRoutePlanClient(uid, planInput, result);
-
-    revalidatePath('/route');
-    revalidatePath('/insights');
-
-    return { success: true, data: result, routePlanId };
+    const result = await createRealisticRoutePlan(input);
+    return { success: true, data: result };
   } catch (error) {
     console.error(error);
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
-    return { success: false, error: `Failed to create route plan. ${errorMessage}` };
+    return { success: false, error: 'Failed to create route plan.' };
   }
 }
 
@@ -102,47 +76,31 @@ export async function coachInteractionAction(input: InteractWithAiCoachInput) {
     }
 }
 
-interface ToggleRoutePlanTaskInput {
-    uid: string;
-    taskIndex: number;
-}
-
-export async function toggleRoutePlanTask(input: ToggleRoutePlanTaskInput) {
-    const { uid, taskIndex } = input;
-
-    if (!uid) {
-        throw new Error('User ID is missing.');
-    }
-
-    try {
-        const completed = await toggleRoutePlanTaskClient(uid, taskIndex);
-        revalidatePath('/route');
-        return { success: true, completed };
-    } catch (error) {
-        console.error('Error toggling route plan task:', error);
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-        throw new Error(`Failed to toggle task: ${errorMessage}`);
-    }
-}
-
 interface SaveUserProfileInput {
     uid: string;
     profileData: any;
 }
 
-export async function saveUserProfile(input: SaveUserProfileInput) {
-    const { uid, profileData } = input;
-
+export async function saveUserProfile({ uid, profileData }: SaveUserProfileInput) {
     if (!uid) {
         throw new Error('User ID is missing.');
     }
 
     try {
-        const adminApp = getFirebaseAdminApp();
-        const db = getFirestore(adminApp);
-        const userRef = db.collection('users').doc(uid);
-        
-        await userRef.set(profileData, { merge: true });
+        const db = getFirestore(getFirebaseAdminApp());
+        const auth = getAuth(getFirebaseAdminApp());
+
+        const userProfileRef = db.collection('users').doc(uid);
+
+        const updates: any = { ...profileData };
+
+        // If displayName is part of the data, update Firebase Auth as well
+        if (profileData.displayName) {
+            await auth.updateUser(uid, { displayName: profileData.displayName });
+            // The displayName is already in 'updates', so no need to remove it for Firestore.
+        }
+
+        await userProfileRef.set(updates, { merge: true });
 
         // Revalidate all paths where user profile data might be displayed
         revalidatePath('/basecamp');

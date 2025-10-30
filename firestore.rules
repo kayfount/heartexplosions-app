@@ -56,42 +56,18 @@ service cloud.firestore {
 
     /**
      * @description Secures the life purpose reports collection. Allows public read access
-     *              and authenticated users can create reports.
+     *              but restricts write access.
      * @path /reports/{reportId}
      * @allow (get) Any user can read a report.
      * @allow (list) Any user can list the reports.
-     * @allow (create) Authenticated users can create reports.
-     * @deny (update) No user can update a report once created.
+     * @deny (create) No user can create a report.
+     * @deny (update) No user can update a report.
      * @deny (delete) No user can delete a report.
-     * @principle Allows public read access with authenticated write-once capability.
+     * @principle Allows public read access with owner-only writes (currently disabled).
      */
     match /reports/{reportId} {
       allow get, list: if true;
-      allow create: if request.auth != null;
-      allow update, delete: if false;
-    }
-
-    /**
-     * @description Secures the purpose profiles collection. Authenticated users can create
-     *              and manage their own purpose profiles.
-     * @path /purposeProfiles/{profileId}
-     */
-    match /purposeProfiles/{profileId} {
-      allow get, list: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update, delete: if false;
-    }
-
-    /**
-     * @description Secures the route plans collection. Authenticated users can create
-     *              and manage their own route plans.
-     * @path /routePlans/{planId}
-     */
-    match /routePlans/{planId} {
-      allow get, list: if request.auth != null;
-      allow create: if request.auth != null;
-      allow update: if request.auth != null;
-      allow delete: if false;
+      allow create, update, delete: if false;
     }
   }
 }

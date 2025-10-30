@@ -1,5 +1,5 @@
 
-import { initializeApp, getApps, App, credential } from 'firebase-admin/app';
+import { initializeApp, getApps, App, applicationDefault, cert } from 'firebase-admin/app';
 
 // This is a global cache for the admin app instance.
 let adminApp: App | null = null;
@@ -25,34 +25,37 @@ export function getFirebaseAdminApp(): App {
     return adminApp;
   }
 
-  // Check for service account credentials from environment variables.
-  // In a managed environment like Firebase App Hosting or Cloud Run,
-  // applicationDefault() will automatically find the service account.
-  try {
-    adminApp = initializeApp({
-        credential: credential.applicationDefault(),
-    });
-    console.log('Firebase Admin initialized with default application credentials.');
-  } catch (e) {
-    console.error('Failed to initialize Firebase Admin SDK with default credentials.', e);
-    // As a fallback for local development, you could try to use a service account key file
-    // but in the App Hosting environment, applicationDefault() is the standard.
-    // To prevent the app from crashing, we'll create a minimal instance if all else fails.
-    if (!adminApp) {
-        adminApp = initializeApp({ projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'client-only-mode' });
-        console.warn('Firebase Admin SDK initialized without full credentials. Admin operations may fail.');
+  // Check for service account credentials from environment variables
+  const serviceAccount = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+
+  if (serviceAccount) {
+    try {
+      // Parse the service account JSON
+      const serviceAccountObj = JSON.parse(serviceAccount);
+      adminApp = initializeApp({
+        credential: cert(serviceAccountObj),
+      });
+      console.log('Firebase Admin initialized with service account credentials.');
+      return adminApp;
+    } catch (parseError) {
+      console.error('Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY:', parseError);
+      // Fall through to try application default credentials
     }
   }
-  
-  return adminApp;
-}
 
-/**
- * Checks if Firebase Admin has valid credentials (service account) for privileged operations.
- * @returns true if service account credentials are available, false if only project ID was used
- */
-export function hasAdminCredentials(): boolean {
-  // A reliable way to check is to see if the Admin SDK was initialized with credentials.
-  // In a Google Cloud environment, this should generally be true.
-  return getApps().length > 0 && !!getApps()[0].options.credential;
+  // Fallback to Application Default Credentials (for Google Cloud environments)
+  // This is the standard way to authenticate in Google Cloud environments like App Hosting.
+  try {
+    adminApp = initializeApp({
+      credential: applicationDefault(),
+    });
+    console.log('Firebase Admin initialized with application default credentials.');
+    return adminApp;
+  } catch (error) {
+    console.error('Failed to initialize Firebase Admin SDK with ADC:', error);
+    throw new Error(
+      'Firebase Admin SDK initialization failed. Ensure you have provided FIREBASE_SERVICE_ACCOUNT_KEY ' +
+      'as an environment variable or are running in a Google Cloud environment with default credentials.'
+    );
+  }
 }
