@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { useFieldArray, useForm, FormProvider, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Plus, ArrowRight, Loader2 } from 'lucide-react';
@@ -300,7 +300,7 @@ export function RolesClient() {
                 <Loader2 className="animate-spin size-8" />
             </div>
         ) : (
-            <Form {...form}>
+            <FormProvider {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                     <AnimatePresence>
                         {fields.map((field, index) => (
@@ -332,8 +332,10 @@ export function RolesClient() {
                         </Button>
                     </div>
                 </form>
-            </Form>
+            </FormProvider>
         )}
     </div>
   );
 }
+
+    
