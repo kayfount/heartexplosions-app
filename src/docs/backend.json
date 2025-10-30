@@ -190,6 +190,56 @@
         "report"
       ]
     },
+    "Role": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Role",
+      "type": "object",
+      "description": "Represents a single role or experience in a user's life.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Role."
+        },
+        "roleTitle": {
+          "type": "string",
+          "description": "The title of the role."
+        },
+        "organizationContext": {
+          "type": "string",
+          "description": "The company, family, or context for the role."
+        },
+        "duration": {
+          "type": "string",
+          "description": "The duration of the role."
+        },
+        "keyResponsibilities": {
+          "type": "string",
+          "description": "The key responsibilities of the role."
+        },
+        "keyAccomplishments": {
+          "type": "string",
+          "description": "Key accomplishments in the role."
+        },
+        "whatILoved": {
+          "type": "string",
+          "description": "What the user loved about the role."
+        },
+        "whatIDisliked": {
+          "type": "string",
+          "description": "What the user disliked about the role."
+        },
+        "heartExplosionsLevel": {
+          "type": "number",
+          "description": "A 0-10 rating of alignment and passion for the role."
+        }
+      },
+      "required": [
+        "roleTitle",
+        "organizationContext",
+        "duration",
+        "heartExplosionsLevel"
+      ]
+    },
     "satisfaction-quiz": {
       "title": "Satisfaction Quiz",
       "description": "Stores the user's satisfaction quiz results.",
@@ -218,6 +268,16 @@
             "$ref": "#/backend/entities/UserProfile"
           },
           "description": "Stores user profile information, including profile picture URL, onboarding data, and a reference to the LifePurposeReport. Path-based ownership ensures only the user can access their profile. Includes userId as a parameter to establish ownership."
+        }
+      },
+      {
+        "path": "/users/{userId}/roles/{roleId}",
+        "definition": {
+            "entityName": "Role",
+            "schema": {
+                "$ref": "#/backend/entities/Role"
+            },
+            "description": "Stores individual roles and experiences for a specific user. This is a subcollection of the user's document."
         }
       },
       {

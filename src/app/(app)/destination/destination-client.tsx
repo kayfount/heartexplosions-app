@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Loader2, Sparkles, Briefcase, HeartHandshake, Star } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { synthesizeProfileAction, saveUserProfile } from '@/app/actions';
+import { synthesizePurposeProfileAction, saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 import type { SynthesizePurposeProfileOutput } from '@/ai/flows/synthesize-purpose-profile';
 import { cn } from '@/lib/utils';
@@ -48,7 +48,8 @@ export function DestinationClient() {
         handleSelectArea(userProfile.focusArea, true);
       }
     }
-  }, [userProfile]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userProfile, user]);
 
   const handleSelectArea = async (area: FocusArea, isPreload = false) => {
     if(!isPreload) {
@@ -72,7 +73,7 @@ export function DestinationClient() {
         }
     }
 
-    const result = await synthesizeProfileAction({ focusArea: area, driverReport: dummyDriverReport });
+    const result = await synthesizePurposeProfileAction({ focusArea: area, driverReport: dummyDriverReport });
     setIsLoading(false);
 
     if (result.success && result.data) {
@@ -169,6 +170,3 @@ export function DestinationClient() {
     </>
   );
 }
-
-    
-    
