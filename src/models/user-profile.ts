@@ -27,7 +27,6 @@ export interface UserProfile {
     location?: string;
     preferredWorkLifeBalance?: string;
     longTermAspirations?: string;
-    supportSystem?: string;
     learningAndDevelopment?: string;
     dreamLife?: string;
     careerIdeas?: string[];
@@ -43,6 +42,7 @@ export interface UserProfile {
     willingnessToTry?: string;
     comfortWithUncertainty?: string;
     appetiteForRisk?: string;
+    supportSystem?: string;
     
     // The Destination
     focusArea?: 'career' | 'contribution' | 'calling';
@@ -56,3 +56,5 @@ export interface UserProfile {
     routePlan?: string; // Storing the generated route plan text directly
     routeCompleted?: boolean;
 }
+
+    

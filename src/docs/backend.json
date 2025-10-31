@@ -159,9 +159,6 @@
         "longTermAspirations": {
             "type": "string"
         },
-        "supportSystem": {
-            "type": "string"
-        },
         "learningAndDevelopment": {
             "type": "string"
         },
@@ -199,6 +196,18 @@
             "type": "string"
         },
         "toolsAndSupports": {
+            "type": "string"
+        },
+        "willingnessToTry": {
+          "type": "string"
+        },
+        "comfortWithUncertainty": {
+          "type": "string"
+        },
+        "appetiteForRisk": {
+          "type": "string"
+        },
+        "supportSystem": {
             "type": "string"
         }
       },
@@ -372,3 +381,5 @@
     ]
   }
 }
+
+    

@@ -40,8 +40,8 @@ const formSchema = z.object({
   location: z.string().optional(),
   preferredWorkLifeBalance: z.string().optional(),
   longTermAspirations: z.string().optional(),
-  supportSystem: z.string().optional(),
   learningAndDevelopment: z.string().optional(),
+  dreamLife: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -68,8 +68,8 @@ export function AspirationsClient() {
         location: '',
         preferredWorkLifeBalance: '',
         longTermAspirations: '',
-        supportSystem: '',
         learningAndDevelopment: '',
+        dreamLife: '',
     }
   });
 
@@ -81,8 +81,8 @@ export function AspirationsClient() {
         location: userProfile.location || '',
         preferredWorkLifeBalance: userProfile.preferredWorkLifeBalance || '',
         longTermAspirations: userProfile.longTermAspirations || '',
-        supportSystem: userProfile.supportSystem || '',
         learningAndDevelopment: userProfile.learningAndDevelopment || '',
+        dreamLife: userProfile.dreamLife || '',
       });
     }
   }, [userProfile, form]);
@@ -101,7 +101,7 @@ export function AspirationsClient() {
     try {
       await saveUserProfile({ uid: user.uid, profileData });
       toast({ title: 'Success', description: 'Your aspirations have been saved.' });
-      router.push('/driver/dream-life');
+      router.push('/driver/ideas');
     } catch (error) {
       console.error("Error saving aspirations: ", error);
       toast({ title: 'Error', description: 'Could not save your aspirations.', variant: 'destructive' });
@@ -165,17 +165,19 @@ export function AspirationsClient() {
                             <FormMessage />
                         </FormItem>
                     )}/>
-                    <FormField control={form.control} name="supportSystem" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel>Describe your support system (family, friends, mentors, role models)</FormLabel>
-                            <FormControl><Textarea {...field} /></FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}/>
                     <FormField control={form.control} name="learningAndDevelopment" render={({ field }) => (
                         <FormItem>
                             <FormLabel>What skills or areas are you currently focused on for learning and development?</FormLabel>
                             <FormControl><Textarea {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}/>
+                    <FormField control={form.control} name="dreamLife" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel>Dream Life / "Rich" Life</FormLabel>
+                             <FormControl>
+                                <Textarea placeholder="Describe your ideal 'dream life' or 'rich life': the time/energy you'd invest and where, environments, activities, leisure, and other values important to you." {...field} />
+                            </FormControl>
                             <FormMessage />
                         </FormItem>
                     )}/>
@@ -197,3 +199,5 @@ export function AspirationsClient() {
     </div>
   );
 }
+
+    
