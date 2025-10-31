@@ -34,6 +34,12 @@ export interface UserProfile {
     dreamProjects?: string;
     lifetimeImpact?: string;
     driverCompleted?: boolean;
+    timeLimits?: string;
+    financialRunway?: string;
+    workLifeIntegration?: string;
+    fearsAndBlocks?: string;
+    challengesAndConcerns?: string;
+    toolsAndSupports?: string;
     
     // The Destination
     focusArea?: 'career' | 'contribution' | 'calling';

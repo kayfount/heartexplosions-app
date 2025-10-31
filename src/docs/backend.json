@@ -182,6 +182,24 @@
         "lifetimeImpact": {
             "type": "string",
             "description": "The impact the user wants to have on others in their lifetime."
+        },
+        "timeLimits": {
+            "type": "string"
+        },
+        "financialRunway": {
+            "type": "string"
+        },
+        "workLifeIntegration": {
+            "type": "string"
+        },
+        "fearsAndBlocks": {
+            "type": "string"
+        },
+        "challengesAndConcerns": {
+            "type": "string"
+        },
+        "toolsAndSupports": {
+            "type": "string"
         }
       },
       "required": [
