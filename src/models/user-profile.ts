@@ -40,6 +40,9 @@ export interface UserProfile {
     fearsAndBlocks?: string;
     challengesAndConcerns?: string;
     toolsAndSupports?: string;
+    willingnessToTry?: string;
+    comfortWithUncertainty?: string;
+    appetiteForRisk?: string;
     
     // The Destination
     focusArea?: 'career' | 'contribution' | 'calling';
