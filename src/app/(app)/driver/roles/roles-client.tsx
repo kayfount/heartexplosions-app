@@ -311,22 +311,18 @@ export function RolesClient() {
                         ))}
                     </AnimatePresence>
 
-                    <Card className="bg-card/80">
-                        <CardContent className="p-4">
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                className="w-full"
-                                onClick={() => append({
-                                    roleTitle: '', organizationContext: '', duration: '',
-                                    keyResponsibilities: '', keyAccomplishments: '', whatILoved: '',
-                                    whatIDisliked: '', heartExplosionsLevel: 5
-                                })}
-                                >
-                                <Plus className="mr-2" /> Add Another Role
-                            </Button>
-                        </CardContent>
-                    </Card>
+                    <Button
+                        type="button"
+                        variant="link"
+                        className="w-full font-bold text-primary"
+                        onClick={() => append({
+                            roleTitle: '', organizationContext: '', duration: '',
+                            keyResponsibilities: '', keyAccomplishments: '', whatILoved: '',
+                            whatIDisliked: '', heartExplosionsLevel: 5
+                        })}
+                        >
+                        <Plus className="mr-2" /> Add Another Role
+                    </Button>
 
                     <div className="flex justify-between mt-8">
                          <Button variant="outline" asChild>
