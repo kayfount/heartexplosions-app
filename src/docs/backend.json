@@ -212,10 +212,7 @@
             "type": "string",
             "description": "Any other considerations for the user's transition path."
         },
-        "workLocation": {
-            "type": "string"
-        },
-        "workLocationOther": {
+        "preferredWorkLifeBalance": {
             "type": "string"
         },
         "collaborationStyle": {

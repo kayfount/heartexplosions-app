@@ -41,12 +41,9 @@ import { saveUserProfile } from '@/app/actions';
 import Link from 'next/link';
 
 const formSchema = z.object({
-  workLocation: z.string().optional(),
-  workLocationOther: z.string().optional(),
+  preferredWorkLifeBalance: z.string().optional(),
   collaborationStyle: z.string().optional(),
-  collaborationStyleOther: z.string().optional(),
   structurePreference: z.string().optional(),
-  structurePreferenceOther: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -72,30 +69,24 @@ export function IdealWorkEnvironmentClient() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      workLocation: '',
-      workLocationOther: '',
+      preferredWorkLifeBalance: '',
       collaborationStyle: '',
-      collaborationStyleOther: '',
       structurePreference: '',
-      structurePreferenceOther: '',
     },
   });
 
   const { watch } = form;
 
-  const watchWorkLocation = watch('workLocation');
+  const watchWorkLocation = watch('preferredWorkLifeBalance');
   const watchCollaborationStyle = watch('collaborationStyle');
   const watchStructurePreference = watch('structurePreference');
 
   useEffect(() => {
     if (userProfile) {
       form.reset({
-        workLocation: userProfile.workLocation || '',
-        workLocationOther: userProfile.workLocationOther || '',
+        preferredWorkLifeBalance: userProfile.preferredWorkLifeBalance || '',
         collaborationStyle: userProfile.collaborationStyle || '',
-        collaborationStyleOther: userProfile.collaborationStyleOther || '',
         structurePreference: userProfile.structurePreference || '',
-        structurePreferenceOther: userProfile.structurePreferenceOther || '',
       });
     }
   }, [userProfile, form]);
@@ -130,7 +121,7 @@ export function IdealWorkEnvironmentClient() {
       ) : (
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <Card className="bg-[#FAFFEE] border-border">
+            <Card className="bg-card/80">
               <CardHeader>
                 <CardTitle className="font-bold">Ideal Work Environment</CardTitle>
                 <CardDescription>How do you work best?</CardDescription>
@@ -139,7 +130,7 @@ export function IdealWorkEnvironmentClient() {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <FormField
                     control={form.control}
-                    name="workLocation"
+                    name="preferredWorkLifeBalance"
                     render={({ field }) => (
                       <FormItem>
                         <FormLabel className="font-bold">Work Location</FormLabel>
@@ -195,7 +186,7 @@ export function IdealWorkEnvironmentClient() {
                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {watchWorkLocation === 'Other' && (
                         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-                            <FormField control={form.control} name="workLocationOther" render={({ field }) => (
+                            <FormField control={form.control} name="preferredWorkLifeBalance" render={({ field }) => (
                                 <FormItem>
                                     <FormLabel className="font-bold">Other Work Location</FormLabel>
                                     <FormControl><Input placeholder="Specify..." {...field} /></FormControl>

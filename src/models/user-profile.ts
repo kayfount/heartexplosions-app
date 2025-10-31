@@ -47,8 +47,7 @@ export interface UserProfile {
     appetiteForRisk?: string;
     supportSystem?: string;
     additionalConsiderations?: string;
-    workLocation?: string;
-    workLocationOther?: string;
+    preferredWorkLifeBalance?: string;
     collaborationStyle?: string;
     collaborationStyleOther?: string;
     structurePreference?: string;
