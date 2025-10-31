@@ -103,28 +103,18 @@ export function DriverForm() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      enneagramType: '',
-      wing: '',
-      subtype: '',
-      instinctualStacking: '',
-      trifix: '',
+    // Use the `values` property to set dynamic default values
+    // This will re-initialize the form when userProfile data loads
+    values: {
+      enneagramType: userProfile?.enneagramType || '',
+      wing: userProfile?.wing || '',
+      subtype: userProfile?.subtype || '',
+      instinctualStacking: userProfile?.instinctualStacking || '',
+      trifix: userProfile?.trifix || '',
     },
     mode: 'onChange'
   });
   
-  useEffect(() => {
-    if (userProfile) {
-        form.reset({
-            enneagramType: userProfile.enneagramType || '',
-            wing: userProfile.wing || '',
-            subtype: userProfile.subtype || '',
-            instinctualStacking: userProfile.instinctualStacking || '',
-            trifix: userProfile.trifix || '',
-        });
-    }
-  }, [userProfile, form]);
-
   const watchedValues = useWatch({ control: form.control });
   const selectedEnneagramType = useWatch({ control: form.control, name: 'enneagramType' });
 
@@ -150,6 +140,17 @@ export function DriverForm() {
   };
   
   const handleNext = async () => {
+    // Manually trigger validation before saving
+    const isValid = await form.trigger();
+    if (!isValid) {
+        toast({
+            variant: "destructive",
+            title: "Incomplete Form",
+            description: "Please fill out all required fields before continuing.",
+        });
+        return;
+    }
+
     if (!user) return;
     setIsSaving(true);
     try {
@@ -171,7 +172,9 @@ export function DriverForm() {
     }
   };
 
-  if (isUserLoading || isProfileLoading) {
+  const isLoading = isUserLoading || isProfileLoading;
+
+  if (isLoading) {
       return (
         <div className="flex justify-center items-center h-96">
             <Loader2 className="animate-spin size-8" />
@@ -333,7 +336,7 @@ export function DriverForm() {
               <Button variant="outline" asChild>
                   <Link href="/basecamp"><ArrowLeft /> Previous</Link>
               </Button>
-              <Button onClick={handleNext} disabled={!form.formState.isValid || isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
+              <Button onClick={handleNext} disabled={isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
                   {isSaving ? <Save className="mr-2 animate-spin" /> : 'Next' }
                   {!isSaving && <ArrowRight />}
               </Button>
@@ -342,8 +345,3 @@ export function DriverForm() {
     </>
   );
 }
-
-    
-    
-
-    
