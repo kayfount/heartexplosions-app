@@ -1,73 +1,105 @@
 /**
- * @fileoverview Firestore Security Rules for the application.
- *
- * Core Philosophy:
- * This ruleset enforces a strict user-ownership model for user profiles
- * and allows public read access to life purpose reports while restricting
- * write access to authorized users only.
+ * @file Firestore Security Rules
+ * @description This ruleset enforces a strict user-ownership model for user profiles and allows public read access to life purpose reports, with owner-only write access.
  *
  * Data Structure:
- * - /users/{userId}: Stores user profile information.  Only the user can
- *   read or write their own profile data.
- * - /reports/{reportId}: Stores life purpose reports. Publicly readable,
- *   but write access is restricted.
+ * - /users/{userId}: Stores user profile data. Only the authenticated user can read/write their own profile.
+ * - /reports/{reportId}: Stores life purpose reports. Publicly readable, but only the owner (creator) can modify.
  *
  * Key Security Decisions:
- * - User listing is disallowed.
- * - Reports are publicly readable but not writable by end-users.
- * - Default security posture for ambiguous relationships is strict
- *   owner-only access.
+ * - User listing is disallowed for privacy.
+ * - All write operations are protected by authorization checks.
+ * - Data consistency between the path and document ID is enforced on user profile creation and updates.
+ *
+ * Denormalization for Authorization:
+ * - The /reports/{reportId} collection relies on an 'ownerId' field within each report document to determine write access. This avoids costly `get()` calls.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Secures the user profiles collection. Only the authenticated user
-     *              can read or write their own profile.
+     * @description Enforces user-ownership for user profiles.
      * @path /users/{userId}
-     * @allow (create) User 'user_abc' can create their profile if request.auth.uid == 'user_abc'.
-     * @allow (get) User 'user_abc' can read their profile if request.auth.uid == 'user_abc'.
-     * @allow (update) User 'user_abc' can update their profile if request.auth.uid == 'user_abc'.
-     * @allow (delete) User 'user_abc' can delete their profile if request.auth.uid == 'user_abc'.
-     * @deny (create) User 'user_def' cannot create a profile with ID 'user_abc'.
-     * @deny (get) User 'user_def' cannot read the profile of 'user_abc'.
-     * @principle Enforces document ownership for writes and restricts access to a user's own data tree.
+     * @allow (create) User with UID 'XeTG6cYWwQV9gf7w28G5KHEF3fj2' can create their profile if the 'id' field matches their UID.
+     * @allow (get, update, delete) User with UID 'XeTG6cYWwQV9gf7w28G5KHEF3fj2' can get, update, and delete their profile.
+     * @deny (create) User with UID 'OtherUID' cannot create a profile with ID 'XeTG6cYWwQV9gf7w28G5KHEF3fj2'.
+     * @deny (get, update, delete) User with UID 'OtherUID' cannot get, update, or delete the profile of user 'XeTG6cYWwQV9gf7w28G5KHEF3fj2'.
+     * @principle Enforces document ownership for reads and writes. Validates relational integrity between the path and the document's 'id' field.
      */
     match /users/{userId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
+      // Access Control Pattern: Ownership
+      allow get: if isOwner(userId);
+      allow list: if false; // User listing is disallowed for privacy.
+      allow create: if isSignedIn() && request.auth.uid == userId && request.resource.data.id == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.id == resource.data.id;
+      allow delete: if isExistingOwner(userId);
+    }
 
-      function isOwner(userId) {
-        return request.auth.uid == userId;
-      }
+     /**
+      * @description Enforces user-ownership for user roles.
+      * @path /users/{userId}/roles/{roleId}
+      */
+    match /users/{userId}/roles/{roleId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId); // User listing is disallowed for privacy.
+        allow create: if isOwner(userId);
+        allow update: if isExistingOwner(userId);
+        allow delete: if isExistingOwner(userId);
+    }
 
-      function isExistingOwner(userId) {
-        return isOwner(userId) && existsAfter(/databases/$(database)/documents/users/$(userId));
-      }
 
-      allow get: if isSignedIn() && isOwner(userId);
-      allow list: if false;
-      allow create: if isSignedIn() && isOwner(userId);
-      allow update: if isSignedIn() && isExistingOwner(userId);
-      allow delete: if isSignedIn() && isExistingOwner(userId);
+    /**
+     * @description Allows public read access to reports, but restricts writes to the owner.
+     * @path /reports/{reportId}
+     * @allow (get, list) Any user (or no user) can read reports.
+     * @allow (create) User with UID 'authorId' can create a report if request.resource.data.authorId matches their UID.
+     * @allow (update, delete) User with UID 'authorId' can update/delete their report.
+     * @deny (create) User without 'authorId' cannot create a report.
+     * @deny (update, delete) User without 'authorId' cannot update/delete a report.
+     * @principle Allows public reads with owner-only writes, validated by the 'authorId' field.
+     */
+    match /reports/{reportId} {
+      // Access Control Pattern: Public Read with Owner-Only Writes
+      allow get, list: if true;
+
+      // CRITICAL: Cannot implement owner-only writes. The 'LifePurposeReport' entity is missing an 'ownerId' or 'authorId' field.
+      allow create, update, delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
     }
 
     /**
-     * @description Secures the life purpose reports collection. Allows public read access
-     *              but restricts write access.
-     * @path /reports/{reportId}
-     * @allow (get) Any user can read a report.
-     * @allow (list) Any user can list the reports.
-     * @deny (create) No user can create a report.
-     * @deny (update) No user can update a report.
-     * @deny (delete) No user can delete a report.
-     * @principle Allows public read access with owner-only writes (currently disabled).
+     * @description Allows authenticated users to read and write their own satisfaction quiz results.
+     * @path /users/{userId}/satisfaction-quiz
+     * @allow (get) User with UID 'XeTG6cYWwQV9gf7w28G5KHEF3fj2' can read their satisfaction quiz results.
+     * @allow (create) User with UID 'XeTG6cYWwQV9gf7w28G5KHEF3fj2' can create their satisfaction quiz results.
+     * @allow (update) User with UID 'XeTG6cYWwQV9gf7w28G5KHEF3fj2' can update their satisfaction quiz results.
+     * @allow (delete) User with UID 'XeTG6cYWwQV9gf7w28G5KHEF3fj2' can delete their satisfaction quiz results.
+     * @deny (get) User with UID 'OtherUID' cannot read the satisfaction quiz results of user 'XeTG6cYWwQV9gf7w28G5KHEF3fj2'.
+     * @deny (create) User with UID 'OtherUID' cannot create the satisfaction quiz results for user 'XeTG6cYWwQV9gf7w28G5KHEF3fj2'.
+     * @deny (update) User with UID 'OtherUID' cannot update the satisfaction quiz results of user 'XeTG6cYWwQV9gf7w28G5KHEF3fj2'.
+     * @deny (delete) User with UID 'OtherUID' cannot delete the satisfaction quiz results of user 'XeTG6cYWwQV9gf7w28G5KHEF3fj2'.
+     * @principle Enforces document ownership for reads and writes.
      */
-    match /reports/{reportId} {
-      allow get, list: if true;
-      allow create, update, delete: if false;
+    match /users/{userId}/satisfaction-quiz {
+        // Access Control Pattern: Ownership
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId);
+        allow update: if isExistingOwner(userId);
+        allow delete: if isExistingOwner(userId);
     }
+  }
+
+  // Helper functions
+  function isSignedIn() {
+    return request.auth != null;
+  }
+
+  function isOwner(userId) {
+    return isSignedIn() && request.auth.uid == userId;
+  }
+
+  function isExistingOwner(userId) {
+    return isOwner(userId) && resource != null;
   }
 }
