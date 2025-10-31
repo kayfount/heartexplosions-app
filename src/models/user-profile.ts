@@ -18,6 +18,9 @@ export interface UserProfile {
     trifix?: string;
     coreValues?: string[];
     lifePurposeReportId?: string; // This would be a reference to a 'reports' collection
+    educationTrainingCertifications?: string;
+    keyAccomplishments?: string;
+    accoladesAwardsRecognition?: string;
     skills?: string[];
     passions?: string[];
     interests?: string[];

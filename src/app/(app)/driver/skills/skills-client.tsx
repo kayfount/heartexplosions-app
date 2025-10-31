@@ -163,7 +163,7 @@ export function SkillsClient() {
     <div>
       <Card className="bg-card/80">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold font-headline">Skills, Passions, and Hobbies</CardTitle>
+          <CardTitle className="font-bold">Skills, Passions, and Hobbies</CardTitle>
           <CardDescription>
             What are you good at, what do you love, and what energizes you?
           </CardDescription>
@@ -203,7 +203,7 @@ export function SkillsClient() {
 
                 <div className="flex justify-between items-center pt-4">
                   <Button variant="outline" asChild>
-                    <Link href="/driver/roles"><ArrowLeft /> Previous Step</Link>
+                    <Link href="/driver/big-wins"><ArrowLeft /> Previous Step</Link>
                   </Button>
                   <Button type="submit" disabled={isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
                     {isSaving ? <Save className="mr-2 animate-spin" /> : 'Next Step'}

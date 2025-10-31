@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -270,7 +269,7 @@ export function RolesClient() {
         }));
 
         toast({ title: 'Success', description: 'Your roles have been saved.' });
-        router.push('/driver/skills'); 
+        router.push('/driver/big-wins'); 
 
     } catch (error) {
         console.error("Error saving roles: ", error);
@@ -284,53 +283,65 @@ export function RolesClient() {
 
   return (
     <div>
-        <Card className="mb-8 bg-card/80">
-            <CardHeader>
-                <CardTitle className="text-2xl font-bold font-headline">Past Roles & Experiences</CardTitle>
-                <CardDescription>
-                All paid and unpaid work (titles, industries, main duties) and significant volunteer roles, side projects, or caregiving roles.
-                </CardDescription>
-            </CardHeader>
-        </Card>
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64">
+          <Loader2 className="animate-spin size-8" />
+        </div>
+      ) : (
+        <FormProvider {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <Card className="mb-8 bg-card/80">
+              <CardHeader>
+                  <CardTitle className="text-2xl font-bold font-headline">Past Roles & Experiences</CardTitle>
+                  <CardDescription>
+                  All paid and unpaid work (titles, industries, main duties) and significant volunteer roles, side projects, or caregiving roles.
+                  </CardDescription>
+              </CardHeader>
+            </Card>
+            <AnimatePresence>
+              {fields.map((field, index) => (
+                <RoleForm key={field.id} index={index} remove={remove} />
+              ))}
+            </AnimatePresence>
 
-        {isLoading ? (
-            <div className="flex justify-center items-center h-64">
-                <Loader2 className="animate-spin size-8" />
+            <Button
+              type="button"
+              variant="link"
+              className="w-full font-bold text-primary"
+              onClick={() =>
+                append({
+                  roleTitle: '',
+                  organizationContext: '',
+                  duration: '',
+                  keyResponsibilities: '',
+                  keyAccomplishments: '',
+                  whatILoved: '',
+                  whatIDisliked: '',
+                  heartExplosionsLevel: 5,
+                })
+              }
+            >
+              <Plus className="mr-2" /> Add Another Role
+            </Button>
+
+            <div className="flex justify-between mt-8">
+              <Button variant="outline" asChild>
+                <Link href="/driver/core-values">
+                  <ArrowLeft /> Previous
+                </Link>
+              </Button>
+              <Button
+                type="submit"
+                disabled={isSaving}
+                className="bg-primary-gradient font-bold text-primary-foreground"
+              >
+                {isSaving ? <Save className="mr-2 animate-spin" /> : 'Save & Continue'}
+                {!isSaving && <ArrowRight className="ml-2" />}
+              </Button>
             </div>
-        ) : (
-            <FormProvider {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-                    <AnimatePresence>
-                        {fields.map((field, index) => (
-                        <RoleForm key={field.id} index={index} remove={remove} />
-                        ))}
-                    </AnimatePresence>
-
-                    <Button
-                        type="button"
-                        variant="link"
-                        className="w-full font-bold text-primary"
-                        onClick={() => append({
-                            roleTitle: '', organizationContext: '', duration: '',
-                            keyResponsibilities: '', keyAccomplishments: '', whatILoved: '',
-                            whatIDisliked: '', heartExplosionsLevel: 5
-                        })}
-                        >
-                        <Plus className="mr-2" /> Add Another Role
-                    </Button>
-
-                    <div className="flex justify-between mt-8">
-                         <Button variant="outline" asChild>
-                            <Link href="/driver/core-values"><ArrowLeft /> Previous</Link>
-                        </Button>
-                        <Button type="submit" disabled={isSaving} className="bg-primary-gradient font-bold text-primary-foreground">
-                            {isSaving ? <Save className="mr-2 animate-spin" /> : 'Save & Continue'}
-                            {!isSaving && <ArrowRight className="ml-2" />}
-                        </Button>
-                    </div>
-                </form>
-            </FormProvider>
-        )}
+          </form>
+        </FormProvider>
+      )}
     </div>
   );
 }

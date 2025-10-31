@@ -229,6 +229,15 @@
         },
         "structurePreferenceOther": {
             "type": "string"
+        },
+        "educationTrainingCertifications": {
+            "type": "string"
+        },
+        "keyAccomplishments": {
+            "type": "string"
+        },
+        "accoladesAwardsRecognition": {
+            "type": "string"
         }
       },
       "required": [
