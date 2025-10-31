@@ -41,6 +41,8 @@ const formSchema = z.object({
   longTermAspirations: z.string().optional(),
   learningAndDevelopment: z.string().optional(),
   dreamLife: z.string().optional(),
+  industrySectors: z.string().optional(),
+  energizingWork: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -68,6 +70,8 @@ export function AspirationsClient() {
         longTermAspirations: '',
         learningAndDevelopment: '',
         dreamLife: '',
+        industrySectors: '',
+        energizingWork: '',
     }
   });
 
@@ -80,6 +84,8 @@ export function AspirationsClient() {
         longTermAspirations: userProfile.longTermAspirations || '',
         learningAndDevelopment: userProfile.learningAndDevelopment || '',
         dreamLife: userProfile.dreamLife || '',
+        industrySectors: userProfile.industrySectors || '',
+        energizingWork: userProfile.energizingWork || '',
       });
     }
   }, [userProfile, form]);
@@ -162,9 +168,35 @@ export function AspirationsClient() {
                             <FormMessage />
                         </FormItem>
                     )}/>
+                     <FormField
+                        control={form.control}
+                        name="industrySectors"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel className="font-bold">Specific Industry Sectors That Interest You</FormLabel>
+                            <FormControl>
+                                <Textarea {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                        <FormField
+                        control={form.control}
+                        name="energizingWork"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel className="font-bold">What kinds of work, topics, projects, and challenges truly energize you? Describe the specific impact and people or causes you feel called to serve.</FormLabel>
+                            <FormControl>
+                                <Textarea {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
                     <FormField control={form.control} name="dreamLife" render={({ field }) => (
                         <FormItem>
-                            <FormLabel className="font-bold">Describe your Dream Life / "Rich" Life: the time and energy you'd invest and where, environments, activities, leisure, and other values important to you.</FormLabel>
+                            <FormLabel className="font-bold">Describe your Dream Life / "Rich Life: the time and energy you'd invest and where, environments, activities, leisure, and other values important to you."</FormLabel>
                              <FormControl>
                                 <Textarea placeholder="Describe your ideal 'dream life' or 'rich life'..." {...field} />
                             </FormControl>

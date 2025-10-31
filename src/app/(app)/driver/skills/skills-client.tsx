@@ -40,8 +40,6 @@ const formSchema = z.object({
   skills: z.array(z.object({ value: z.string().min(1, 'Skill cannot be empty.') })),
   passions: z.array(z.object({ value: z.string().min(1, 'Passion cannot be empty.') })),
   interests: z.array(z.object({ value: z.string().min(1, 'Hobby or interest cannot be empty.') })),
-  industrySectors: z.string().optional(),
-  energizingWork: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -120,16 +118,12 @@ export function SkillsClient() {
       skills: [{ value: '' }],
       passions: [{ value: '' }],
       interests: [{ value: '' }],
-      industrySectors: '',
-      energizingWork: '',
     },
   });
 
   useEffect(() => {
     if (userProfile) {
       const resetValues: any = {
-        industrySectors: userProfile.industrySectors || '',
-        energizingWork: userProfile.energizingWork || '',
       };
   
       resetValues.skills = userProfile.skills && userProfile.skills.length > 0 ? userProfile.skills.map(s => ({ value: s })) : [{ value: '' }];
@@ -173,7 +167,7 @@ export function SkillsClient() {
       <Progress value={90} className="w-full mb-8 h-2" />
       <Card className="bg-card/80">
         <CardHeader>
-          <CardTitle className="text-2xl font-bold font-headline">Skills, Passions, Hobbies, and Interests</CardTitle>
+          <CardTitle className="text-2xl font-bold font-headline">Skills, Passions, and Hobbies</CardTitle>
           <CardDescription>
             What are you good at, what do you love, and what energizes you?
           </CardDescription>
@@ -209,33 +203,6 @@ export function SkillsClient() {
                   placeholder="e.g. Identity transformation"
                   control={form.control}
                   register={form.register}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="industrySectors"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">Specific Industry Sectors That Interest You</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-                <FormField
-                  control={form.control}
-                  name="energizingWork"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel className="font-bold">What kinds of work, topics, projects, and challenges truly energize you? Describe the specific impact and people or causes you feel called to serve.</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
                 />
 
                 <div className="flex justify-between items-center pt-4">
