@@ -130,7 +130,7 @@ export function GoalsVisionsClient() {
                     )}/>
                     <FormField control={form.control} name="additionalConsiderations" render={({ field }) => (
                         <FormItem>
-                            <FormLabel className="font_bold">Is there anything else to consider for your step-by-step transition path that you didn't already mention?</FormLabel>
+                            <FormLabel className="font-bold">Is there anything else to consider for your step-by-step transition path that you didn't already mention?</FormLabel>
                             <FormControl><Textarea {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
