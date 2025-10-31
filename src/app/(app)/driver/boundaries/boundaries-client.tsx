@@ -42,6 +42,7 @@ const formSchema = z.object({
   challengesAndConcerns: z.string().optional(),
   toolsAndSupports: z.string().optional(),
   learningAndDevelopment: z.string().optional(),
+  additionalConsiderations: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -71,6 +72,7 @@ export function BoundariesClient() {
       challengesAndConcerns: '',
       toolsAndSupports: '',
       learningAndDevelopment: '',
+      additionalConsiderations: '',
     },
   });
 
@@ -85,6 +87,7 @@ export function BoundariesClient() {
         challengesAndConcerns: userProfile.challengesAndConcerns || '',
         toolsAndSupports: userProfile.toolsAndSupports || '',
         learningAndDevelopment: userProfile.learningAndDevelopment || '',
+        additionalConsiderations: userProfile.additionalConsiderations || '',
       });
     }
   }, [userProfile, form]);
@@ -182,6 +185,13 @@ export function BoundariesClient() {
                     <FormField control={form.control} name="learningAndDevelopment" render={({ field }) => (
                         <FormItem>
                             <FormLabel className="font-bold">What skills or areas are you currently focused on for learning and development?</FormLabel>
+                            <FormControl><Textarea {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}/>
+                    <FormField control={form.control} name="additionalConsiderations" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="font-bold">Is there anything else to consider for your step-by-step transition path that you didn't already mention?</FormLabel>
                             <FormControl><Textarea {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
