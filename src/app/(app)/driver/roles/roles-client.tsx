@@ -2,7 +2,7 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { useFieldArray, useForm, FormProvider } from 'react-hook-form';
+import { useFieldArray, useForm, FormProvider, useFormContext } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Plus, ArrowRight, Loader2, Save, ArrowLeft } from 'lucide-react';
@@ -54,7 +54,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 function RoleForm({ index, remove }: { index: number; remove: (index: number) => void }) {
-  const { control, watch } = useForm<FormValues>();
+  const { control, watch } = useFormContext<FormValues>();
   const sliderValue = watch(`roles.${index}.heartExplosionsLevel`);
 
   return (
@@ -63,7 +63,7 @@ function RoleForm({ index, remove }: { index: number; remove: (index: number) =>
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -50 }}
       transition={{ duration: 0.3 }}
-      className="border-2 border-border/50 rounded-lg p-6 relative"
+      className="border-2 border-border/50 rounded-lg p-6 relative bg-card"
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
