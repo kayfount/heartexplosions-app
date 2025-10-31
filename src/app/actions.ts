@@ -3,11 +3,13 @@
 import { generateLifePurposeReport, type LifePurposeReportInput } from '@/ai/flows/generate-life-purpose-report';
 import { synthesizePurposeProfile, type SynthesizePurposeProfileInput } from '@/ai/flows/synthesize-purpose-profile';
 import { createRealisticRoutePlan, type RoutePlanInput } from '@/ai/flows/create-realistic-route-plan';
-import { interactWithAiCoach, type InteractWithAiCoachInput } from '@/ai/flows/interact-with-ai-coach';
+import { interactWithAiCoach, type InteractWithAiCoachInput } from '@/aiflows/interact-with-ai-coach';
+import { generateCareerIdeas, type GenerateCareerIdeasInput } from '@/ai/flows/generate-career-ideas';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
 import { getFirebaseAdminApp } from '@/firebase/admin';
 import { revalidatePath } from 'next/cache';
+import type { UserProfile } from '@/models/user-profile';
 
 interface GenerateReportActionInput extends LifePurposeReportInput {
     uid: string;
@@ -75,6 +77,21 @@ export async function coachInteractionAction(input: InteractWithAiCoachInput) {
         return { success: false, error: 'Failed to get response from coach.' };
     }
 }
+
+interface GenerateCareerIdeasActionInput {
+    userProfile: UserProfile;
+}
+
+export async function generateCareerIdeasAction(input: GenerateCareerIdeasActionInput) {
+    try {
+        const result = await generateCareerIdeas(input);
+        return { success: true, data: result };
+    } catch (error) {
+        console.error(error);
+        return { success: false, error: 'Failed to generate ideas.' };
+    }
+}
+
 
 interface SaveUserProfileInput {
     uid: string;

@@ -1,4 +1,3 @@
-
 export interface UserProfile {
     // Basecamp
     firstName?: string;
@@ -31,6 +30,7 @@ export interface UserProfile {
     supportSystem?: string;
     learningAndDevelopment?: string;
     dreamLife?: string;
+    careerIdeas?: string[];
     driverCompleted?: boolean;
     
     // The Destination

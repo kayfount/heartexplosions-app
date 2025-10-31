@@ -1,4 +1,3 @@
-
 {
   "entities": {
     "UserProfile": {
@@ -168,6 +167,13 @@
         },
         "dreamLife": {
             "type": "string"
+        },
+        "careerIdeas": {
+            "type": "array",
+            "items": {
+                "type": "string"
+            },
+            "description": "A list of career, calling, or contribution ideas brainstormed by the user or AI."
         }
       },
       "required": [
