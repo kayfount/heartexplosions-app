@@ -103,17 +103,27 @@ export function DriverForm() {
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    // Use the `values` property to set dynamic default values
-    // This will re-initialize the form when userProfile data loads
-    values: {
-      enneagramType: userProfile?.enneagramType || '',
-      wing: userProfile?.wing || '',
-      subtype: userProfile?.subtype || '',
-      instinctualStacking: userProfile?.instinctualStacking || '',
-      trifix: userProfile?.trifix || '',
+    defaultValues: {
+      enneagramType: '',
+      wing: '',
+      subtype: '',
+      instinctualStacking: '',
+      trifix: '',
     },
     mode: 'onChange'
   });
+
+  useEffect(() => {
+    if (userProfile) {
+        form.reset({
+            enneagramType: userProfile.enneagramType || '',
+            wing: userProfile.wing || '',
+            subtype: userProfile.subtype || '',
+            instinctualStacking: userProfile.instinctualStacking || '',
+            trifix: userProfile.trifix || '',
+        });
+    }
+  }, [userProfile, form]);
   
   const watchedValues = useWatch({ control: form.control });
   const selectedEnneagramType = useWatch({ control: form.control, name: 'enneagramType' });
