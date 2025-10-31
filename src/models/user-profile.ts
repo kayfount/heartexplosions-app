@@ -19,16 +19,21 @@ export interface UserProfile {
     coreValues?: string[];
     lifePurposeReportId?: string; // This would be a reference to a 'reports' collection
     driverCompleted?: boolean;
+    skills?: string;
+    passions?: string;
+    interests?: string;
+    industrySectors?: string;
+    energizingWork?: string;
     
     // The Destination
     focusArea?: 'career' | 'contribution' | 'calling';
-    purposeProfileId?: string; // Ref to a 'reports' collection
+    purposeProfile?: string; // Storing the synthesized profile text directly
     destinationCompleted?: boolean;
     
     // The Route
     availableHours?: number;
     commitments?: string;
     timeline?: string;
-    routePlanId?: string; // Ref to a 'reports' collection
+    routePlan?: string; // Storing the generated route plan text directly
     routeCompleted?: boolean;
 }

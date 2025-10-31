@@ -38,8 +38,7 @@
           "description": "Strengths identified by the user during onboarding."
         },
         "interests": {
-          "type": "string",
-          "description": "Interests identified by the user during onboarding."
+          "type": "string"
         },
         "timeBudget": {
           "type": "string",
@@ -121,6 +120,21 @@
         "routeCompleted": {
             "type": "boolean",
             "description": "Indicates if the user has completed The Route stage."
+        },
+        "skills": {
+            "type": "string"
+        },
+        "passions": {
+            "type": "string"
+        },
+        "hobbies": {
+            "type": "string"
+        },
+        "industrySectors": {
+            "type": "string"
+        },
+        "energizingWork": {
+            "type": "string"
         }
       },
       "required": [

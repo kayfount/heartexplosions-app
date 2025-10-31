@@ -172,7 +172,7 @@ function RoleForm({ index, remove }: { index: number; remove: (index: number) =>
           name={`roles.${index}.heartExplosionsLevel`}
           render={({ field: { onChange, value, ...rest } }) => (
             <FormItem>
-              <FormLabel className="font-bold">Heart Explosions Level: {sliderValue}/10</FormLabel>
+              <FormLabel className="font-bold">Heart Explosions Level: {value}/10</FormLabel>
               <FormMessage />
               <FormControl>
                 <div>
@@ -270,10 +270,8 @@ export function RolesClient() {
             return setDoc(docRef, role, { merge: true });
         }));
 
-        await saveUserProfile({ uid: user.uid, profileData: { driverCompleted: true } });
-
         toast({ title: 'Success', description: 'Your roles have been saved.' });
-        router.push('/destination'); 
+        router.push('/driver/skills'); 
 
     } catch (error) {
         console.error("Error saving roles: ", error);
@@ -287,7 +285,7 @@ export function RolesClient() {
 
   return (
     <div>
-        <Progress value={100} className="w-full mb-8 h-2" />
+        <Progress value={75} className="w-full mb-8 h-2" />
 
         <Card className="mb-8 bg-card/80">
             <CardHeader>
@@ -329,7 +327,7 @@ export function RolesClient() {
                             <Link href="/driver/core-values"><ArrowLeft /> Previous</Link>
                         </Button>
                         <Button type="submit" disabled={isSaving} className="bg-primary-gradient font-bold text-primary-foreground">
-                            {isSaving ? <Save className="mr-2 animate-spin" /> : 'Save & Complete Section'}
+                            {isSaving ? <Save className="mr-2 animate-spin" /> : 'Save & Continue'}
                             {!isSaving && <ArrowRight className="ml-2" />}
                         </Button>
                     </div>
