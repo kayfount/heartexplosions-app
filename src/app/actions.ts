@@ -3,7 +3,7 @@
 import { generateLifePurposeReport, type LifePurposeReportInput } from '@/ai/flows/generate-life-purpose-report';
 import { synthesizePurposeProfile, type SynthesizePurposeProfileInput } from '@/ai/flows/synthesize-purpose-profile';
 import { createRealisticRoutePlan, type RoutePlanInput } from '@/ai/flows/create-realistic-route-plan';
-import { interactWithAiCoach, type InteractWithAiCoachInput } from '@/aiflows/interact-with-ai-coach';
+import { interactWithAiCoach, type InteractWithAiCoachInput } from '@/ai/flows/interact-with-ai-coach';
 import { generateCareerIdeas, type GenerateCareerIdeasInput } from '@/ai/flows/generate-career-ideas';
 import { getAuth } from 'firebase-admin/auth';
 import { getFirestore } from 'firebase-admin/firestore';
@@ -78,11 +78,7 @@ export async function coachInteractionAction(input: InteractWithAiCoachInput) {
     }
 }
 
-interface GenerateCareerIdeasActionInput {
-    userProfile: UserProfile;
-}
-
-export async function generateCareerIdeasAction(input: GenerateCareerIdeasActionInput) {
+export async function generateCareerIdeasAction(input: GenerateCareerIdeasInput) {
     try {
         const result = await generateCareerIdeas(input);
         return { success: true, data: result };
