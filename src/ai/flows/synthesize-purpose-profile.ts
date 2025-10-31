@@ -13,15 +13,12 @@ import {z} from 'genkit';
 
 const SynthesizePurposeProfileInputSchema = z.object({
   driverReport: z.string().describe('The Life Purpose Report generated from the Driver stage.'),
-  focusArea: z.enum(['career', 'contribution', 'calling']).describe('The selected focus area (career, contribution, or calling).'),
+  focusArea: z.enum(['contribution', 'calling']).describe('The selected focus area (contribution, or calling).'),
 });
 export type SynthesizePurposeProfileInput = z.infer<typeof SynthesizePurposeProfileInputSchema>;
 
 const SynthesizePurposeProfileOutputSchema = z.object({
-  purposeProfile: z.string().describe('The synthesized Purpose Profile.'),
-  alignedPath: z.string().describe('The most aligned path based on the focus area.'),
-  edgeOfChoosingPrompts: z.string().describe('Prompts to help the user make choices.'),
-  quickWins: z.string().describe('Quick wins for the user to get started.'),
+  purposeProfile: z.string().describe('The synthesized Purpose Profile in 1-2 paragraphs based on the selected focus area.'),
 });
 export type SynthesizePurposeProfileOutput = z.infer<typeof SynthesizePurposeProfileOutputSchema>;
 
@@ -38,21 +35,13 @@ const prompt = ai.definePrompt({
 Driver Report: {{{driverReport}}}
 Focus Area: {{{focusArea}}}
 
-Based on this information, identify the most aligned path for the user, provide edge of choosing prompts to help them make decisions, and suggest quick wins to get them started.
+Based on this information, generate a 1-2 paragraph response for the selected focus area.
 
-Output the purpose profile, aligned path, edge of choosing prompts, and quick wins in the appropriate fields. Follow this format strictly:
+If the focus area is 'contribution', describe the unique contributions, gifts, and offerings this person's archetype can offer the world.
+If the focus area is 'calling', describe the highest spiritual calling of this person's unique purpose archetype.
 
-Purpose Profile:
-<purpose profile>
-
-Aligned Path:
-<aligned path>
-
-Edge of Choosing Prompts:
-<edge of choosing prompts>
-
-Quick Wins:
-<quick wins>`,
+Output the response in the 'purposeProfile' field.
+`,
 });
 
 const synthesizePurposeProfileFlow = ai.defineFlow(
