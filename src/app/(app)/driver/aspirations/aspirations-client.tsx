@@ -174,9 +174,9 @@ export function AspirationsClient() {
                     )}/>
                     <FormField control={form.control} name="dreamLife" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Dream Life / "Rich" Life</FormLabel>
+                            <FormLabel>Describe your Dream Life / "Rich" Life: the time and energy you'd invest and where, environments, activities, leisure, and other values important to you.</FormLabel>
                              <FormControl>
-                                <Textarea placeholder="Describe your ideal 'dream life' or 'rich life': the time/energy you'd invest and where, environments, activities, leisure, and other values important to you." {...field} />
+                                <Textarea placeholder="Describe your ideal 'dream life' or 'rich life'..." {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
