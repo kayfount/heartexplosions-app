@@ -63,7 +63,7 @@ function RoleForm({ index, remove }: { index: number; remove: (index: number) =>
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -50 }}
       transition={{ duration: 0.3 }}
-      className="border-2 border-border/50 rounded-lg p-6 relative bg-[#FAFFEE]"
+      className="border-2 border-border rounded-lg p-6 relative bg-[#FAFFEE]"
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
@@ -343,5 +343,3 @@ export function RolesClient() {
     </div>
   );
 }
-
-    
