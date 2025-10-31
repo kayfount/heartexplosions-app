@@ -123,9 +123,9 @@ export function ValuesClient() {
 
         setIsSaving(true);
         try {
-            await saveUserProfile({ uid: user.uid, profileData: { coreValues: topValues, driverCompleted: true }});
+            await saveUserProfile({ uid: user.uid, profileData: { coreValues: topValues }});
             toast({ title: 'Success!', description: 'Your core values have been saved.'});
-            router.push('/destination');
+            router.push('/driver/roles');
         } catch (error) {
             toast({ variant: 'destructive', title: 'Uh oh!', description: 'Could not save your values.'});
         } finally {
@@ -244,5 +244,3 @@ export function ValuesClient() {
         </div>
     );
 }
-
-    

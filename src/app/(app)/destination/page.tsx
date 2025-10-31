@@ -1,5 +1,5 @@
 
-import { RolesClient } from './roles-client';
+import { DestinationClient } from './destination-client';
 import { MapPin } from 'lucide-react';
 
 export default function DestinationPage() {
@@ -13,7 +13,7 @@ export default function DestinationPage() {
         </div>
       </div>
       
-      <RolesClient />
+      <DestinationClient />
     </div>
   );
 }

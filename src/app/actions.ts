@@ -1,3 +1,4 @@
+
 'use server';
 
 import { generateLifePurposeReport, type LifePurposeReportInput } from '@/ai/flows/generate-life-purpose-report';
@@ -46,7 +47,7 @@ export async function generateReportAction(input: GenerateReportActionInput) {
   }
 }
 
-export async function synthesizeProfileAction(input: SynthesizePurposeProfileInput) {
+export async function synthesizePurposeProfileAction(input: SynthesizePurposeProfileInput) {
   try {
     const result = await synthesizePurposeProfile(input);
     return { success: true, data: result };

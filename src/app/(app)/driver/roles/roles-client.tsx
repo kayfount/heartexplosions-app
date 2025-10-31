@@ -2,10 +2,10 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { useFieldArray, useForm, FormProvider, useFormContext } from 'react-hook-form';
+import { useFieldArray, useForm, FormProvider } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Plus, ArrowRight, Loader2 } from 'lucide-react';
+import { Plus, ArrowRight, Loader2, Save, ArrowLeft } from 'lucide-react';
 import { AnimatePresence, motion } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
@@ -33,6 +33,7 @@ import { collection, doc, getFirestore, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import type { Role } from '@/models/role';
+import Link from 'next/link';
 
 const roleSchema = z.object({
   id: z.string().optional(),
@@ -53,7 +54,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 function RoleForm({ index, remove }: { index: number; remove: (index: number) => void }) {
-  const { control, watch } = useFormContext<FormValues>();
+  const { control, watch } = useForm<FormValues>();
   const sliderValue = watch(`roles.${index}.heartExplosionsLevel`);
 
   return (
@@ -269,8 +270,10 @@ export function RolesClient() {
             return setDoc(docRef, role, { merge: true });
         }));
 
+        await saveUserProfile({ uid: user.uid, profileData: { driverCompleted: true } });
+
         toast({ title: 'Success', description: 'Your roles have been saved.' });
-        router.push('/destination/strengths'); // TODO: Update to next page in flow
+        router.push('/destination'); 
 
     } catch (error) {
         console.error("Error saving roles: ", error);
@@ -284,7 +287,7 @@ export function RolesClient() {
 
   return (
     <div>
-        <Progress value={33} className="w-full mb-8 h-2" />
+        <Progress value={100} className="w-full mb-8 h-2" />
 
         <Card className="mb-8 bg-card/80">
             <CardHeader>
@@ -325,9 +328,12 @@ export function RolesClient() {
                         </CardContent>
                     </Card>
 
-                    <div className="flex justify-end mt-8">
+                    <div className="flex justify-between mt-8">
+                         <Button variant="outline" asChild>
+                            <Link href="/driver/core-values"><ArrowLeft /> Previous</Link>
+                        </Button>
                         <Button type="submit" disabled={isSaving} className="bg-primary-gradient font-bold text-primary-foreground">
-                            {isSaving ? <Loader2 className="mr-2 animate-spin" /> : 'Next Step'}
+                            {isSaving ? <Save className="mr-2 animate-spin" /> : 'Save & Complete Section'}
                             {!isSaving && <ArrowRight className="ml-2" />}
                         </Button>
                     </div>
@@ -337,5 +343,3 @@ export function RolesClient() {
     </div>
   );
 }
-
-    
