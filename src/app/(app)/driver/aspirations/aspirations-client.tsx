@@ -64,8 +64,8 @@ export function AspirationsClient() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-        age: undefined,
-        desiredRetirementAge: undefined,
+        age: '' as any,
+        desiredRetirementAge: '' as any,
         location: '',
         preferredWorkLifeBalance: '',
         longTermAspirations: '',
@@ -78,14 +78,14 @@ export function AspirationsClient() {
   useEffect(() => {
     if (userProfile) {
       form.reset({
-        age: userProfile.age,
-        desiredRetirementAge: userProfile.desiredRetirementAge,
-        location: userProfile.location,
-        preferredWorkLifeBalance: userProfile.preferredWorkLifeBalance,
-        longTermAspirations: userProfile.longTermAspirations,
-        supportSystem: userProfile.supportSystem,
-        learningAndDevelopment: userProfile.learningAndDevelopment,
-        dreamLife: userProfile.dreamLife,
+        age: userProfile.age || '',
+        desiredRetirementAge: userProfile.desiredRetirementAge || '',
+        location: userProfile.location || '',
+        preferredWorkLifeBalance: userProfile.preferredWorkLifeBalance || '',
+        longTermAspirations: userProfile.longTermAspirations || '',
+        supportSystem: userProfile.supportSystem || '',
+        learningAndDevelopment: userProfile.learningAndDevelopment || '',
+        dreamLife: userProfile.dreamLife || '',
       });
     }
   }, [userProfile, form]);

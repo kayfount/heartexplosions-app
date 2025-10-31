@@ -127,13 +127,16 @@ export function SkillsClient() {
 
   useEffect(() => {
     if (userProfile) {
-      form.reset({
-        skills: userProfile.skills?.map(s => ({ value: s })) || [{ value: '' }],
-        passions: userProfile.passions?.map(p => ({ value: p })) || [{ value: '' }],
-        interests: userProfile.interests?.map(i => ({ value: i })) || [{ value: '' }],
+      const resetValues: any = {
         industrySectors: userProfile.industrySectors || '',
         energizingWork: userProfile.energizingWork || '',
-      });
+      };
+  
+      resetValues.skills = userProfile.skills && userProfile.skills.length > 0 ? userProfile.skills.map(s => ({ value: s })) : [{ value: '' }];
+      resetValues.passions = userProfile.passions && userProfile.passions.length > 0 ? userProfile.passions.map(p => ({ value: p })) : [{ value: '' }];
+      resetValues.interests = userProfile.interests && userProfile.interests.length > 0 ? userProfile.interests.map(i => ({ value: i })) : [{ value: '' }];
+  
+      form.reset(resetValues);
     }
   }, [userProfile, form]);
 
