@@ -153,7 +153,7 @@ export function RouteForm() {
                   name="availableHours"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Available Hours per Week</FormLabel>
+                      <FormLabel className="font-bold">Available Hours per Week</FormLabel>
                       <FormControl>
                         <Input type="number" placeholder="e.g., 10" {...field} />
                       </FormControl>
@@ -166,7 +166,7 @@ export function RouteForm() {
                   name="timeline"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Desired Timeline</FormLabel>
+                      <FormLabel className="font-bold">Desired Timeline</FormLabel>
                       <FormControl>
                         <Input placeholder="e.g., 3 months, 1 year" {...field} />
                       </FormControl>
@@ -180,7 +180,7 @@ export function RouteForm() {
                 name="commitments"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Existing Commitments</FormLabel>
+                    <FormLabel className="font-bold">Existing Commitments</FormLabel>
                     <FormControl>
                       <Textarea placeholder="Describe your work, family, or other commitments..." {...field} />
                     </FormControl>
@@ -240,6 +240,3 @@ export function RouteForm() {
     </>
   );
 }
-
-    
-    

@@ -113,14 +113,14 @@ export function GoalsVisionsClient() {
                 <CardContent className="space-y-6">
                     <FormField control={form.control} name="dreamProjects" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>What are your dream projects?</FormLabel>
+                            <FormLabel className="font-bold">What are your dream projects?</FormLabel>
                             <FormControl><Textarea {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )}/>
                     <FormField control={form.control} name="lifetimeImpact" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>What impact do you want to have on others in your lifetime?</FormLabel>
+                            <FormLabel className="font-bold">What impact do you want to have on others in your lifetime?</FormLabel>
                             <FormControl><Textarea {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>

@@ -131,56 +131,56 @@ export function BoundariesClient() {
                 <CardContent className="space-y-6">
                     <FormField control={form.control} name="timeLimits" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Time Limits, Caregiving Responsibilities, Physical Constraints</FormLabel>
+                            <FormLabel className="font-bold">Time Limits, Caregiving Responsibilities, Physical Constraints</FormLabel>
                             <FormControl><Textarea placeholder="e.g., Can only work 20 hours/week, need to be home by 3 PM for kids, have a bad back and can't do physical labor..." {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )}/>
                     <FormField control={form.control} name="financialRunway" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Financial Runway or Income Requirements</FormLabel>
+                            <FormLabel className="font-bold">Financial Runway or Income Requirements</FormLabel>
                             <FormControl><Textarea placeholder="e.g., Need to make at least $60k/year, have 6 months of savings, cannot take a pay cut..." {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )}/>
                     <FormField control={form.control} name="workLifeIntegration" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Work/Life Integration Needs</FormLabel>
+                            <FormLabel className="font-bold">Work/Life Integration Needs</FormLabel>
                             <FormControl><Textarea placeholder="e.g., Need flexible hours, ability to work remotely, cannot work weekends..." {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )}/>
                     <FormField control={form.control} name="supportSystem" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Describe your support system (family, friends, mentors, role models)</FormLabel>
+                            <FormLabel className="font-bold">Describe your support system (family, friends, mentors, role models)</FormLabel>
                             <FormControl><Textarea {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )}/>
                      <FormField control={form.control} name="fearsAndBlocks" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>What fears or blocks are you currently dealing with?</FormLabel>
+                            <FormLabel className="font-bold">What fears or blocks are you currently dealing with?</FormLabel>
                             <FormControl><Textarea {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )}/>
                      <FormField control={form.control} name="challengesAndConcerns" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>What specific challenges or concerns do you want to address in your transition into a more aligned role?</FormLabel>
+                            <FormLabel className="font-bold">What specific challenges or concerns do you want to address in your transition into a more aligned role?</FormLabel>
                             <FormControl><Textarea {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )}/>
                      <FormField control={form.control} name="toolsAndSupports" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>List any tools, supports, mindsets, or ideas that will help you overcome these obstacles as you work toward your goals. (Don't worry, we'll create more!)</FormLabel>
+                            <FormLabel className="font-bold">List any tools, supports, mindsets, or ideas that will help you overcome these obstacles as you work toward your goals. (Don't worry, we'll create more!)</FormLabel>
                             <FormControl><Textarea {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )}/>
                     <FormField control={form.control} name="learningAndDevelopment" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>What skills or areas are you currently focused on for learning and development?</FormLabel>
+                            <FormLabel className="font-bold">What skills or areas are you currently focused on for learning and development?</FormLabel>
                             <FormControl><Textarea {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>

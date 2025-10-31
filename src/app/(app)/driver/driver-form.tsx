@@ -209,7 +209,7 @@ export function DriverForm() {
                     name="enneagramType"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Dominant Enneagram Type *</FormLabel>
+                        <FormLabel className="font-bold">Dominant Enneagram Type *</FormLabel>
                         <Select onValueChange={(value) => {
                             field.onChange(value);
                             form.setValue('trifix', ''); // Clear trifix when type changes
@@ -227,7 +227,7 @@ export function DriverForm() {
                     name="wing"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Strongest Wing *</FormLabel>
+                        <FormLabel className="font-bold">Strongest Wing *</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger><SelectValue placeholder="Select Wing" /></SelectTrigger>
@@ -242,7 +242,7 @@ export function DriverForm() {
                     name="subtype"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Subtype *</FormLabel>
+                        <FormLabel className="font-bold">Subtype *</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger><SelectValue placeholder="Select Subtype" /></SelectTrigger>
@@ -259,7 +259,7 @@ export function DriverForm() {
                     name="instinctualStacking"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Instinctual Stacking *</FormLabel>
+                        <FormLabel className="font-bold">Instinctual Stacking *</FormLabel>
                         <Select onValueChange={field.onChange} value={field.value}>
                           <FormControl>
                             <SelectTrigger><SelectValue placeholder="Select Stacking" /></SelectTrigger>
@@ -276,7 +276,7 @@ export function DriverForm() {
                     render={({ field, fieldState }) => (
                       <FormItem>
                         <div className="flex justify-between items-center mb-2">
-                          <FormLabel>Trifix/Tritype *</FormLabel>
+                          <FormLabel className="font-bold">Trifix/Tritype *</FormLabel>
                           <button
                             type="button"
                             onClick={() => setIsModalOpen(true)}

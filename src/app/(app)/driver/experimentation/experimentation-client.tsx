@@ -117,21 +117,21 @@ export function ExperimentationClient() {
                 <CardContent className="space-y-6">
                     <FormField control={form.control} name="willingnessToTry" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Willingness to Try New Industries or Skillsets</FormLabel>
+                            <FormLabel className="font-bold">Willingness to Try New Industries or Skillsets</FormLabel>
                             <FormControl><Textarea placeholder="e.g., Very open to learning a new skill like coding, hesitant to leave the healthcare industry..." {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )}/>
                     <FormField control={form.control} name="comfortWithUncertainty" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Comfort With Uncertainty and Change</FormLabel>
+                            <FormLabel className="font-bold">Comfort With Uncertainty and Change</FormLabel>
                             <FormControl><Textarea placeholder="e.g., I thrive in chaos, I need a very stable and predictable environment..." {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )}/>
                     <FormField control={form.control} name="appetiteForRisk" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Appetite for Risk in Career/Calling Moves</FormLabel>
+                            <FormLabel className="font-bold">Appetite for Risk in Career/Calling Moves</FormLabel>
                             <FormControl><Textarea placeholder="e.g., Willing to take a big pay cut for a dream job, prefer a slow and steady transition, thinking of starting my own business..." {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>

@@ -168,7 +168,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
                     name="firstName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>First Name *</FormLabel>
+                        <FormLabel className="font-bold">First Name *</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -181,7 +181,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
                     name="lastName"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Last Name *</FormLabel>
+                        <FormLabel className="font-bold">Last Name *</FormLabel>
                         <FormControl>
                           <Input {...field} />
                         </FormControl>
@@ -196,7 +196,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
                   name="callSign"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Call Sign (Trail Name)</FormLabel>
+                      <FormLabel className="font-bold">Call Sign (Trail Name)</FormLabel>
                       <FormControl>
                         <Input {...field} />
                       </FormControl>
@@ -213,7 +213,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
                   name="journeyStatus"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Where are you in your journey? *</FormLabel>
+                      <FormLabel className="font-bold">Where are you in your journey? *</FormLabel>
                       <Select onValueChange={field.onChange} value={field.value}>
                             <FormControl>
                               <SelectTrigger><SelectValue placeholder="Select your current status" /></SelectTrigger>
@@ -230,7 +230,7 @@ export function RegistrationModal({ isOpen, onOpenChange, onRegister, isRegister
                   name="whyNow"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Why does this matter to you right now?</FormLabel>
+                      <FormLabel className="font-bold">Why does this matter to you right now?</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="e.g., I'm ready to take intentional action, I'm tired of feeling stuck..."

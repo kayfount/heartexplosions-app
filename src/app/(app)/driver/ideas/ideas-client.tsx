@@ -204,7 +204,7 @@ export function IdeasClient() {
 
             <div className="flex justify-between items-center pt-4">
               <Button variant="outline" asChild>
-                <Link href="/driver/dream-life"><ArrowLeft /> Previous Step</Link>
+                <Link href="/driver/aspirations"><ArrowLeft /> Previous Step</Link>
               </Button>
               <Button type="submit" disabled={isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
                 {isSaving ? <Save className="mr-2 animate-spin" /> : 'Next Step'}

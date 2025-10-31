@@ -55,7 +55,7 @@ function DynamicFieldArray({ name, label, placeholder, control, register }: any)
 
   return (
     <FormItem>
-      <FormLabel>{label}</FormLabel>
+      <FormLabel className="font-bold">{label}</FormLabel>
       <div className="space-y-2">
         <AnimatePresence>
           {fields.map((field, index) => (
@@ -216,7 +216,7 @@ export function SkillsClient() {
                   name="industrySectors"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Specific Industry Sectors That Interest You</FormLabel>
+                      <FormLabel className="font-bold">Specific Industry Sectors That Interest You</FormLabel>
                       <FormControl>
                         <Textarea {...field} />
                       </FormControl>
@@ -229,7 +229,7 @@ export function SkillsClient() {
                   name="energizingWork"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>What kinds of work, topics, projects, and challenges truly energize you? Describe the specific impact and people or causes you feel called to serve.</FormLabel>
+                      <FormLabel className="font-bold">What kinds of work, topics, projects, and challenges truly energize you? Describe the specific impact and people or causes you feel called to serve.</FormLabel>
                       <FormControl>
                         <Textarea {...field} />
                       </FormControl>

@@ -131,21 +131,21 @@ export function AspirationsClient() {
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                         <FormField control={form.control} name="age" render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Age</FormLabel>
+                                <FormLabel className="font-bold">Age</FormLabel>
                                 <FormControl><Input type="number" {...field} /></FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}/>
                         <FormField control={form.control} name="desiredRetirementAge" render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Desired Retirement Age</FormLabel>
+                                <FormLabel className="font-bold">Desired Retirement Age</FormLabel>
                                 <FormControl><Input type="number" {...field} /></FormControl>
                                 <FormMessage />
                             </FormItem>
                         )}/>
                         <FormField control={form.control} name="location" render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Location (City, State, Country)</FormLabel>
+                                <FormLabel className="font-bold">Location (City, State, Country)</FormLabel>
                                 <FormControl><Input {...field} /></FormControl>
                                 <FormMessage />
                             </FormItem>
@@ -153,28 +153,28 @@ export function AspirationsClient() {
                     </div>
                     <FormField control={form.control} name="preferredWorkLifeBalance" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Describe your preferred work-life balance</FormLabel>
+                            <FormLabel className="font-bold">Describe your preferred work-life balance</FormLabel>
                             <FormControl><Textarea {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )}/>
                     <FormField control={form.control} name="longTermAspirations" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>What are your long-term aspirations and personal goals (outside of career)?</FormLabel>
+                            <FormLabel className="font-bold">What are your long-term aspirations and personal goals (outside of career)?</FormLabel>
                             <FormControl><Textarea {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )}/>
                     <FormField control={form.control} name="learningAndDevelopment" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>What skills or areas are you currently focused on for learning and development?</FormLabel>
+                            <FormLabel className="font-bold">What skills or areas are you currently focused on for learning and development?</FormLabel>
                             <FormControl><Textarea {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
                     )}/>
                     <FormField control={form.control} name="dreamLife" render={({ field }) => (
                         <FormItem>
-                            <FormLabel>Describe your Dream Life / "Rich" Life: the time and energy you'd invest and where, environments, activities, leisure, and other values important to you.</FormLabel>
+                            <FormLabel className="font-bold">Describe your Dream Life / "Rich" Life: the time and energy you'd invest and where, environments, activities, leisure, and other values important to you.</FormLabel>
                              <FormControl>
                                 <Textarea placeholder="Describe your ideal 'dream life' or 'rich life'..." {...field} />
                             </FormControl>
@@ -199,5 +199,3 @@ export function AspirationsClient() {
     </div>
   );
 }
-
-    
