@@ -42,7 +42,6 @@ const formSchema = z.object({
   longTermAspirations: z.string().optional(),
   supportSystem: z.string().optional(),
   learningAndDevelopment: z.string().optional(),
-  dreamLife: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -71,7 +70,6 @@ export function AspirationsClient() {
         longTermAspirations: '',
         supportSystem: '',
         learningAndDevelopment: '',
-        dreamLife: '',
     }
   });
 
@@ -85,7 +83,6 @@ export function AspirationsClient() {
         longTermAspirations: userProfile.longTermAspirations || '',
         supportSystem: userProfile.supportSystem || '',
         learningAndDevelopment: userProfile.learningAndDevelopment || '',
-        dreamLife: userProfile.dreamLife || '',
       });
     }
   }, [userProfile, form]);
@@ -99,13 +96,12 @@ export function AspirationsClient() {
     
     const profileData = {
         ...data,
-        driverCompleted: true,
     };
 
     try {
       await saveUserProfile({ uid: user.uid, profileData });
       toast({ title: 'Success', description: 'Your aspirations have been saved.' });
-      router.push('/destination');
+      router.push('/driver/dream-life');
     } catch (error) {
       console.error("Error saving aspirations: ", error);
       toast({ title: 'Error', description: 'Could not save your aspirations.', variant: 'destructive' });
@@ -118,7 +114,7 @@ export function AspirationsClient() {
 
   return (
     <div>
-      <Progress value={100} className="w-full mb-8 h-2" />
+      <Progress value={95} className="w-full mb-8 h-2" />
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
             <Loader2 className="animate-spin size-8" />
@@ -186,29 +182,12 @@ export function AspirationsClient() {
                 </CardContent>
             </Card>
 
-            <Card className="bg-[#FAFFEE] border-border">
-                <CardHeader>
-                    <CardTitle className="text-2xl font-bold font-headline">Dream Life / "Rich" Life</CardTitle>
-                    <CardDescription>Describe your ideal "dream life" or "rich life": the time/energy you'd invest and where, environments, activities, leisure, and other values important to you.</CardDescription>
-                </CardHeader>
-                <CardContent>
-                     <FormField control={form.control} name="dreamLife" render={({ field }) => (
-                        <FormItem>
-                            <FormControl>
-                                <Textarea placeholder="e.g., A yearly salary of $200k, working 30 hours a week, with the freedom to travel for 3 months a year..." {...field} />
-                            </FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}/>
-                </CardContent>
-            </Card>
-
             <div className="flex justify-between items-center pt-4">
               <Button variant="outline" asChild>
                 <Link href="/driver/skills"><ArrowLeft /> Previous Step</Link>
               </Button>
               <Button type="submit" disabled={isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
-                {isSaving ? <Save className="mr-2 animate-spin" /> : 'Complete The Driver'}
+                {isSaving ? <Save className="mr-2 animate-spin" /> : 'Next Step'}
                 {!isSaving && <ArrowRight className="ml-2" />}
               </Button>
             </div>
