@@ -33,7 +33,7 @@ import { saveUserProfile, generateCareerIdeasAction } from '@/app/actions';
 import Link from 'next/link';
 
 const formSchema = z.object({
-    careerIdeas: z.array(z.object({ value: z.string().min(1, 'Idea cannot be empty.') })),
+    careerIdeas: z.array(z.object({ value: z.string() })),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -204,7 +204,7 @@ export function IdeasClient() {
 
             <div className="flex justify-between items-center pt-4">
               <Button variant="outline" asChild>
-                <Link href="/driver/aspirations"><ArrowLeft /> Previous Step</Link>
+                <Link href="/driver/aspirations"><ArrowLeft className="mr-2 h-4 w-4" /> Previous Step</Link>
               </Button>
               <Button type="submit" disabled={isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
                 {isSaving ? <Save className="mr-2 animate-spin" /> : 'Next Step'}
