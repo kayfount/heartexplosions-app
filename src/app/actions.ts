@@ -30,6 +30,7 @@ export async function generateReportAction(input: GenerateReportActionInput) {
     await reportRef.set({
       ...reportInput,
       report: result.report,
+      authorId: uid, // Add authorId for security rules
       createdAt: new Date().toISOString(),
     });
 

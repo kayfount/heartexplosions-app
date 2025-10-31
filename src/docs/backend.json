@@ -246,6 +246,10 @@
         "callingProfile": {
           "type": "string",
           "description": "The user's generated calling profile text."
+        },
+        "routePlan": {
+          "type": "string",
+          "description": "The user's generated route plan."
         }
       },
       "required": [
@@ -262,6 +266,10 @@
         "id": {
           "type": "string",
           "description": "Unique identifier for the LifePurposeReport entity."
+        },
+        "authorId": {
+            "type": "string",
+            "description": "The UID of the user who owns this report."
         },
         "enneagramType": {
           "type": "string",
@@ -312,6 +320,7 @@
       },
       "required": [
         "id",
+        "authorId",
         "report"
       ]
     },

@@ -1,6 +1,7 @@
 
 export interface LifePurposeReport {
     id: string;
+    authorId: string;
     report: string;
     enneagramType?: string;
     wing?: string;
