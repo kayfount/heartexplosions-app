@@ -63,7 +63,7 @@ function RoleForm({ index, remove }: { index: number; remove: (index: number) =>
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -50 }}
       transition={{ duration: 0.3 }}
-      className="border-2 border-border/50 rounded-lg p-6 relative bg-card"
+      className="border-2 border-border/50 rounded-lg p-6 relative bg-[#FAFFEE]"
     >
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <FormField
@@ -71,7 +71,7 @@ function RoleForm({ index, remove }: { index: number; remove: (index: number) =>
           name={`roles.${index}.roleTitle`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Role Title</FormLabel>
+              <FormLabel className="font-bold">Role Title</FormLabel>
               <FormControl>
                 <Input placeholder="e.g., Marketing Manager, Stay-at-home Parent" {...field} />
               </FormControl>
@@ -84,7 +84,7 @@ function RoleForm({ index, remove }: { index: number; remove: (index: number) =>
           name={`roles.${index}.organizationContext`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Organization/Context</FormLabel>
+              <FormLabel className="font-bold">Organization/Context</FormLabel>
               <FormControl>
                 <Input placeholder="e.g., ABC Company, Family, Local Nonprofit" {...field} />
               </FormControl>
@@ -99,7 +99,7 @@ function RoleForm({ index, remove }: { index: number; remove: (index: number) =>
           name={`roles.${index}.duration`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Duration</FormLabel>
+              <FormLabel className="font-bold">Duration</FormLabel>
               <FormControl>
                 <Input placeholder="e.g., Jan 2020 - Present" {...field} />
               </FormControl>
@@ -114,7 +114,7 @@ function RoleForm({ index, remove }: { index: number; remove: (index: number) =>
           name={`roles.${index}.keyResponsibilities`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Key Responsibilities</FormLabel>
+              <FormLabel className="font-bold">Key Responsibilities</FormLabel>
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
@@ -129,7 +129,7 @@ function RoleForm({ index, remove }: { index: number; remove: (index: number) =>
           name={`roles.${index}.keyAccomplishments`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Key Accomplishments</FormLabel>
+              <FormLabel className="font-bold">Key Accomplishments</FormLabel>
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
@@ -144,7 +144,7 @@ function RoleForm({ index, remove }: { index: number; remove: (index: number) =>
           name={`roles.${index}.whatILoved`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>What I Loved</FormLabel>
+              <FormLabel className="font-bold">What I Loved</FormLabel>
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
@@ -157,7 +157,7 @@ function RoleForm({ index, remove }: { index: number; remove: (index: number) =>
           name={`roles.${index}.whatIDisliked`}
           render={({ field }) => (
             <FormItem>
-              <FormLabel>What I Disliked</FormLabel>
+              <FormLabel className="font-bold">What I Disliked</FormLabel>
               <FormControl>
                 <Textarea {...field} />
               </FormControl>
@@ -172,7 +172,7 @@ function RoleForm({ index, remove }: { index: number; remove: (index: number) =>
           name={`roles.${index}.heartExplosionsLevel`}
           render={({ field: { onChange, value, ...rest } }) => (
             <FormItem>
-              <FormLabel>Heart Explosions Level: {sliderValue}/10</FormLabel>
+              <FormLabel className="font-bold">Heart Explosions Level: {sliderValue}/10</FormLabel>
               <FormMessage />
               <FormControl>
                 <div>
@@ -343,3 +343,5 @@ export function RolesClient() {
     </div>
   );
 }
+
+    
