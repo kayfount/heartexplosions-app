@@ -1,11 +1,11 @@
-
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useFieldArray, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { ArrowRight, Loader2, Save, ArrowLeft } from 'lucide-react';
+import { ArrowRight, Loader2, Save, ArrowLeft, Trash2, PlusCircle } from 'lucide-react';
+import { AnimatePresence, motion } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -23,6 +23,7 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Progress } from '@/components/ui/progress';
 import { useUser, useDoc, useMemoFirebase } from '@/firebase';
@@ -32,16 +33,71 @@ import { useRouter } from 'next/navigation';
 import type { UserProfile } from '@/models/user-profile';
 import { saveUserProfile } from '@/app/actions';
 import Link from 'next/link';
+import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
-  skills: z.string().optional(),
-  passions: z.string().optional(),
-  interests: z.string().optional(),
+  skills: z.array(z.object({ value: z.string().min(1, 'Skill cannot be empty.') })),
+  passions: z.array(z.object({ value: z.string().min(1, 'Passion cannot be empty.') })),
+  interests: z.array(z.object({ value: z.string().min(1, 'Hobby or interest cannot be empty.') })),
   industrySectors: z.string().optional(),
   energizingWork: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
+
+
+function DynamicFieldArray({ name, label, placeholder, control, register }: any) {
+  const { fields, append, remove } = useFieldArray({
+    control,
+    name,
+  });
+
+  return (
+    <FormItem>
+      <FormLabel>{label}</FormLabel>
+      <div className="space-y-2">
+        <AnimatePresence>
+          {fields.map((field, index) => (
+            <motion.div
+              key={field.id}
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
+              className="flex items-center gap-2"
+            >
+              <Input
+                placeholder={placeholder}
+                {...register(`${name}.${index}.value`)}
+                className="flex-grow"
+              />
+              <Button
+                type="button"
+                variant="ghost"
+                size="icon"
+                onClick={() => remove(index)}
+                className="text-destructive hover:bg-destructive/10 hover:text-destructive shrink-0"
+              >
+                <Trash2 className="size-4" />
+              </Button>
+            </motion.div>
+          ))}
+        </AnimatePresence>
+      </div>
+      <Button
+        type="button"
+        variant="link"
+        className="text-primary font-bold"
+        onClick={() => append({ value: '' })}
+      >
+        <PlusCircle className="mr-2" />
+        Add Another
+      </Button>
+       <p className="text-sm text-muted-foreground">Added: {fields.length} {label.toLowerCase()}</p>
+    </FormItem>
+  );
+}
+
 
 export function SkillsClient() {
   const { user, isUserLoading } = useUser();
@@ -60,9 +116,9 @@ export function SkillsClient() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      skills: '',
-      passions: '',
-      interests: '',
+      skills: [{ value: '' }],
+      passions: [{ value: '' }],
+      interests: [{ value: '' }],
       industrySectors: '',
       energizingWork: '',
     },
@@ -71,9 +127,9 @@ export function SkillsClient() {
   useEffect(() => {
     if (userProfile) {
       form.reset({
-        skills: userProfile.skills || '',
-        passions: userProfile.passions || '',
-        interests: userProfile.interests || '',
+        skills: userProfile.skills?.map(s => ({ value: s })) || [{ value: '' }],
+        passions: userProfile.passions?.map(p => ({ value: p })) || [{ value: '' }],
+        interests: userProfile.interests?.map(i => ({ value: i })) || [{ value: '' }],
         industrySectors: userProfile.industrySectors || '',
         energizingWork: userProfile.energizingWork || '',
       });
@@ -86,9 +142,17 @@ export function SkillsClient() {
       return;
     }
     setIsSaving(true);
+    
+    const profileData = {
+        ...data,
+        skills: data.skills.map(s => s.value).filter(Boolean),
+        passions: data.passions.map(p => p.value).filter(Boolean),
+        interests: data.interests.map(i => i.value).filter(Boolean),
+        driverCompleted: true,
+    };
 
     try {
-      await saveUserProfile({ uid: user.uid, profileData: { ...data, driverCompleted: true } });
+      await saveUserProfile({ uid: user.uid, profileData });
       toast({ title: 'Success', description: 'Your information has been saved.' });
       router.push('/destination');
     } catch (error) {
@@ -118,43 +182,32 @@ export function SkillsClient() {
             </div>
           ) : (
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-                <FormField
-                  control={form.control}
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+                
+                <DynamicFieldArray
                   name="skills"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Skills</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
+                  label="Skills"
+                  placeholder="e.g. Building gentle systems"
                   control={form.control}
+                  register={form.register}
+                />
+
+                <DynamicFieldArray
                   name="passions"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Passions</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
-                />
-                <FormField
+                  label="Passions"
+                  placeholder="e.g. Archetypal systems"
                   control={form.control}
-                  name="interests"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Hobbies & Interests</FormLabel>
-                      <FormControl>
-                        <Textarea {...field} />
-                      </FormControl>
-                    </FormItem>
-                  )}
+                  register={form.register}
                 />
+
+                <DynamicFieldArray
+                  name="interests"
+                  label="Hobbies & Interests"
+                  placeholder="e.g. Identity transformation"
+                  control={form.control}
+                  register={form.register}
+                />
+
                 <FormField
                   control={form.control}
                   name="industrySectors"
@@ -164,6 +217,7 @@ export function SkillsClient() {
                       <FormControl>
                         <Textarea {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -176,6 +230,7 @@ export function SkillsClient() {
                       <FormControl>
                         <Textarea {...field} />
                       </FormControl>
+                      <FormMessage />
                     </FormItem>
                   )}
                 />
@@ -185,7 +240,7 @@ export function SkillsClient() {
                     <Link href="/driver/roles"><ArrowLeft /> Previous Step</Link>
                   </Button>
                   <Button type="submit" disabled={isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
-                    {isSaving ? <Save className="mr-2 animate-spin" /> : 'Next Step'}
+                    {isSaving ? <Save className="mr-2 animate-spin" /> : 'Complete The Driver'}
                     {!isSaving && <ArrowRight className="ml-2" />}
                   </Button>
                 </div>

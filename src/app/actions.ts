@@ -1,4 +1,3 @@
-
 'use server';
 
 import { generateLifePurposeReport, type LifePurposeReportInput } from '@/ai/flows/generate-life-purpose-report';
@@ -87,10 +86,11 @@ export async function saveUserProfile({ uid, profileData }: SaveUserProfileInput
         throw new Error('User ID is missing.');
     }
 
-    try {
-        const db = getFirestore(getFirebaseAdminApp());
-        const auth = getAuth(getFirebaseAdminApp());
+    const app = getFirebaseAdminApp();
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
+    try {
         const userProfileRef = db.collection('users').doc(uid);
 
         const updates: any = { ...profileData };
@@ -98,7 +98,6 @@ export async function saveUserProfile({ uid, profileData }: SaveUserProfileInput
         // If displayName is part of the data, update Firebase Auth as well
         if (profileData.displayName) {
             await auth.updateUser(uid, { displayName: profileData.displayName });
-            // The displayName is already in 'updates', so no need to remove it for Firestore.
         }
 
         await userProfileRef.set(updates, { merge: true });

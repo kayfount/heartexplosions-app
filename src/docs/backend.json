@@ -38,7 +38,10 @@
           "description": "Strengths identified by the user during onboarding."
         },
         "interests": {
-          "type": "string"
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
         },
         "timeBudget": {
           "type": "string",
@@ -122,10 +125,16 @@
             "description": "Indicates if the user has completed The Route stage."
         },
         "skills": {
-            "type": "string"
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
         },
         "passions": {
-            "type": "string"
+            "type": "array",
+            "items": {
+                "type": "string"
+            }
         },
         "hobbies": {
             "type": "string"
