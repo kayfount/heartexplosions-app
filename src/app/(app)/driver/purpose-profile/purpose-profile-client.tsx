@@ -1,12 +1,12 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2, Sparkles, Briefcase, HeartHandshake, Star } from 'lucide-react';
+import { Loader2, Briefcase, HeartHandshake, Star, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { synthesizePurposeProfileAction, saveUserProfile } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
@@ -15,7 +15,8 @@ import { cn } from '@/lib/utils';
 import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, getFirestore } from 'firebase/firestore';
 import type { UserProfile } from '@/models/user-profile';
-import { useMemo } from 'react';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
 type FocusArea = 'career' | 'contribution' | 'calling';
 
@@ -25,11 +26,14 @@ const focusAreas = [
     { id: 'calling' as FocusArea, icon: <Star className="size-8" />, title: "Calling", description: "Focus on your deepest life's purpose and mission." },
 ];
 
-export function DestinationClient() {
-  const [isLoading, setIsLoading] = useState(false);
+export function PurposeProfileClient() {
+  const [isSynthesizing, setIsSynthesizing] = useState(false);
   const [selectedArea, setSelectedArea] = useState<FocusArea | null>(null);
   const [profile, setProfile] = useState<SynthesizePurposeProfileOutput | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+
   const { toast } = useToast();
+  const router = useRouter();
   const { user, isUserLoading } = useUser();
   const firestore = useMemo(() => getFirestore(), []);
   
@@ -42,9 +46,17 @@ export function DestinationClient() {
   useEffect(() => {
     if (userProfile?.focusArea) {
       setSelectedArea(userProfile.focusArea);
-      // If there's a focus area, we assume a profile might exist and try to synthesize it again to show the user
-      // A more robust implementation would save and fetch the synthesized profile itself.
-      if (user) {
+      if (userProfile.purposeProfile) {
+          try {
+            const parsedProfile = JSON.parse(userProfile.purposeProfile);
+            setProfile(parsedProfile);
+          } catch(e) {
+            console.error("Failed to parse purpose profile from DB", e);
+            if (user) {
+              handleSelectArea(userProfile.focusArea, true);
+            }
+          }
+      } else if (user) {
         handleSelectArea(userProfile.focusArea, true);
       }
     }
@@ -55,7 +67,7 @@ export function DestinationClient() {
     if(!isPreload) {
       setSelectedArea(area);
     }
-    setIsLoading(true);
+    setIsSynthesizing(true);
     setProfile(null);
 
     // In a real app, the driverReport would be fetched for the logged-in user.
@@ -74,8 +86,7 @@ export function DestinationClient() {
     }
 
     const result = await synthesizePurposeProfileAction({ focusArea: area, driverReport: dummyDriverReport });
-    setIsLoading(false);
-
+    
     if (result.success && result.data) {
       setProfile(result.data);
        if(!isPreload) {
@@ -84,6 +95,9 @@ export function DestinationClient() {
           description: 'Your Purpose Profile is ready.',
         });
       }
+      if (user) {
+          await saveUserProfile({ uid: user.uid, profileData: { purposeProfile: JSON.stringify(result.data) }});
+      }
     } else if(!isPreload) {
       toast({
         variant: 'destructive',
@@ -91,7 +105,30 @@ export function DestinationClient() {
         description: result.error || 'Something went wrong.',
       });
     }
+    setIsSynthesizing(false);
   }
+
+  const handleCompleteDriver = async () => {
+    if (!user) return;
+    setIsSaving(true);
+    try {
+        await saveUserProfile({ uid: user.uid, profileData: { driverCompleted: true } });
+        toast({
+            title: 'Phase 01 Complete!',
+            description: 'You have successfully completed The Driver phase.'
+        });
+        router.push('/destination');
+    } catch(e) {
+         toast({
+            variant: 'destructive',
+            title: 'Error',
+            description: 'Could not save your progress.',
+        });
+    } finally {
+        setIsSaving(false);
+    }
+  }
+
 
   if (isUserLoading || isProfileLoading) {
       return (
@@ -107,7 +144,7 @@ export function DestinationClient() {
         {focusAreas.map(area => (
             <Card 
                 key={area.id}
-                onClick={() => !isLoading && handleSelectArea(area.id)}
+                onClick={() => !isSynthesizing && handleSelectArea(area.id)}
                 className={cn(
                     "text-center p-6 cursor-pointer transition-all duration-300 transform hover:-translate-y-1",
                     selectedArea === area.id ? 'border-primary border-4 shadow-primary/20' : 'hover:border-primary/50'
@@ -123,7 +160,7 @@ export function DestinationClient() {
       </div>
 
       <AnimatePresence>
-      {isLoading && (
+      {isSynthesizing && (
         <motion.div
             className="flex justify-center items-center gap-2 text-lg"
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -162,11 +199,27 @@ export function DestinationClient() {
                         <AccordionContent className="prose max-w-none text-foreground/90 whitespace-pre-wrap font-body">{profile.quickWins}</AccordionContent>
                     </AccordionItem>
                 </Accordion>
+                <div className="flex justify-between items-center pt-6">
+                    <Button variant="outline" asChild>
+                        <Link href="/driver/experimentation"><ArrowLeft /> Previous Step</Link>
+                    </Button>
+                    <Button onClick={handleCompleteDriver} disabled={isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
+                        {isSaving && <Loader2 className="animate-spin mr-2" />}
+                        Complete The Driver & Proceed <ArrowRight className="ml-2"/>
+                    </Button>
+                </div>
             </CardContent>
           </Card>
         </motion.div>
       )}
       </AnimatePresence>
+       {!profile && !isSynthesizing && (
+            <div className="flex justify-between items-center pt-4">
+              <Button variant="outline" asChild>
+                <Link href="/driver/experimentation"><ArrowLeft /> Previous Step</Link>
+              </Button>
+            </div>
+      )}
     </>
   );
 }

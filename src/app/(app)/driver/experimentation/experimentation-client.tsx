@@ -82,13 +82,12 @@ export function ExperimentationClient() {
     
     const profileData = {
         ...data,
-        driverCompleted: true,
     };
 
     try {
       await saveUserProfile({ uid: user.uid, profileData });
       toast({ title: 'Success', description: 'Your information has been saved.' });
-      router.push('/destination');
+      router.push('/driver/purpose-profile');
     } catch (error) {
       console.error("Error saving experimentation data: ", error);
       toast({ title: 'Error', description: 'Could not save your information.', variant: 'destructive' });
@@ -143,7 +142,7 @@ export function ExperimentationClient() {
                 <Link href="/driver/boundaries"><ArrowLeft /> Previous Step</Link>
               </Button>
               <Button type="submit" disabled={isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
-                {isSaving ? <Save className="mr-2 animate-spin" /> : 'Complete The Driver'}
+                {isSaving ? <Save className="mr-2 animate-spin" /> : 'Next Step'}
                 {!isSaving && <ArrowRight className="ml-2" />}
               </Button>
             </div>

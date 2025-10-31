@@ -1,3 +1,4 @@
+
 {
   "entities": {
     "UserProfile": {
@@ -153,9 +154,6 @@
         "location": {
             "type": "string"
         },
-        "preferredWorkLifeBalance": {
-            "type": "string"
-        },
         "longTermAspirations": {
             "type": "string"
         },
@@ -213,6 +211,33 @@
         "additionalConsiderations": {
             "type": "string",
             "description": "Any other considerations for the user's transition path."
+        },
+        "preferredWorkLifeBalance": {
+            "type": "string"
+        },
+        "collaborationStyle": {
+            "type": "string"
+        },
+        "collaborationStyleOther": {
+            "type": "string"
+        },
+        "structurePreference": {
+            "type": "string"
+        },
+        "structurePreferenceOther": {
+            "type": "string"
+        },
+        "educationTrainingCertifications": {
+            "type": "string"
+        },
+        "keyAccomplishments": {
+            "type": "string"
+        },
+        "accoladesAwardsRecognition": {
+            "type": "string"
+        },
+        "purposeProfile": {
+          "type": "string"
         }
       },
       "required": [

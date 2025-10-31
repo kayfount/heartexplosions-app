@@ -52,10 +52,10 @@ export interface UserProfile {
     collaborationStyleOther?: string;
     structurePreference?: string;
     structurePreferenceOther?: string;
-    
-    // The Destination
     focusArea?: 'career' | 'contribution' | 'calling';
     purposeProfile?: string; // Storing the synthesized profile text directly
+    
+    // The Destination
     destinationCompleted?: boolean;
     
     // The Route
