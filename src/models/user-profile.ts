@@ -31,6 +31,8 @@ export interface UserProfile {
     learningAndDevelopment?: string;
     dreamLife?: string;
     careerIdeas?: string[];
+    dreamProjects?: string;
+    lifetimeImpact?: string;
     driverCompleted?: boolean;
     
     // The Destination

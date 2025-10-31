@@ -116,13 +116,12 @@ export function IdeasClient() {
     
     const profileData = {
         careerIdeas: data.careerIdeas.map(idea => idea.value).filter(Boolean), // Filter out empty strings
-        driverCompleted: true, // This is the final step of the driver section
     };
 
     try {
       await saveUserProfile({ uid: user.uid, profileData });
       toast({ title: 'Success', description: 'Your ideas have been saved.' });
-      router.push('/destination');
+      router.push('/driver/goals-visions');
     } catch (error) {
       console.error("Error saving ideas: ", error);
       toast({ title: 'Error', description: 'Could not save your ideas.', variant: 'destructive' });
@@ -208,7 +207,7 @@ export function IdeasClient() {
                 <Link href="/driver/dream-life"><ArrowLeft /> Previous Step</Link>
               </Button>
               <Button type="submit" disabled={isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
-                {isSaving ? <Save className="mr-2 animate-spin" /> : 'Complete The Driver'}
+                {isSaving ? <Save className="mr-2 animate-spin" /> : 'Next Step'}
                 {!isSaving && <ArrowRight className="ml-2" />}
               </Button>
             </div>
