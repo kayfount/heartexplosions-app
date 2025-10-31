@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -148,13 +149,12 @@ export function SkillsClient() {
         skills: data.skills.map(s => s.value).filter(Boolean),
         passions: data.passions.map(p => p.value).filter(Boolean),
         interests: data.interests.map(i => i.value).filter(Boolean),
-        driverCompleted: true,
     };
 
     try {
       await saveUserProfile({ uid: user.uid, profileData });
       toast({ title: 'Success', description: 'Your information has been saved.' });
-      router.push('/destination');
+      router.push('/driver/aspirations');
     } catch (error) {
       console.error("Error saving skills: ", error);
       toast({ title: 'Error', description: 'Could not save your information.', variant: 'destructive' });
@@ -167,7 +167,7 @@ export function SkillsClient() {
 
   return (
     <div>
-      <Progress value={100} className="w-full mb-8 h-2" />
+      <Progress value={90} className="w-full mb-8 h-2" />
       <Card className="bg-card/80">
         <CardHeader>
           <CardTitle className="text-2xl font-bold font-headline">Skills, Passions, Hobbies, and Interests</CardTitle>
@@ -240,7 +240,7 @@ export function SkillsClient() {
                     <Link href="/driver/roles"><ArrowLeft /> Previous Step</Link>
                   </Button>
                   <Button type="submit" disabled={isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
-                    {isSaving ? <Save className="mr-2 animate-spin" /> : 'Complete The Driver'}
+                    {isSaving ? <Save className="mr-2 animate-spin" /> : 'Next Step'}
                     {!isSaving && <ArrowRight className="ml-2" />}
                   </Button>
                 </div>

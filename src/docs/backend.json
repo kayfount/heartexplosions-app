@@ -144,6 +144,30 @@
         },
         "energizingWork": {
             "type": "string"
+        },
+        "age": {
+            "type": "number"
+        },
+        "desiredRetirementAge": {
+            "type": "number"
+        },
+        "location": {
+            "type": "string"
+        },
+        "preferredWorkLifeBalance": {
+            "type": "string"
+        },
+        "longTermAspirations": {
+            "type": "string"
+        },
+        "supportSystem": {
+            "type": "string"
+        },
+        "learningAndDevelopment": {
+            "type": "string"
+        },
+        "dreamLife": {
+            "type": "string"
         }
       },
       "required": [

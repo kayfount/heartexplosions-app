@@ -1,3 +1,4 @@
+
 export interface UserProfile {
     // Basecamp
     firstName?: string;
@@ -17,12 +18,20 @@ export interface UserProfile {
     trifix?: string;
     coreValues?: string[];
     lifePurposeReportId?: string; // This would be a reference to a 'reports' collection
-    driverCompleted?: boolean;
     skills?: string[];
     passions?: string[];
     interests?: string[];
     industrySectors?: string;
     energizingWork?: string;
+    age?: number;
+    desiredRetirementAge?: number;
+    location?: string;
+    preferredWorkLifeBalance?: string;
+    longTermAspirations?: string;
+    supportSystem?: string;
+    learningAndDevelopment?: string;
+    dreamLife?: string;
+    driverCompleted?: boolean;
     
     // The Destination
     focusArea?: 'career' | 'contribution' | 'calling';
