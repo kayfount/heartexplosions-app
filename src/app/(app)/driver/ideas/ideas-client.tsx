@@ -121,7 +121,7 @@ export function IdeasClient() {
     try {
       await saveUserProfile({ uid: user.uid, profileData });
       toast({ title: 'Success', description: 'Your ideas have been saved.' });
-      router.push('/driver/goals-visions');
+      router.push('/driver/ideal-work-environment');
     } catch (error) {
       console.error("Error saving ideas: ", error);
       toast({ title: 'Error', description: 'Could not save your ideas.', variant: 'destructive' });
@@ -143,7 +143,7 @@ export function IdeasClient() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <Card className="bg-[#FAFFEE] border-border">
                 <CardHeader>
-                    <CardTitle className="text-2xl font-bold font-headline">Career, Callings, &amp; Contribution Ideas</CardTitle>
+                    <CardTitle className="font-bold">Career, Callings, &amp; Contribution Ideas</CardTitle>
                     <CardDescription>List all your ideas, sparks, and inspirations for potential paths. Or, let us help you brainstorm!</CardDescription>
                 </CardHeader>
                 <CardContent>

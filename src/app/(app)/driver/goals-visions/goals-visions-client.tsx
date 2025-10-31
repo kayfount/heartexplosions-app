@@ -106,7 +106,7 @@ export function GoalsVisionsClient() {
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
             <Card className="bg-[#FAFFEE] border-border">
                 <CardHeader>
-                    <CardTitle className="text-2xl font-bold font-headline">Goals &amp; Visions</CardTitle>
+                    <CardTitle className="font-bold">Goals &amp; Visions</CardTitle>
                     <CardDescription>Let's get specific about what you want to achieve.</CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-6">
@@ -129,7 +129,7 @@ export function GoalsVisionsClient() {
 
             <div className="flex justify-between items-center pt-4">
               <Button variant="outline" asChild>
-                <Link href="/driver/ideas"><ArrowLeft /> Previous Step</Link>
+                <Link href="/driver/ideal-work-environment"><ArrowLeft /> Previous Step</Link>
               </Button>
               <Button type="submit" disabled={isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
                 {isSaving ? <Save className="mr-2 animate-spin" /> : 'Next Step'}

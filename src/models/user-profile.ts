@@ -44,6 +44,12 @@ export interface UserProfile {
     appetiteForRisk?: string;
     supportSystem?: string;
     additionalConsiderations?: string;
+    workLocation?: string;
+    workLocationOther?: string;
+    collaborationStyle?: string;
+    collaborationStyleOther?: string;
+    structurePreference?: string;
+    structurePreferenceOther?: string;
     
     // The Destination
     focusArea?: 'career' | 'contribution' | 'calling';
