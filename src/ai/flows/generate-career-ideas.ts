@@ -56,32 +56,38 @@ const prompt = ai.definePrompt({
     name: 'generateCareerIdeasPrompt',
     input: { schema: GenerateCareerIdeasInputSchema },
     output: { schema: GenerateCareerIdeasOutputSchema },
-    prompt: `You are an expert career and purpose coach with a deep understanding of the Enneagram. Based on the user's comprehensive profile, generate 3-5 unique and actionable career, calling, or contribution ideas. 
+    prompt: `You are an expert career and purpose coach with a deep understanding of the Enneagram. Your task is to generate 3-5 unique and actionable career, calling, or contribution ideas by performing a deep synthesis of the user's complete profile.
 
-The ideas should be a creative synthesis of their personality (Enneagram), core values, skills, passions, ideal work environment, and life aspirations. The ideas should be specific, inspiring, and feel bespoke to the user. Do not simply list jobs from a pre-defined list. Synthesize the user's data into novel paths.
+The ideas must be bespoke, inspirational, and feel like a compass for their most ideal career path. This is not about listing generic jobs. It's about alchemy—transmuting their personality, values, skills, and dreams into novel paths that honor their full being.
 
-**Reference: Aligned Careers by Enneagram Type**
-${JSON.stringify(dominantTypes.map(t => ({type: t.type_number, careers: t['Type Aligned Careers Examples']})))}
-
-**User Profile:**
+**User's Unique Purpose Archetype & Profile:**
 - **Enneagram Type:** {{{userProfile.enneagramType}}}
 - **Wing:** {{{userProfile.wing}}}
-- **Subtype:** {{{userProfile.subtype}}}
+- **Subtype (Dominant Instinct):** {{{userProfile.subtype}}}
 - **Instinctual Stacking:** {{{userProfile.instinctualStacking}}}
-- **Trifix:** {{{userProfile.trifix}}}
-- **Core Values:** {{#each userProfile.coreValues}}- {{{this}}}{{/each}}
-- **Skills:** {{#each userProfile.skills}}- {{{this}}}{{/each}}
-- **Passions:** {{#each userProfile.passions}}- {{{this}}}{{/each}}
-- **Interests:** {{#each userProfile.interests}}- {{{this}}}{{/each}}
+- **Tritype/Trifix:** {{{userProfile.trifix}}}
+- **Core Values:** {{#if userProfile.coreValues}}{{#each userProfile.coreValues}}- {{{this}}}{{/each}}{{else}}Not specified.{{/if}}
+- **Skills:** {{#if userProfile.skills}}{{#each userProfile.skills}}- {{{this}}}{{/each}}{{else}}Not specified.{{/if}}
+- **Passions:** {{#if userProfile.passions}}{{#each userProfile.passions}}- {{{this}}}{{/each}}{{else}}Not specified.{{/if}}
 - **Work that Energizes Them:** {{{userProfile.energizingWork}}}
 - **Ideal Work Environment:**
     - **Work/Life Balance:** {{{userProfile.preferredWorkLifeBalance}}}
     - **Collaboration Style:** {{{userProfile.collaborationStyle}}}
     - **Structure Preference:** {{{userProfile.structurePreference}}}
-- **Their Dream Life:** {{{userProfile.dreamLife}}}
-- **Their Own Ideas:** {{#each userProfile.careerIdeas}}- {{{this}}}{{/each}}
+- **Their Own Ideas:** {{#if userProfile.careerIdeas}}{{#each userProfile.careerIdeas}}- {{{this}}}{{/each}}{{else}}None listed.{{/if}}
 
-Based on this information, provide a list of 3-5 bespoke ideas in the 'ideas' array. Each idea should be a concise phrase or a short sentence that feels personal and actionable.
+**Reference Data: Aligned Careers by Enneagram Dominant Type (Use for inspiration, not as a definitive list)**
+${JSON.stringify(dominantTypes.map(t => ({type: t.type_number, careers: t['Type Aligned Careers Examples']})))}
+
+**Instructions:**
+1.  **Synthesize, Don't Just List:** Go beyond the reference data. How does their Trifix, Subtype, and Stacking modify the typical careers for their dominant type? For example, a creative Type 3w4 needs a different path than a corporate 3w2.
+2.  **Incorporate Personal Data:** Weave in their skills, passions, and ideal work environment. If they value 'Autonomy' and 'Nature', a remote-first environmental consulting role might be a better fit than a corporate office job.
+3.  **Produce Bespoke Ideas:** The output should be 3-5 concise, actionable phrases. Examples:
+    *   "Founding a design studio for mission-driven startups." (For a creative, entrepreneurial 3w4)
+    *   "Developing therapeutic horticulture programs for community centers." (For a nurturing, nature-loving 2w1)
+    *   "Leading remote-first engineering teams with a focus on sustainable tech." (For a 5w6 who values independence and making an impact)
+
+Generate the list of ideas and place them in the 'ideas' array.
 `,
 });
 

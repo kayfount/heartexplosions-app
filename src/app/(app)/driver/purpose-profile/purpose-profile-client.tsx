@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect, useMemo } from 'react';
@@ -53,26 +52,41 @@ export function PurposeProfileClient() {
     
     setIsGenerating(area);
 
-    if (area === 'career') {
-      const result = await generateCareerIdeasAction({ userProfile });
-      if (result.success && result.data) {
-        setGeneratedContent(prev => ({ ...prev, career: result.data!.ideas }));
-        toast({ title: 'Career Ideas Generated!' });
-      } else {
-        toast({ title: 'Error generating career ideas.', description: result.error, variant: 'destructive'});
-      }
-    } else {
-      const dummyDriverReport = "The user is a Type 9, driven by peace and harmony. They avoid conflict and seek to create a calm and stable environment. Their genius lies in mediation, empathy, and seeing multiple perspectives. Growth edge is in asserting their own needs and priorities.";
-      const result = await synthesizePurposeProfileAction({ focusArea: area, driverReport: dummyDriverReport });
-      if (result.success && result.data) {
-        setGeneratedContent(prev => ({ ...prev, [area]: result.data!.purposeProfile }));
-        toast({ title: `${area.charAt(0).toUpperCase() + area.slice(1)} Profile Generated!` });
-      } else {
-        toast({ title: `Error generating ${area} profile.`, description: result.error, variant: 'destructive'});
-      }
-    }
+    try {
+        if (area === 'career') {
+            const result = await generateCareerIdeasAction({ userProfile });
+            if (result.success && result.data) {
+                setGeneratedContent(prev => ({ ...prev, career: result.data!.ideas }));
+                toast({ title: 'Career Ideas Generated!' });
+            } else {
+                toast({ title: 'Error generating career ideas.', description: result.error, variant: 'destructive'});
+            }
+        } else {
+            const { enneagramType, wing, subtype, instinctualStacking, trifix } = userProfile;
+            const result = await synthesizePurposeProfileAction({
+                focusArea: area,
+                enneagramType,
+                wing,
+                subtype,
+                instinctualStacking,
+                trifix,
+            });
 
-    setIsGenerating(null);
+            if (result.success && result.data) {
+                const newContent = { [area]: result.data.purposeProfile };
+                setGeneratedContent(prev => ({ ...prev, ...newContent }));
+                await saveUserProfile({ uid: user!.uid, profileData: { purposeProfile: result.data.purposeProfile, focusArea: area } });
+                toast({ title: `${area.charAt(0).toUpperCase() + area.slice(1)} Profile Generated & Saved!` });
+            } else {
+                toast({ title: `Error generating ${area} profile.`, description: result.error, variant: 'destructive'});
+            }
+        }
+    } catch (error) {
+        console.error(`Error during ${area} generation:`, error);
+        toast({ title: 'An unexpected error occurred.', variant: 'destructive' });
+    } finally {
+        setIsGenerating(null);
+    }
   };
 
   const handleCompleteDriver = async () => {
