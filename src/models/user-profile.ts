@@ -43,6 +43,7 @@ export interface UserProfile {
     comfortWithUncertainty?: string;
     appetiteForRisk?: string;
     supportSystem?: string;
+    additionalConsiderations?: string;
     
     // The Destination
     focusArea?: 'career' | 'contribution' | 'calling';

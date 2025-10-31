@@ -35,6 +35,7 @@ import Link from 'next/link';
 const formSchema = z.object({
   dreamProjects: z.string().optional(),
   lifetimeImpact: z.string().optional(),
+  additionalConsiderations: z.string().optional(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -58,6 +59,7 @@ export function GoalsVisionsClient() {
     defaultValues: {
         dreamProjects: '',
         lifetimeImpact: '',
+        additionalConsiderations: '',
     }
   });
 
@@ -66,6 +68,7 @@ export function GoalsVisionsClient() {
       form.reset({
         dreamProjects: userProfile.dreamProjects || '',
         lifetimeImpact: userProfile.lifetimeImpact || '',
+        additionalConsiderations: userProfile.additionalConsiderations || '',
       });
     }
   }, [userProfile, form]);
@@ -121,6 +124,13 @@ export function GoalsVisionsClient() {
                     <FormField control={form.control} name="lifetimeImpact" render={({ field }) => (
                         <FormItem>
                             <FormLabel className="font-bold">What impact do you want to have on others in your lifetime?</FormLabel>
+                            <FormControl><Textarea {...field} /></FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}/>
+                    <FormField control={form.control} name="additionalConsiderations" render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="font_bold">Is there anything else to consider for your step-by-step transition path that you didn't already mention?</FormLabel>
                             <FormControl><Textarea {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>
