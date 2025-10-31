@@ -38,7 +38,6 @@ const formSchema = z.object({
   age: z.coerce.number().optional(),
   desiredRetirementAge: z.coerce.number().optional(),
   location: z.string().optional(),
-  preferredWorkLifeBalance: z.string().optional(),
   longTermAspirations: z.string().optional(),
   learningAndDevelopment: z.string().optional(),
   dreamLife: z.string().optional(),
@@ -66,7 +65,6 @@ export function AspirationsClient() {
         age: '' as any,
         desiredRetirementAge: '' as any,
         location: '',
-        preferredWorkLifeBalance: '',
         longTermAspirations: '',
         learningAndDevelopment: '',
         dreamLife: '',
@@ -79,7 +77,6 @@ export function AspirationsClient() {
         age: userProfile.age || '',
         desiredRetirementAge: userProfile.desiredRetirementAge || '',
         location: userProfile.location || '',
-        preferredWorkLifeBalance: userProfile.preferredWorkLifeBalance || '',
         longTermAspirations: userProfile.longTermAspirations || '',
         learningAndDevelopment: userProfile.learningAndDevelopment || '',
         dreamLife: userProfile.dreamLife || '',
@@ -151,13 +148,6 @@ export function AspirationsClient() {
                             </FormItem>
                         )}/>
                     </div>
-                    <FormField control={form.control} name="preferredWorkLifeBalance" render={({ field }) => (
-                        <FormItem>
-                            <FormLabel className="font-bold">Describe your preferred work-life balance</FormLabel>
-                            <FormControl><Textarea {...field} /></FormControl>
-                            <FormMessage />
-                        </FormItem>
-                    )}/>
                     <FormField control={form.control} name="longTermAspirations" render={({ field }) => (
                         <FormItem>
                             <FormLabel className="font-bold">What are your long-term aspirations and personal goals (outside of career)?</FormLabel>

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -145,7 +146,7 @@ export function BoundariesClient() {
                     )}/>
                     <FormField control={form.control} name="workLifeIntegration" render={({ field }) => (
                         <FormItem>
-                            <FormLabel className="font-bold">Work/Life Integration Needs</FormLabel>
+                            <FormLabel className="font-bold">Describe your preferred work-life balance</FormLabel>
                             <FormControl><Textarea placeholder="e.g., Need flexible hours, ability to work remotely, cannot work weekends..." {...field} /></FormControl>
                             <FormMessage />
                         </FormItem>

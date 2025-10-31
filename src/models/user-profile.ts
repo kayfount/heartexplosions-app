@@ -1,3 +1,4 @@
+
 export interface UserProfile {
     // Basecamp
     firstName?: string;
@@ -25,7 +26,6 @@ export interface UserProfile {
     age?: number;
     desiredRetirementAge?: number;
     location?: string;
-    preferredWorkLifeBalance?: string;
     longTermAspirations?: string;
     learningAndDevelopment?: string;
     dreamLife?: string;
@@ -57,5 +57,3 @@ export interface UserProfile {
     routePlan?: string; // Storing the generated route plan text directly
     routeCompleted?: boolean;
 }
-
-    
