@@ -149,7 +149,7 @@ export function AspirationsClient() {
                         )}/>
                         <FormField control={form.control} name="location" render={({ field }) => (
                             <FormItem>
-                                <FormLabel>Location (City, State)</FormLabel>
+                                <FormLabel>Location (City, State, Country)</FormLabel>
                                 <FormControl><Input {...field} /></FormControl>
                                 <FormMessage />
                             </FormItem>
