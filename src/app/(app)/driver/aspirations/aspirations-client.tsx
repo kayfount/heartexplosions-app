@@ -25,7 +25,6 @@ import {
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { Progress } from '@/components/ui/progress';
 import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, getFirestore } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -117,7 +116,6 @@ export function AspirationsClient() {
 
   return (
     <div>
-      <Progress value={95} className="w-full mb-8 h-2" />
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
             <Loader2 className="animate-spin size-8" />

@@ -27,7 +27,6 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
-import { Progress } from '@/components/ui/progress';
 import { useUser, useCollection, useMemoFirebase } from '@/firebase';
 import { collection, doc, getFirestore, setDoc } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -285,8 +284,6 @@ export function RolesClient() {
 
   return (
     <div>
-        <Progress value={75} className="w-full mb-8 h-2" />
-
         <Card className="mb-8 bg-card/80">
             <CardHeader>
                 <CardTitle className="text-2xl font-bold font-headline">Past Roles & Experiences</CardTitle>

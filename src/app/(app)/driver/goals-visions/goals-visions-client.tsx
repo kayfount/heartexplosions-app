@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -23,7 +24,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Textarea } from '@/components/ui/textarea';
-import { Progress } from '@/components/ui/progress';
 import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, getFirestore } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -97,7 +97,6 @@ export function GoalsVisionsClient() {
 
   return (
     <div>
-      <Progress value={100} className="w-full mb-8 h-2" />
       {isLoading ? (
         <div className="flex justify-center items-center h-64">
             <Loader2 className="animate-spin size-8" />

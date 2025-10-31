@@ -25,8 +25,6 @@ import {
   FormMessage,
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Progress } from '@/components/ui/progress';
 import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, getFirestore } from 'firebase/firestore';
 import { useToast } from '@/hooks/use-toast';
@@ -34,7 +32,6 @@ import { useRouter } from 'next/navigation';
 import type { UserProfile } from '@/models/user-profile';
 import { saveUserProfile } from '@/app/actions';
 import Link from 'next/link';
-import { cn } from '@/lib/utils';
 
 const formSchema = z.object({
   skills: z.array(z.object({ value: z.string().min(1, 'Skill cannot be empty.') })),
@@ -164,7 +161,6 @@ export function SkillsClient() {
 
   return (
     <div>
-      <Progress value={90} className="w-full mb-8 h-2" />
       <Card className="bg-card/80">
         <CardHeader>
           <CardTitle className="text-2xl font-bold font-headline">Skills, Passions, and Hobbies</CardTitle>

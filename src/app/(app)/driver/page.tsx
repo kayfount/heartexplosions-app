@@ -8,13 +8,13 @@ import { cn } from '@/lib/utils';
 export default function DriverPage() {
   return (
     <div className="container mx-auto max-w-5xl p-4 md:p-8">
-      <div className="flex items-center gap-4 mb-6">
+      <div className="flex flex-col items-center text-center gap-4 mb-8">
         <Car className="size-10 text-primary" />
-        <h1 className="text-4xl font-bold font-headline">Determine Your Unique Purpose Archetype</h1>
+        <div>
+           <h1 className="text-4xl font-bold font-headline">01 The Driver</h1>
+           <p className="text-lg text-foreground/80 mt-1">Discover what truly motivates you.</p>
+        </div>
       </div>
-      <p className="text-lg text-foreground/80 mb-8">
-        Your UPA is a high-resolution snapshot of how you're wired to contribute to the world, built using five deep dimensions of the Enneagram.
-      </p>
       
       <DriverForm />
 
