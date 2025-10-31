@@ -5,11 +5,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Loader2, Briefcase, HeartHandshake, Star, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Loader2, Briefcase, HeartHandshake, Star, ArrowRight, ArrowLeft, BookOpen } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
-import { generateCareerIdeasAction, synthesizePurposeProfileAction, saveUserProfile } from '@/app/actions';
+import { generateCareerIdeasAction, synthesizePurposeProfileAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 import { useUser, useDoc, useMemoFirebase } from '@/firebase';
 import { doc, getFirestore } from 'firebase/firestore';
 import type { UserProfile } from '@/models/user-profile';
@@ -32,6 +31,7 @@ export function PurposeProfileClient() {
     calling: '',
   });
   const [isSaving, setIsSaving] = useState(false);
+  const [hasGenerated, setHasGenerated] = useState(false);
 
   const { toast } = useToast();
   const router = useRouter();
@@ -44,8 +44,18 @@ export function PurposeProfileClient() {
   }, [user?.uid, firestore]);
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userProfileRef);
 
+  useEffect(() => {
+    if (userProfile) {
+        setGeneratedContent({
+            career: userProfile.careerIdeas || [],
+            contribution: userProfile.contributionProfile || '',
+            calling: userProfile.callingProfile || '',
+        });
+    }
+  }, [userProfile]);
+
   const handleGenerate = async (area: FocusArea) => {
-    if (!userProfile) {
+    if (!userProfile || !user) {
         toast({ title: 'Please complete your profile first.', variant: 'destructive'});
         return;
     }
@@ -54,10 +64,10 @@ export function PurposeProfileClient() {
 
     try {
         if (area === 'career') {
-            const result = await generateCareerIdeasAction({ userProfile });
+            const result = await generateCareerIdeasAction({ userProfile, uid: user.uid });
             if (result.success && result.data) {
                 setGeneratedContent(prev => ({ ...prev, career: result.data!.ideas }));
-                toast({ title: 'Career Ideas Generated!' });
+                toast({ title: 'Career Ideas Generated & Saved!' });
             } else {
                 toast({ title: 'Error generating career ideas.', description: result.error, variant: 'destructive'});
             }
@@ -70,17 +80,21 @@ export function PurposeProfileClient() {
                 subtype,
                 instinctualStacking,
                 trifix,
+                uid: user.uid,
             });
 
             if (result.success && result.data) {
-                const newContent = { [area]: result.data.purposeProfile };
-                setGeneratedContent(prev => ({ ...prev, ...newContent }));
-                await saveUserProfile({ uid: user!.uid, profileData: { purposeProfile: result.data.purposeProfile, focusArea: area } });
+                const newContent = area === 'contribution' 
+                    ? { contributionProfile: result.data.purposeProfile }
+                    : { callingProfile: result.data.purposeProfile };
+
+                setGeneratedContent(prev => ({ ...prev, [area]: result.data!.purposeProfile }));
                 toast({ title: `${area.charAt(0).toUpperCase() + area.slice(1)} Profile Generated & Saved!` });
             } else {
                 toast({ title: `Error generating ${area} profile.`, description: result.error, variant: 'destructive'});
             }
         }
+        setHasGenerated(true);
     } catch (error) {
         console.error(`Error during ${area} generation:`, error);
         toast({ title: 'An unexpected error occurred.', variant: 'destructive' });
@@ -141,15 +155,16 @@ export function PurposeProfileClient() {
                          </motion.div>
                     )}
                     </AnimatePresence>
-
-                    {area.id === 'career' && Array.isArray(generatedContent.career) && generatedContent.career.length > 0 && (
-                        <ul className="list-disc pl-5 space-y-2">
-                            {generatedContent.career.map((idea, index) => <li key={index}>{idea}</li>)}
-                        </ul>
-                    )}
-                     {area.id !== 'career' && typeof generatedContent[area.id] === 'string' && generatedContent[area.id] && (
-                        <p className="whitespace-pre-wrap font-body">{generatedContent[area.id]}</p>
-                    )}
+                    
+                    <div className="prose max-w-none text-foreground/90 whitespace-pre-wrap font-body">
+                        {area.id === 'career' && Array.isArray(generatedContent.career) && generatedContent.career.length > 0 && (
+                            <ul className="list-disc pl-5 space-y-2">
+                                {generatedContent.career.map((idea, index) => <li key={index}>{idea}</li>)}
+                            </ul>
+                        )}
+                        {area.id === 'contribution' && generatedContent.contribution && <p>{generatedContent.contribution}</p>}
+                        {area.id === 'calling' && generatedContent.calling && <p>{generatedContent.calling}</p>}
+                    </div>
                     
                     <Button onClick={() => handleGenerate(area.id)} disabled={!!isGenerating} className="mt-4">
                         Generate {area.title}
@@ -163,10 +178,17 @@ export function PurposeProfileClient() {
             <Button variant="outline" asChild>
                 <Link href="/driver/experimentation"><ArrowLeft /> Previous Step</Link>
             </Button>
-            <Button onClick={handleCompleteDriver} disabled={isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
-                {isSaving && <Loader2 className="animate-spin mr-2" />}
-                Complete The Driver & Proceed <ArrowRight className="ml-2"/>
-            </Button>
+            <div className="flex gap-4">
+                 {hasGenerated && (
+                     <Button variant="outline" asChild>
+                        <Link href="/insights"><BookOpen className="mr-2"/> Go to Insights</Link>
+                    </Button>
+                )}
+                <Button onClick={handleCompleteDriver} disabled={isSaving} className="bg-primary-gradient text-primary-foreground font-bold">
+                    {isSaving && <Loader2 className="animate-spin mr-2" />}
+                    Complete The Driver & Proceed <ArrowRight className="ml-2"/>
+                </Button>
+            </div>
         </div>
     </>
   );

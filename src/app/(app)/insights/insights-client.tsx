@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo } from 'react';
@@ -10,7 +9,7 @@ import type { LifePurposeReport } from '@/models/life-purpose-report';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
-import { Download, FileText, Loader2, Sparkles, Car, MapPin, Route as RouteIcon } from 'lucide-react';
+import { Download, FileText, Loader2, Sparkles, Car, MapPin, Route as RouteIcon, HeartHandshake, Briefcase, Star } from 'lucide-react';
 import { Separator } from '@/components/ui/separator';
 import { CoachChat } from './coach-chat';
 
@@ -83,7 +82,29 @@ export function InsightsClient() {
                     description="The guiding principles for your decisions and actions."
                     content={userProfile.coreValues ? userProfile.coreValues.join(', ') : 'Not yet defined.'}
                 />
+                 <InsightCard
+                    icon={<Briefcase />}
+                    title="Generated Career Ideas"
+                    description="Bespoke career ideas aligned with your unique profile."
+                    content={userProfile.careerIdeas && userProfile.careerIdeas.length > 0 ? userProfile.careerIdeas.join('\n') : "No career ideas generated yet."}
+                    isAccordion
+                />
                 <InsightCard
+                    icon={<HeartHandshake />}
+                    title="Your Contribution Profile"
+                    description="An exploration of your unique gifts and offerings for the world."
+                    content={userProfile.contributionProfile || "No contribution profile generated yet."}
+                    isAccordion
+                />
+                <InsightCard
+                    icon={<Star />}
+                    title="Your Calling Profile"
+                    description="An insight into the highest spiritual calling of your unique purpose archetype."
+                    content={userProfile.callingProfile || "No calling profile generated yet."}
+                    isAccordion
+                />
+                <InsightCard
+                    icon={<FileText />}
                     title="Your Life Purpose Report"
                     description="An AI-generated reading of your unique essence, core energies, and how you're wired to thrive."
                     content={lifePurposeReport?.report || "No report generated yet. Complete 'The Driver' step to create it."}
@@ -147,13 +168,14 @@ export function InsightsClient() {
 }
 
 interface InsightCardProps {
+    icon?: React.ReactNode;
     title: string;
     description: string;
     content: string | null;
     isAccordion?: boolean;
 }
 
-function InsightCard({ title, description, content, isAccordion }: InsightCardProps) {
+function InsightCard({ icon, title, description, content, isAccordion }: InsightCardProps) {
 
     const handleDownload = () => {
         // Placeholder for PDF generation logic
@@ -182,19 +204,22 @@ function InsightCard({ title, description, content, isAccordion }: InsightCardPr
     return (
         <Card className="bg-card/80">
             <CardHeader>
-                <CardTitle>{title}</CardTitle>
+                <div className="flex items-center gap-2">
+                    {icon}
+                    <CardTitle>{title}</CardTitle>
+                </div>
                 <CardDescription>{description}</CardDescription>
             </CardHeader>
             <CardContent>
                 {renderContent()}
             </CardContent>
-            <div className="p-6 pt-0 flex justify-end gap-2">
-                {isAccordion && content && (
+            {isAccordion && content && (
+                <CardContent className="flex justify-end gap-2">
                     <Button variant="outline" onClick={handleDownload}>
                         <Download className="mr-2"/> Download PDF
                     </Button>
-                )}
-            </div>
+                </CardContent>
+            )}
         </Card>
     )
 }

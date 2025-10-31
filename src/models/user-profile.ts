@@ -54,6 +54,8 @@ export interface UserProfile {
     structurePreferenceOther?: string;
     focusArea?: 'career' | 'contribution' | 'calling';
     purposeProfile?: string; // Storing the synthesized profile text directly
+    contributionProfile?: string;
+    callingProfile?: string;
     
     // The Destination
     destinationCompleted?: boolean;

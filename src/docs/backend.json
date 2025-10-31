@@ -235,6 +235,17 @@
         },
         "accoladesAwardsRecognition": {
             "type": "string"
+        },
+        "purposeProfile": {
+          "type": "string"
+        },
+        "contributionProfile": {
+          "type": "string",
+          "description": "The user's generated contribution profile text."
+        },
+        "callingProfile": {
+          "type": "string",
+          "description": "The user's generated calling profile text."
         }
       },
       "required": [

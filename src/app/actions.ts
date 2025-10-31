@@ -48,9 +48,32 @@ export async function generateReportAction(input: GenerateReportActionInput) {
   }
 }
 
-export async function synthesizePurposeProfileAction(input: SynthesizePurposeProfileInput) {
+interface SynthesizePurposeProfileActionInput extends SynthesizePurposeProfileInput {
+    uid: string;
+}
+
+export async function synthesizePurposeProfileAction(input: SynthesizePurposeProfileActionInput) {
+  const { uid, ...flowInput } = input;
+  if (!uid) {
+    return { success: false, error: 'User not authenticated.' };
+  }
   try {
-    const result = await synthesizePurposeProfile(input);
+    const result = await synthesizePurposeProfile(flowInput);
+
+    const profileUpdate: Partial<UserProfile> = {};
+    if (input.focusArea === 'contribution') {
+        profileUpdate.contributionProfile = result.purposeProfile;
+    } else if (input.focusArea === 'calling') {
+        profileUpdate.callingProfile = result.purposeProfile;
+    }
+
+    if (Object.keys(profileUpdate).length > 0) {
+        await saveUserProfile({ uid, profileData: profileUpdate });
+    }
+
+    revalidatePath('/driver/purpose-profile');
+    revalidatePath('/insights');
+
     return { success: true, data: result };
   } catch (error) {
     console.error(error);
@@ -78,10 +101,30 @@ export async function coachInteractionAction(input: InteractWithAiCoachInput) {
     }
 }
 
-export async function generateCareerIdeasAction(input: GenerateCareerIdeasInput) {
+interface GenerateCareerIdeasActionInput extends GenerateCareerIdeasInput {
+    uid: string;
+}
+
+export async function generateCareerIdeasAction(input: GenerateCareerIdeasActionInput) {
+    const { uid, ...flowInput } = input;
+    if (!uid) {
+        return { success: false, error: 'User not authenticated.' };
+    }
     try {
-        const result = await generateCareerIdeas(input);
-        return { success: true, data: result };
+        const result = await generateCareerIdeas(flowInput);
+
+        const currentIdeas = input.userProfile.careerIdeas || [];
+        const newIdeas = result.ideas;
+        const combinedIdeas = [...currentIdeas, ...newIdeas];
+        const uniqueIdeas = Array.from(new Set(combinedIdeas));
+        
+        await saveUserProfile({ uid, profileData: { careerIdeas: uniqueIdeas }});
+        
+        revalidatePath('/driver/purpose-profile');
+        revalidatePath('/insights');
+
+        return { success: true, data: { ideas: uniqueIdeas } };
+
     } catch (error) {
         console.error(error);
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
