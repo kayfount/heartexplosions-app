@@ -174,7 +174,7 @@ function RoleForm({ index, remove }: { index: number; remove: (index: number) =>
               <FormLabel>Heart Explosions Level: {sliderValue}/10</FormLabel>
               <FormMessage />
               <FormControl>
-                <>
+                <div>
                   <Slider
                     value={[value]}
                     onValueChange={(vals) => onChange(vals[0])}
@@ -182,8 +182,8 @@ function RoleForm({ index, remove }: { index: number; remove: (index: number) =>
                     step={1}
                     {...rest}
                   />
-                  <p className="text-sm text-muted-foreground">How aligned and energized did this role make you feel? (10 = highest alignment & passion)</p>
-                </>
+                  <p className="text-sm text-muted-foreground mt-2">How aligned and energized did this role make you feel? (10 = highest alignment & passion)</p>
+                </div>
               </FormControl>
             </FormItem>
           )}
@@ -234,7 +234,7 @@ export function RolesClient() {
     },
   });
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, control } = useFieldArray({
     control: form.control,
     name: 'roles',
   });
